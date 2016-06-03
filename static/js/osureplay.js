@@ -186,40 +186,174 @@ var ReplayParser = function(replay_data){
 };
 
 /**
+ * Created by Ugrend on 3/06/2016.
+ */
+
+osu = osu || {};
+
+osu.GAMETYPES = {
+    NORMAL: 0,
+    TAIKO: 1,
+    CTB: 2,
+    MANIA: 3
+};
+/**
+ * Created by Ugrend on 2/06/2016.
+ */
+//https://osu.ppy.sh/wiki/Game_Modifiers
+//https://github.com/ppy/osu-api/wiki#mods
+var osu  = osu || {};
+
+
+osu.mods = Object.freeze({
+
+    //anything higher than 4096 i don't really care about i don't think
+    __mods: {
+
+        NONE: {value: 0, multi: 1.0, code: "", name: "No Mod", icon: ""},
+        NO_FAIL: {value: 1, multi: 0.5, code: "NF", name: "No Fail", icon: ""},
+        EASY: {value: 2, multi: 0.5, code: "EZ", name: "Easy", icon: ""},
+        NO_VIDEO: {value: 4, multi: 1.0, code: "", name: "No Video", icon: ""},
+        HIDDEN: {value: 8, multi: 1.06, code: "HD", name: "Hidden", icon: ""},
+        HARD_ROCK: {value: 16, multi: 1.06, code: "HR", name: "Hard Rock", icon: ""},
+        SUDDEN_DEATH: {value: 32, multi: 1.0, code: "SD", name: "Sudden Death", icon: ""},
+        DOUBLE_TIME: {value: 64, multi: 1.12, code: "DT", name: "Double Time", icon: ""},
+        RELAX: {value: 128, multi: 0, code: "", name: "", icon: "Relax"},
+        HALF_TIME: {value: 256, multi: 0.3, code: "HT", name: "Half Time", icon: ""},
+        NIGHT_CORE: {value: 512, multi: 1.12, code: "NT", name: "Night Core", icon: ""},
+        FLASH_LIGHT: {value: 1024, multi: 1.12, code: "FL", name: "Flash Light", icon: ""},
+        AUTO_PLAY: {value: 2048, multi: 0, code: "", name: "Auto Play", icon: ""},
+        SPUN_OUT: {value: 4096, multi: 0.9, code: "SO", name: "Spun Out", icon: ""}
+    },
+    /**
+     * gets used mods based on replay mod int value
+     * @param mod_bit_int {Number} value of replay mod output
+     * @returns {Array} of mods
+     */
+    getMods: function(mod_bit_int){
+        var mods = [];
+        if (mod_bit_int == 0) {
+            mods.push(this.__mods.NONE);
+            return mods;
+        }
+        for (var k in this.__mods) {
+            var bit = mod_bit_int & this.__mods[k].value;
+            if (bit == this.__mods[k].value) {
+                mods.push(this.__mods[k]);
+            }
+        }
+        return mods;
+    },
+    /**
+     * Gets mod based on value
+     * @param mod_int {Number} value of desired mod
+     * @returns {object} Mod object or Empty object if nothing found
+     */
+    getModFromVal: function(mod_int){
+        for (var k in this.__mods) {
+            if (this.__mods[k].value == mod_int) {
+                return this.__mods[k]
+            }
+        }
+        return {}
+    }
+});
+
+
+/**
  * Created by ugrend on 2/06/2016.
  */
 
-MODS = {
-    NONE: 0,
-    NO_FAIL: 1,
-    EASY: 2,
-    NO_VIDEO: 4,
-    HIDDEN: 8,
-    HARD_ROCK: 16,
-    SUDDEN_DEATH: 32,
-    DOUBLE_TIME: 64,
-    RELAX: 128,
-    HALF_TIME: 256,
-    NIGHT_CORE: 512,
-    FLASH_LIGHT: 1024,
-    AUTO_PLAY: 2048,
-    SPUN_OUT: 4096
-};
+var osu  = osu || {};
+osu.score = {
 
-MOD_MULTI = {
-    NONE: 1.0,
-    NO_FAIL: 0.5,
-    EASY: 0.5,
-    NO_VIDEO: 1,
-    HIDDEN: 1.06,
-    HARD_ROCK: 1.06,
-    SUDDEN_DEATH: 1,
-    DOUBLE_TIME: 1.12,
-    RELAX: 0,
-    HALF_TIME: 0.3,
-    NIGHT_CORE: 1.12,
-    FLASH_LIGHT: 1.12,
-    AUTO_PLAY: 0,
-    SPUN_OUT: 0.9
+
+    /*
+     Accuracy = Total points of hits / (Total number of hits * 300)
+     Total points of hits 	(Number of 50s * 50 + Number of 100s * 100 + Number of 300s * 300)
+     Total number of hits 	(Number of misses + Number of 50's + Number of 100's + Number of 300's)
+
+     For reference: 300 = 6/6, 100 = 2/6, 50 = 1/6, Miss = 0/6.
+
+     */
+
+    GRADES: Object.freeze({
+        SS: {name:"SS",small_icn:"",large_icn:""},
+        S:  {name:"S",small_icn:"",large_icn:""},
+        A:  {name:"A",small_icn:"",large_icn:""},
+        B:  {name:"B",small_icn:"",large_icn:""},
+        C:  {name:"C",small_icn:"",large_icn:""},
+        D:  {name:"D",small_icn:"",large_icn:""},
+        SSH:  {name:"SSH",small_icn:"",large_icn:""},
+        SH:  {name:"SH",small_icn:"",large_icn:""}
+    }),
+
+
+    /**
+     *
+     * @param h300  {Number}
+     * @param h100  {Number}
+     * @param h50   {Number}
+     * @param hMisses {Number}
+     * @returns
+     */
+    getGrade: function(h300,h100,h50,hMisses){
+        /*
+         SS = 100% Accuracy
+         S = Over 90% 300s, less than 1% 50s and no misses.
+         A = Over 80% 300s and no misses OR over 90% 300s.
+         B = Over 70% 300s and no misses OR over 80% 300s.
+         C = Over 60% 300s.
+         D = Anything else.
+
+
+         Special grades
+
+         Silver SS (SSH) = Normal grade SS with 'hidden' and/or 'flashlight' mod.
+         Silver S (SH) = Normal grade S with 'hidden' and/or 'flashlight' mod.
+
+         */
+        var total_hits =  h300 + h100 + h50 + hMisses;
+        if(h300 == total_hits){
+            return this.GRADES.SS
+        }
+        if((h300/total_hits)*100 > 90) {
+            if (hMisses > 0 || (h50 / total_hits) * 100 > 1) {
+                return this.GRADES.A;
+            }
+            return this.GRADES.S;
+        }
+        if((h300/total_hits)*100 > 80) {
+            if (hMisses > 0) {
+                return this.GRADES.B;
+            }
+            return this.GRADES.A;
+        }
+        if((h300/total_hits)*100 > 70) {
+            if (hMisses > 0) {
+                return this.GRADES.C;
+            }
+            return this.GRADES.B;
+        }
+        if((h300/total_hits)*100 > 60) {
+            return this.GRADES.C;
+        }
+        return this.GRADES.D;
+    },
+
+    getAccuracy: function(h300,h100,h50,hMisses){
+        //TODO: This calculation doesn't seem to get same results as game, i must be missing something
+        var maxHits = (h300 + h100 + h50 + hMisses)*300;
+        var actualHits = (h300*300 + h100*100 + h50*50);
+        return parseFloat((actualHits / maxHits * 100).toFixed(2));
+    },
+
+    parseAccuracyFromReplay: function (replay) {
+        return this.getAccuracy(replay.h300 + replay.hGekis, replay.h100 + replay.hKatus, replay.h50, replay.hMisses)
+    }
+
+
+
+
 
 };
