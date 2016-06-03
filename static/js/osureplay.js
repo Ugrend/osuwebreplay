@@ -70,8 +70,9 @@ else {
         if(file.name.split(".").pop() !== "osr"){
             dragDropLabel.innerHTML = "that aint no osr file manz";
             resetLabel();
+        }else{
+            reader.readAsBinaryString(file);
         }
-        reader.readAsBinaryString(file);
         return false;
     };
 }

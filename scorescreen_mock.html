@@ -1,0 +1,341 @@
+<!--
+
+ Note this file will be removed just using it to template
+
+ -->
+
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <title>Replays</title>
+    <link rel="stylesheet" href="static/css/osureplay.css">
+</head>
+<body bgcolor="#2E2E2E">
+<script src="static/libs/js/pixijs.js"></script>
+<script>
+
+    var renderWidth = window.innerWidth *.98;
+    var renderHeight = window.innerHeight *.98
+
+
+    var renderer = PIXI.autoDetectRenderer(renderWidth,renderHeight ,{transparent: true});
+    document.body.appendChild(renderer.view);
+
+    // create the root of the scene graph
+    var stage = new PIXI.Container();
+
+    //BACKGROUND STUFF
+    var background = PIXI.Texture.fromImage('data/158023 UNDEAD CORPORATION - Everything will freeze/bg.jpg');
+    var background_sprite = new PIXI.Sprite(background);
+    background_sprite.width = renderer.width;
+    background_sprite.height = renderer.height;
+    background_sprite.position.x = 0;
+    background_sprite.position.y = 0;
+    stage.addChild(background_sprite);
+
+    var background_dimmer = new PIXI.Graphics();
+    background_dimmer.beginFill(0x0, 0.5);
+    background_dimmer.drawRect(0, 0, renderWidth, renderHeight);
+    stage.addChild(background_dimmer)
+    stage.interactive = true;
+
+
+
+    //MAP DETAILS AREA MAP NAME ETC
+
+    var map_details_area = new PIXI.Graphics();
+
+    map_details_area.beginFill(0x0,0.8);
+    map_details_area.drawRect(0, 0, renderWidth, renderHeight *.13);
+    map_details_area.lineStyle(renderHeight *.006,0xE6E6E6,1);
+    map_details_area.drawRect(0,renderHeight *.13,renderWidth,1);
+
+    var font_size_heading = Math.round((renderHeight+renderWidth)/100).toString();
+    var font_size_description = Math.round((renderHeight+renderWidth)/150).toString();
+    var map_details_heading_style = {
+        font: font_size_heading + 'px Lucida Sans Unicode',
+        fill: '#FFFFFF',
+    };
+    var map_details_style = {
+        font: font_size_description+'px Lucida Sans Unicode',
+        fill: '#FFFFFF'
+    };
+    var map_name_text = new PIXI.Text("UNDEAD CORPORATION - Everything will freeze [Time Freeze]", map_details_heading_style);
+    map_name_text.x = 5;
+    map_name_text.y = renderHeight *0.01;
+
+    var map_made_by = new PIXI.Text("Beatmap by Ekoro", map_details_style);
+    map_made_by.x = 5;
+    map_made_by.y = map_name_text.y + (renderHeight * 0.04);
+
+    var map_played_by = new PIXI.Text("Played by Cookiezi on 1/3/2016 10:47:12 AM.", map_details_style);
+    map_played_by.x = 5;
+    map_played_by.y = map_made_by.y + (renderHeight * 0.03);
+
+    stage.addChild(map_details_area);
+    stage.addChild(map_name_text);
+    stage.addChild(map_made_by);
+    stage.addChild(map_played_by);
+
+
+
+
+    //SCORING
+
+    //TOTAL SCORE
+    var scoreBox = new PIXI.Graphics();
+
+    scoreBox.beginFill(0x0,0.7);
+    scoreBox.lineStyle(5,0xFFFFFF,1);
+    scoreBox.drawRect(renderWidth *.015, renderHeight *.15, renderWidth *.46, renderHeight *.1);
+
+    var scoreLabel = new PIXI.Text("Score", map_details_heading_style);
+    scoreLabel.x = renderWidth *.02;
+    scoreLabel.y = renderHeight *.215;
+
+    var score_font_size = Math.round((renderHeight+renderWidth)/32).toString();
+
+    var score_font_style = {
+        font: 'bold ' + score_font_size + 'px  Lucida Sans Unicode',
+        fill: '#FFFFFF'
+    };
+
+    var totalScoreText = new PIXI.Text("96940380",score_font_style);
+    totalScoreText.x = renderWidth *.30;
+    totalScoreText.y = renderHeight *.2;
+    totalScoreText.anchor.set(0.5);
+
+    stage.addChild(scoreBox);
+    stage.addChild(scoreLabel);
+    stage.addChild(totalScoreText);
+
+
+    //300
+    var scoreBox300 = new PIXI.Graphics();
+
+    scoreBox300.beginFill(0x0,0.7);
+    scoreBox300.lineStyle(5,0xFFFFFF,1);
+    scoreBox300.drawRect(renderWidth *.015, renderHeight *.3, renderWidth *.46, renderHeight *.1);
+
+    var total300hits = new PIXI.Text("1558x", score_font_style);
+    total300hits.x = renderWidth *.16;
+    total300hits.y = renderHeight *.35;
+    total300hits.anchor.set(0.5);
+
+    var totalGekihits = new PIXI.Text("276x", score_font_style);
+    totalGekihits.x = renderWidth *.39;
+    totalGekihits.y = renderHeight *.35;
+    totalGekihits.anchor.set(0.5);
+
+
+    var hit300png = PIXI.Texture.fromImage('data/hit300.png');
+    var hit300Sprite = new PIXI.Sprite(hit300png);
+    var hitGekiSprite = new PIXI.Sprite(hit300png);
+
+    hit300Sprite.position.x = renderWidth *.05;
+    hit300Sprite.position.y = renderHeight *.35;
+    hit300Sprite.width = renderWidth *.05;
+    hit300Sprite.height = renderHeight *.09;
+    hit300Sprite.anchor.set(0.5);
+
+    hitGekiSprite.position.x = renderWidth *.29;
+    hitGekiSprite.position.y = renderHeight *.35;
+    hitGekiSprite.width = renderWidth *.05;
+    hitGekiSprite.height = renderHeight *.09;
+    hitGekiSprite.anchor.set(0.5);
+
+
+
+    stage.addChild(scoreBox300);
+    stage.addChild(total300hits);
+    stage.addChild(totalGekihits);
+    stage.addChild(hit300Sprite);
+    stage.addChild(hitGekiSprite);
+
+    //100
+    var scoreBox100 = new PIXI.Graphics();
+
+    scoreBox100.beginFill(0x0,0.7);
+    scoreBox100.lineStyle(5,0xFFFFFF,1);
+    scoreBox100.drawRect(renderWidth *.015, renderHeight *.43, renderWidth *.46, renderHeight *.1);
+
+
+
+    var total100hits = new PIXI.Text("32x", score_font_style);
+    total100hits.x = renderWidth *.16;
+    total100hits.y = renderHeight *.48;
+    total100hits.anchor.set(0.5);
+
+    var totalKatuhits = new PIXI.Text("20x", score_font_style);
+    totalKatuhits.x = renderWidth *.39;
+    totalKatuhits.y = renderHeight *.48;
+    totalKatuhits.anchor.set(0.5);
+
+
+
+
+    var hit100png = PIXI.Texture.fromImage('data/hit100.png');
+    var hit100Sprite = new PIXI.Sprite(hit100png);
+    var hitKatuSprite = new PIXI.Sprite(hit100png);
+
+    hit100Sprite.position.x = renderWidth *.05;
+    hit100Sprite.position.y = renderHeight *.48;
+    hit100Sprite.width = renderWidth *.05;
+    hit100Sprite.height = renderHeight *.09;
+    hit100Sprite.anchor.set(0.5);
+
+    hitKatuSprite.position.x = renderWidth *.29;
+    hitKatuSprite.position.y = renderHeight *.48;
+    hitKatuSprite.width = renderWidth *.05;
+    hitKatuSprite.height = renderHeight *.09;
+    hitKatuSprite.anchor.set(0.5);
+
+    stage.addChild(scoreBox100);
+    stage.addChild(total100hits);
+    stage.addChild(totalKatuhits);
+    stage.addChild(hit100Sprite);
+    stage.addChild(hitKatuSprite);
+
+    //50/miss
+    var scoreBox50 = new PIXI.Graphics();
+
+    scoreBox50.beginFill(0x0,0.7);
+    scoreBox50.lineStyle(5,0xFFFFFF,1);
+    scoreBox50.drawRect(renderWidth *.015, renderHeight *.56, renderWidth *.46, renderHeight *.1);
+
+    var total50hits = new PIXI.Text("0x", score_font_style);
+    total50hits.x = renderWidth *.16;
+    total50hits.y = renderHeight *.61;
+    total50hits.anchor.set(0.5);
+
+    var totalMisses = new PIXI.Text("0x", score_font_style);
+    totalMisses.x = renderWidth *.39;
+    totalMisses.y = renderHeight *.61;
+    totalMisses.anchor.set(0.5);
+
+
+    var hit50png = PIXI.Texture.fromImage('data/hit50.png');
+    var hit0png = PIXI.Texture.fromImage('data/hit0.png');
+    var hit50Sprite = new PIXI.Sprite(hit50png);
+    var hit0Sprite = new PIXI.Sprite(hit0png);
+
+
+    hit50Sprite.position.x = renderWidth *.05;
+    hit50Sprite.position.y = renderHeight *.61;
+    hit50Sprite.width = renderWidth *.05;
+    hit50Sprite.height = renderHeight *.09;
+    hit50Sprite.anchor.set(0.5);
+
+    hit0Sprite.position.x = renderWidth *.29;
+    hit0Sprite.position.y = renderHeight *.61;
+    hit0Sprite.width = renderWidth *.05;
+    hit0Sprite.height = renderHeight *.09;
+    hit0Sprite.anchor.set(0.5);
+
+
+
+    stage.addChild(scoreBox50);
+    stage.addChild(total50hits);
+    stage.addChild(totalMisses);
+    stage.addChild(hit50Sprite);
+    stage.addChild(hit0Sprite);
+
+
+
+
+    //Combo/Accuracy
+    var scoreBoxCombo = new PIXI.Graphics();
+
+
+    var maxComboLabel = new PIXI.Text("Max Combo", map_details_heading_style);
+    maxComboLabel.x = renderWidth *.02;
+    maxComboLabel.y = renderHeight *.68;
+
+    var accuracyLabel = new PIXI.Text("Accuracy", map_details_heading_style);
+    accuracyLabel.x = renderWidth *.3;
+    accuracyLabel.y = renderHeight *.68;
+
+
+    var maxCombo = new PIXI.Text("2042x", score_font_style);
+    maxCombo.x = renderWidth *.02;
+    maxCombo.y = renderHeight *.705;
+
+    var accuracy = new PIXI.Text("98.66%", score_font_style);
+    accuracy.x = renderWidth *.27;
+    accuracy.y = renderHeight *.705;
+
+
+    scoreBoxCombo.beginFill(0x0,0.7);
+    scoreBoxCombo.lineStyle(5,0xFFFFFF,1);
+    scoreBoxCombo.drawRect(renderWidth *.015, renderHeight *.71, renderWidth *.46, renderHeight *.1);
+
+    stage.addChild(maxComboLabel);
+    stage.addChild(accuracyLabel);
+    stage.addChild(scoreBoxCombo);
+    stage.addChild(maxCombo);
+    stage.addChild(accuracy);
+
+
+
+    //Performance
+    var scoreBoxPerformance = new PIXI.Graphics();
+
+    scoreBoxPerformance.beginFill(0x0,0.7);
+    scoreBoxPerformance.lineStyle(5,0xFFFFFF,1);
+    scoreBoxPerformance.drawRect(renderWidth *.24, renderHeight *.84, renderWidth *.233, renderHeight *.15);
+
+
+
+
+    stage.addChild(scoreBoxPerformance);
+
+
+
+
+    //GRADE
+
+    var gradepng = PIXI.Texture.fromImage('data/ranking-S.png');
+    var gradeS_Sprite = new PIXI.Sprite(gradepng);
+
+
+
+    gradeS_Sprite.position.x = renderWidth *.8;
+    gradeS_Sprite.position.y = renderHeight *.4;
+    gradeS_Sprite.width = renderWidth *.3;
+    gradeS_Sprite.height = renderHeight *.5;
+    gradeS_Sprite.anchor.set(0.5);
+
+    stage.addChild(gradeS_Sprite);
+
+    var replaypng = PIXI.Texture.fromImage('data/replay.png');
+    var replay_Sprite = new PIXI.Sprite(replaypng);
+
+    replay_Sprite.position.x = renderWidth *.8;
+    replay_Sprite.position.y = renderHeight *.8;
+    replay_Sprite.width = renderWidth *.2;
+    replay_Sprite.height = renderHeight *.2;
+    replay_Sprite.anchor.set(0.5);
+
+    stage.addChild(replay_Sprite);
+    animate();
+    function animate() {
+
+
+        renderer.render(stage);
+        requestAnimationFrame( animate );
+    }
+
+
+
+</script>
+
+
+
+
+
+
+
+
+</body>
+</html>
