@@ -36,6 +36,62 @@ function showReplayData(){
     }
 }
 /**
+ * Created by Ugrend on 4/06/2016.
+ */
+
+
+var osu = osu || {};
+osu.ui = osu.ui || {};
+osu.ui.renderer = {
+    renderWidth: window.innerWidth *.98,
+    renderHeight: window.innerHeight *.98,
+    renderer: null,
+    masterStage: new PIXI.Container(),
+    render_zone: document.getElementById("render_zone"),
+
+    /**
+     *
+     * @param child add to renderer stage
+     */
+    addChild: function(child){
+        this.masterStage.addChild(child);
+    },
+    removeChild: function(child){
+        this.masterStage.removeChild(child);
+    },
+
+    clearStage: function(){
+        this.masterStage.removeChildren();
+    },
+    animate: function () {
+        this.renderer.render(this.masterStage);
+        requestAnimationFrame(this.animate.bind(this));
+    },
+    resize: function(){
+        this.renderWidth = window.innerWidth *.98;
+        this.renderHeight = window.innerHeight *.98;
+        this.renderer.view.style.width = this.renderWidth + 'px';
+        this.renderer.view.style.height = this.renderHeight + 'px';
+    },
+    start: function () {
+        this.renderWidth = window.innerWidth *.98;
+        this.renderHeight = window.innerHeight *.98;
+        this.renderer = PIXI.autoDetectRenderer(this.renderWidth, this.renderHeight ,{transparent: true})
+        this.render_zone.appendChild(this.renderer.view);
+        this.animate();
+        window.onresize = this.resize.bind(this);
+    },
+    hide: function () {
+        this.render_zone.innerHTML = "";
+    },
+    show: function(){
+        this.render_zone.appendChild(this.renderer.view);
+    }
+};
+
+
+
+/**
  * Created by Ugrend on 6/2/2016.
  */
 if(typeof window.FileReader === "undefined"){
@@ -187,6 +243,14 @@ var ReplayParser = function(replay_data){
 };
 
 /**
+ * Created by Ugrend on 4/06/2016.
+ */
+
+var osu = osu || {};
+osu.beatmaps = {
+    background: "data/158023 UNDEAD CORPORATION - Everything will freeze/bg.jpg"
+};
+/**
  * Created by Ugrend on 3/06/2016.
  */
 
@@ -208,23 +272,25 @@ var osu  = osu || {};
 
 osu.mods = Object.freeze({
 
-    //anything higher than 4096 i don't really care about i don't think
+    //anything higher than 4096 i don't really care about i don't think except maybe perfect?
     __mods: {
 
         NONE: {value: 0, multi: 1.0, code: "", name: "No Mod", icon: ""},
-        NO_FAIL: {value: 1, multi: 0.5, code: "NF", name: "No Fail", icon: ""},
-        EASY: {value: 2, multi: 0.5, code: "EZ", name: "Easy", icon: ""},
+        NO_FAIL: {value: 1, multi: 0.5, code: "NF", name: "No Fail", icon: "selection_mod_nofail"},
+        EASY: {value: 2, multi: 0.5, code: "EZ", name: "Easy", icon: "selection_mod_easy"},
         NO_VIDEO: {value: 4, multi: 1.0, code: "", name: "No Video", icon: ""},
-        HIDDEN: {value: 8, multi: 1.06, code: "HD", name: "Hidden", icon: ""},
-        HARD_ROCK: {value: 16, multi: 1.06, code: "HR", name: "Hard Rock", icon: ""},
-        SUDDEN_DEATH: {value: 32, multi: 1.0, code: "SD", name: "Sudden Death", icon: ""},
-        DOUBLE_TIME: {value: 64, multi: 1.12, code: "DT", name: "Double Time", icon: ""},
-        RELAX: {value: 128, multi: 0, code: "", name: "", icon: "Relax"},
-        HALF_TIME: {value: 256, multi: 0.3, code: "HT", name: "Half Time", icon: ""},
-        NIGHT_CORE: {value: 512, multi: 1.12, code: "NT", name: "Night Core", icon: ""},
-        FLASH_LIGHT: {value: 1024, multi: 1.12, code: "FL", name: "Flash Light", icon: ""},
+        HIDDEN: {value: 8, multi: 1.06, code: "HD", name: "Hidden", icon: "selection_mod_hidden"},
+        HARD_ROCK: {value: 16, multi: 1.06, code: "HR", name: "Hard Rock", icon: "selection_mod_hardrock"},
+        SUDDEN_DEATH: {value: 32, multi: 1.0, code: "SD", name: "Sudden Death", icon: "selection_mod_suddendeath"},
+        DOUBLE_TIME: {value: 64, multi: 1.12, code: "DT", name: "Double Time", icon: "selection_mod_doubletime"},
+        RELAX: {value: 128, multi: 0, code: "", name: "", icon: ""},
+        HALF_TIME: {value: 256, multi: 0.3, code: "HT", name: "Half Time", icon: "selection_mod_halftime"},
+        NIGHT_CORE: {value: 512, multi: 1.12, code: "NT", name: "Night Core", icon: "selection_mod_nightcore"},
+        FLASH_LIGHT: {value: 1024, multi: 1.12, code: "FL", name: "Flash Light", icon: "selection_mod_flashlight"},
         AUTO_PLAY: {value: 2048, multi: 0, code: "", name: "Auto Play", icon: ""},
-        SPUN_OUT: {value: 4096, multi: 0.9, code: "SO", name: "Spun Out", icon: ""}
+        SPUN_OUT: {value: 4096, multi: 0.9, code: "SO", name: "Spun Out", icon: "selection_mod_spunout"},
+        RELAX_2: {value: 8192, multi: 0, code: "AP", name: "Auto Pilot", icon:""},
+        PERFECT: {value: 16384, multi: 1, code: "PF", name: "Perfect", icon:"selection_mod_perfect"}
     },
     /**
      * gets used mods based on replay mod int value
@@ -253,7 +319,7 @@ osu.mods = Object.freeze({
     getModFromVal: function(mod_int){
         for (var k in this.__mods) {
             if (this.__mods[k].value == mod_int) {
-                return this.__mods[k]
+                return this.__mods[k];
             }
         }
         return {}
@@ -277,16 +343,15 @@ osu.score = {
      For reference: 300 = 6/6, 100 = 2/6, 50 = 1/6, Miss = 0/6.
 
      */
-
     GRADES: Object.freeze({
-        SS: {name:"SS",small_icn:"",large_icn:""},
-        S:  {name:"S",small_icn:"",large_icn:""},
-        A:  {name:"A",small_icn:"",large_icn:""},
-        B:  {name:"B",small_icn:"",large_icn:""},
-        C:  {name:"C",small_icn:"",large_icn:""},
-        D:  {name:"D",small_icn:"",large_icn:""},
-        SSH:  {name:"SSH",small_icn:"",large_icn:""},
-        SH:  {name:"SH",small_icn:"",large_icn:""}
+        SS: {name:"SS",small_icn:"ranking_X_small",large_icn:"ranking_X"},
+        S:  {name:"S",small_icn:"ranking_S_small",large_icn:"ranking_S"},
+        A:  {name:"A",small_icn:"ranking_A_small",large_icn:"ranking_A"},
+        B:  {name:"B",small_icn:"ranking_B_small",large_icn:"ranking_B"},
+        C:  {name:"C",small_icn:"ranking_C_small",large_icn:"ranking_C"},
+        D:  {name:"D",small_icn:"ranking_D_small",large_icn:"ranking_D"},
+        SSH:  {name:"SSH",small_icn:"ranking_XH_small",large_icn:"ranking_XH"},
+        SH:  {name:"SH",small_icn:"ranking_SH_small",large_icn:"ranking_SH"}
     }),
 
 
@@ -356,5 +421,399 @@ osu.score = {
 
 
 
+
+};
+/**
+ * Created by Ugrend on 4/06/2016.
+ */
+var osu = osu || {};
+osu.skins = {
+
+    //https://osu.ppy.sh/wiki/Skinning_Standard
+    //https://osu.ppy.sh/wiki/Skinning_Interface
+
+
+    //hitbursts
+    hit300: "data/hit300.png",
+    hit300g: "data/hit300.png",
+    hit300k: "data/hit300.png",
+    hit100: "data/hit100.png",
+    hit100k: "data/hit100.png",
+    hit50: "data/hit50.png",
+    hit0: "data/hit0.png",
+
+    //Ranking Grades
+    ranking_XH: "data/ranking-XH.png",
+    ranking_SH: "data/ranking-SH.png",
+    ranking_X: "data/ranking-X.png",
+    ranking_S: "data/ranking-S.png",
+    ranking_A: "data/ranking-A.png",
+    ranking_B: "data/ranking-B.png",
+    ranking_C: "data/ranking-C.png",
+    ranking_D: "data/ranking-D.png",
+    ranking_XH_small: "data/ranking-XH.png",
+    ranking_SH_small: "data/ranking-SH.png",
+    ranking_X_small: "data/ranking-X.png",
+    ranking_S_small: "data/ranking-S.png",
+    ranking_A_small: "data/ranking-A.png",
+    ranking_B_small: "data/ranking-B.png",
+    ranking_C_small: "data/ranking-C.png",
+    ranking_D_small: "data/ranking-D.png",
+
+
+    //Interface
+    pause_replay: "data/Pause-replay.png",
+
+
+    //Playfield
+    section_fail: "data/Section-fail.png",
+    section_pass: "data/Section-pass.png",
+    play_warningarrow: "data/Play-warningarrow.png",
+    play_skip: "data/play-skip.png",
+
+    //Mods
+
+    selection_mod_doubletime: "data/selection-mod-doubletime.png",
+    selection_mod_easy: "data/selection-mod-easy.png",
+    selection_mod_flashlight: "data/selection-mod-flashlight.png",
+    selection_mod_halftime: "data/selection-mod-halftime.png",
+    selection_mod_hardrock: "data/selection-mod-hardrock.png",
+    selection_mod_hidden: "data/selection-mod-hidden.png",
+    selection_mod_nightcore: "data/selection-mod-nightcore.png",
+    selection_mod_nofail: "data/selection-mod-nofail.png",
+    selection_mod_perfect: "data/selection-mod-perfect.png",
+    selection_mod_spunout: "data/selection-mod-spunout.png",
+    selection_mod_suddendeath: "data/selection-mod-suddendeath.png"
+
+
+};
+/**
+ * Created by Ugrend on 4/06/2016.
+ */
+
+
+var osu = osu || {};
+osu.ui = osu.ui || {};
+osu.ui.interface = osu.ui.interface || {};
+osu.ui.interface.scorescreen = {
+
+    map_name: "",
+    background: "",
+    made_by: "",
+    played_by: "",
+    date_played: "",
+    total_score: 0,
+    t300Hits: 0,
+    t300gHits: 0,
+    t100Hits: 0,
+    t100kHits: 0,
+    t50Hits: 0,
+    tMissHits: 0,
+    maxCombo: 0,
+    accuracy: "0.00",
+    grade: "",
+    mods: [],
+    master_container: new PIXI.Container(),
+
+    getRenderWidth: function(){
+        return osu.ui.renderer.renderWidth;
+    },
+
+    getRenderHeight: function(){
+        return osu.ui.renderer.renderHeight;
+    },
+
+    map_details_heading_style : {
+
+        font:  Math.round((osu.ui.renderer.renderHeight + osu.ui.renderer.renderWidth)/100).toString() + 'px Lucida Sans Unicode',
+        fill: '#FFFFFF'
+    },
+
+    map_details_style: {
+        font: Math.round((osu.ui.renderer.renderHeight + osu.ui.renderer.renderWidth)/150).toString() +'px Lucida Sans Unicode',
+        fill: '#FFFFFF'
+    },
+
+    score_font_style: {
+        font: 'bold ' + Math.round((osu.ui.renderer.renderHeight + osu.ui.renderer.renderWidth)/32).toString() + 'px  Lucida Sans Unicode',
+        fill: '#FFFFFF'
+    },
+
+
+
+
+    create_background_container: function(){
+        var background = PIXI.Texture.fromImage(this.background);
+        var background_sprite = new PIXI.Sprite(background);
+        background_sprite.width = this.getRenderWidth();
+        background_sprite.height = this.getRenderHeight();
+
+        var background_dimmer = new PIXI.Graphics();
+        background_dimmer.beginFill(0x0, 0.5);
+        background_dimmer.drawRect(0, 0, this.getRenderWidth(), this.getRenderHeight());
+        this.master_container.addChild(background_sprite);
+        this.master_container.addChild(background_dimmer);
+
+
+    },
+
+    create_map_details_container: function(){
+        var map_details_area = new PIXI.Graphics();
+
+        map_details_area.beginFill(0x0,0.8);
+        map_details_area.drawRect(0, 0, this.getRenderWidth(), this.getRenderHeight() *.13);
+        map_details_area.lineStyle(this.getRenderHeight() *.006,0xE6E6E6,1);
+        map_details_area.drawRect(0,this.getRenderHeight() *.13,this.getRenderWidth(),1);
+
+        this.map_name_text = new PIXI.Text(this.map_name, this.map_details_heading_style);
+        this.map_name_text.x = 5;
+        this.map_name_text.y = this.getRenderHeight() *0.01;
+
+        this.map_made_by = new PIXI.Text("Beatmap by " + this.made_by, this.map_details_style);
+        this.map_made_by.x = 5;
+        this.map_made_by.y = this.map_name_text.y + (this.getRenderHeight() * 0.04);
+
+        this.map_played_by = new PIXI.Text("Played by "+ this.played_by  +"on " + this.date_played, this.map_details_style);
+        this.map_played_by.x = 5;
+        this.map_played_by.y = this.map_made_by.y + (this.getRenderHeight() * 0.03);
+
+        this.master_container.addChild(map_details_area);
+        this.master_container.addChild(this.map_name_text);
+        this.master_container.addChild(this.map_made_by);
+        this.master_container.addChild(this.map_played_by);
+    },
+
+    create_total_score_details_container: function () {
+        var scoreBox = new PIXI.Graphics();
+
+        scoreBox.beginFill(0x0,0.7);
+        scoreBox.lineStyle(5,0xFFFFFF,1);
+        scoreBox.drawRect(this.getRenderWidth() *.015, this.getRenderHeight() *.15, this.getRenderWidth() *.46, this.getRenderHeight() *.1);
+
+        var scoreLabel = new PIXI.Text("Score", this.map_details_heading_style);
+        scoreLabel.x = this.getRenderWidth() *.02;
+        scoreLabel.y = this.getRenderHeight() *.215;
+
+        this.totalScoreText = new PIXI.Text(this.total_score.toString(),this.score_font_style);
+        this.totalScoreText.x = this.getRenderWidth() *.30;
+        this.totalScoreText.y = this.getRenderHeight() *.2;
+        this.totalScoreText.anchor.set(0.5);
+
+        this.master_container.addChild(scoreBox);
+        this.master_container.addChild(scoreLabel);
+        this.master_container.addChild(this.totalScoreText);
+    },
+
+    create_hit300_details_container: function () {
+        var scoreBox300 = new PIXI.Graphics();
+
+        scoreBox300.beginFill(0x0,0.7);
+        scoreBox300.lineStyle(5,0xFFFFFF,1);
+        scoreBox300.drawRect(this.getRenderWidth() *.015, this.getRenderHeight() *.3, this.getRenderWidth() *.46, this.getRenderHeight() *.1);
+
+        this.total300hitsText = new PIXI.Text(this.t300Hits.toString() + "x", this.score_font_style);
+        this.total300hitsText.x = this.getRenderWidth() *.16;
+        this.total300hitsText.y = this.getRenderHeight() *.35;
+        this.total300hitsText.anchor.set(0.5);
+
+        this.total300ghitsText = new PIXI.Text(this.t300gHits.toString() + "x", this.score_font_style);
+        this.total300ghitsText.x = this.getRenderWidth() *.39;
+        this.total300ghitsText.y = this.getRenderHeight() *.35;
+        this.total300ghitsText.anchor.set(0.5);
+
+
+        var hit300png = PIXI.Texture.fromImage(osu.skins.hit300);
+        var hit300gpng = PIXI.Texture.fromImage(osu.skins.hit300g);
+        var hit300Sprite = new PIXI.Sprite(hit300png);
+        var hit300gSprite = new PIXI.Sprite(hit300gpng);
+
+        hit300Sprite.position.x = this.getRenderWidth() *.05;
+        hit300Sprite.position.y = this.getRenderHeight() *.35;
+        hit300Sprite.width = this.getRenderWidth() *.05;
+        hit300Sprite.height = this.getRenderHeight() *.09;
+        hit300Sprite.anchor.set(0.5);
+
+        hit300gSprite.position.x = this.getRenderWidth() *.29;
+        hit300gSprite.position.y = this.getRenderHeight() *.35;
+        hit300gSprite.width = this.getRenderWidth() *.05;
+        hit300gSprite.height = this.getRenderHeight() *.09;
+        hit300gSprite.anchor.set(0.5);
+
+        this.master_container.addChild(scoreBox300);
+        this.master_container.addChild(this.total300hitsText);
+        this.master_container.addChild(this.total300ghitsText);
+        this.master_container.addChild(hit300Sprite);
+        this.master_container.addChild(hit300gSprite);
+    },
+
+    create_hit100_details_container: function () {
+        var scoreBox100 = new PIXI.Graphics();
+
+        scoreBox100.beginFill(0x0,0.7);
+        scoreBox100.lineStyle(5,0xFFFFFF,1);
+        scoreBox100.drawRect(this.getRenderWidth() *.015, this.getRenderHeight() *.43, this.getRenderWidth() *.46, this.getRenderHeight() *.1);
+
+        this.total100hitsText = new PIXI.Text(this.t100Hits.toString() + "x", this.score_font_style);
+        this.total100hitsText.x = this.getRenderWidth() *.16;
+        this.total100hitsText.y = this.getRenderHeight() *.48;
+        this.total100hitsText.anchor.set(0.5);
+
+        this.total100khitsText = new PIXI.Text(this.t100kHits.toString() + "x", this.score_font_style);
+        this.total100khitsText.x = this.getRenderWidth() *.39;
+        this.total100khitsText.y = this.getRenderHeight() *.48;
+        this.total100khitsText.anchor.set(0.5);
+
+
+        var hit100png = PIXI.Texture.fromImage(osu.skins.hit100);
+        var hit100kpng = PIXI.Texture.fromImage(osu.skins.hit100k);
+        var hit100Sprite = new PIXI.Sprite(hit100png);
+        var hit100kSprite = new PIXI.Sprite(hit100kpng);
+
+        hit100Sprite.position.x = this.getRenderWidth() *.05;
+        hit100Sprite.position.y = this.getRenderHeight() *.48;
+        hit100Sprite.width = this.getRenderWidth() *.05;
+        hit100Sprite.height = this.getRenderHeight() *.09;
+        hit100Sprite.anchor.set(0.5);
+
+        hit100kSprite.position.x = this.getRenderWidth() *.29;
+        hit100kSprite.position.y = this.getRenderHeight() *.48;
+        hit100kSprite.width = this.getRenderWidth() *.05;
+        hit100kSprite.height = this.getRenderHeight() *.09;
+        hit100kSprite.anchor.set(0.5);
+
+        this.master_container.addChild(scoreBox100);
+        this.master_container.addChild(this.total100hitsText);
+        this.master_container.addChild(this.total100khitsText);
+        this.master_container.addChild(hit100Sprite);
+        this.master_container.addChild(hit100kSprite);
+    },
+
+    create_hit50Misses_details_container: function () {
+        var container = new PIXI.Container();
+        var scoreBox50 = new PIXI.Graphics();
+
+        scoreBox50.beginFill(0x0,0.7);
+        scoreBox50.lineStyle(5,0xFFFFFF,1);
+        scoreBox50.drawRect(this.getRenderWidth() *.015, this.getRenderHeight() *.56, this.getRenderWidth() *.46, this.getRenderHeight() *.1);
+
+        this.total50hitsText = new PIXI.Text(this.t50Hits.toString() + "x", this.score_font_style);
+        this.total50hitsText.x = this.getRenderWidth() *.16;
+        this.total50hitsText.y = this.getRenderHeight() *.61;
+        this.total50hitsText.anchor.set(0.5);
+
+        this.totalMissesText = new PIXI.Text(this.tMissHits.toString() + "x", this.score_font_style);
+        this.totalMissesText.x = this.getRenderWidth() *.39;
+        this.totalMissesText.y = this.getRenderHeight() *.61;
+        this.totalMissesText.anchor.set(0.5);
+
+
+        var hit50png = PIXI.Texture.fromImage(osu.skins.hit50);
+        var hit0png = PIXI.Texture.fromImage(osu.skins.hit0);
+        var hit50Sprite = new PIXI.Sprite(hit50png);
+        var hit0Sprite = new PIXI.Sprite(hit0png);
+
+
+        hit50Sprite.position.x = this.getRenderWidth() *.05;
+        hit50Sprite.position.y = this.getRenderHeight() *.61;
+        hit50Sprite.width = this.getRenderWidth() *.05;
+        hit50Sprite.height = this.getRenderHeight() *.09;
+        hit50Sprite.anchor.set(0.5);
+
+        hit0Sprite.position.x = this.getRenderWidth() *.29;
+        hit0Sprite.position.y = this.getRenderHeight() *.61;
+        hit0Sprite.width = this.getRenderWidth() *.05;
+        hit0Sprite.height = this.getRenderHeight() *.09;
+        hit0Sprite.anchor.set(0.5);
+
+
+
+        this.master_container.addChild(scoreBox50);
+        this.master_container.addChild(this.total50hitsText);
+        this.master_container.addChild(this.totalMissesText);
+        this.master_container.addChild(hit50Sprite);
+        this.master_container.addChild(hit0Sprite);
+
+
+    },
+
+    create_combo_accuracy_details_container: function () {
+        var scoreBoxCombo = new PIXI.Graphics();
+
+        var maxComboLabel = new PIXI.Text("Max Combo", this.map_details_heading_style);
+        maxComboLabel.x = this.getRenderWidth() *.02;
+        maxComboLabel.y = this.getRenderHeight() *.68;
+
+        var accuracyLabel = new PIXI.Text("Accuracy", this.map_details_heading_style);
+        accuracyLabel.x = this.getRenderWidth() *.3;
+        accuracyLabel.y = this.getRenderHeight() *.68;
+
+
+        this.maxComboText = new PIXI.Text(this.maxCombo.toString() + "x", this.score_font_style);
+        this.maxComboText.x = this.getRenderWidth() *.02;
+        this.maxComboText.y = this.getRenderHeight() *.705;
+
+        this.accuracyText = new PIXI.Text(this.accuracy + "%", this.score_font_style);
+        this.accuracyText.x = this.getRenderWidth() *.27;
+        this.accuracyText.y = this.getRenderHeight() *.705;
+
+
+        scoreBoxCombo.beginFill(0x0,0.7);
+        scoreBoxCombo.lineStyle(5,0xFFFFFF,1);
+        scoreBoxCombo.drawRect(this.getRenderWidth() *.015, this.getRenderHeight() *.71, this.getRenderWidth() *.46, this.getRenderHeight() *.1);
+
+        this.master_container.addChild(maxComboLabel);
+        this.master_container.addChild(accuracyLabel);
+        this.master_container.addChild(scoreBoxCombo);
+        this.master_container.addChild(this.maxComboText);
+        this.master_container.addChild(this.accuracyText);
+
+    },
+
+    create_grade_details_container: function () {
+        var gradepng = PIXI.Texture.fromImage(osu.skins[osu.score.GRADES[this.grade].large_icn]);
+        var gradeSprite = new PIXI.Sprite(gradepng);
+
+        gradeSprite.position.x = this.getRenderWidth() *.8;
+        gradeSprite.position.y = this.getRenderHeight() *.4;
+        gradeSprite.width = this.getRenderWidth() *.3;
+        gradeSprite.height = this.getRenderHeight() *.5;
+        gradeSprite.anchor.set(0.5);
+
+
+        var replaypng = PIXI.Texture.fromImage(osu.skins.pause_replay);
+        var replay_Sprite = new PIXI.Sprite(replaypng);
+        replay_Sprite.position.x = this.getRenderWidth() *.8;
+        replay_Sprite.position.y = this.getRenderHeight() *.8;
+        replay_Sprite.width = this.getRenderWidth() *.2;
+        replay_Sprite.height = this.getRenderHeight() *.2;
+        replay_Sprite.anchor.set(0.5);
+        this.master_container.addChild(gradeSprite);
+        this.master_container.addChild(replay_Sprite);
+
+    },
+
+
+    create_master_container: function () {
+
+        this.create_background_container();
+        this.create_map_details_container();
+        this.create_total_score_details_container();
+        this.create_hit300_details_container();
+        this.create_hit100_details_container();
+        this.create_hit50Misses_details_container();
+        this.create_combo_accuracy_details_container();
+        this.create_grade_details_container();
+
+    },
+
+    onRender: function(){
+
+    },
+
+    renderScoreScreen: function(){
+        this.create_master_container();
+        osu.ui.renderer.clearStage();
+        osu.ui.renderer.masterStage = this.master_container;
+    }
 
 };

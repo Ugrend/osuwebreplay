@@ -14,16 +14,15 @@ osu.score = {
      For reference: 300 = 6/6, 100 = 2/6, 50 = 1/6, Miss = 0/6.
 
      */
-
     GRADES: Object.freeze({
-        SS: {name:"SS",small_icn:"",large_icn:""},
-        S:  {name:"S",small_icn:"",large_icn:""},
-        A:  {name:"A",small_icn:"",large_icn:""},
-        B:  {name:"B",small_icn:"",large_icn:""},
-        C:  {name:"C",small_icn:"",large_icn:""},
-        D:  {name:"D",small_icn:"",large_icn:""},
-        SSH:  {name:"SSH",small_icn:"",large_icn:""},
-        SH:  {name:"SH",small_icn:"",large_icn:""}
+        SS: {name:"SS",small_icn:"ranking_X_small",large_icn:"ranking_X"},
+        S:  {name:"S",small_icn:"ranking_S_small",large_icn:"ranking_S"},
+        A:  {name:"A",small_icn:"ranking_A_small",large_icn:"ranking_A"},
+        B:  {name:"B",small_icn:"ranking_B_small",large_icn:"ranking_B"},
+        C:  {name:"C",small_icn:"ranking_C_small",large_icn:"ranking_C"},
+        D:  {name:"D",small_icn:"ranking_D_small",large_icn:"ranking_D"},
+        SSH:  {name:"SSH",small_icn:"ranking_XH_small",large_icn:"ranking_XH"},
+        SH:  {name:"SH",small_icn:"ranking_SH_small",large_icn:"ranking_SH"}
     }),
 
 

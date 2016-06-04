@@ -12,6 +12,8 @@
     <link rel="stylesheet" href="static/css/osureplay.css">
 </head>
 <body bgcolor="#2E2E2E">
+
+
 <script src="static/libs/js/pixijs.js"></script>
 <script>
 
@@ -37,7 +39,7 @@
     var background_dimmer = new PIXI.Graphics();
     background_dimmer.beginFill(0x0, 0.5);
     background_dimmer.drawRect(0, 0, renderWidth, renderHeight);
-    stage.addChild(background_dimmer)
+    stage.addChild(background_dimmer);
     stage.interactive = true;
 
 
@@ -308,7 +310,7 @@
 
     stage.addChild(gradeS_Sprite);
 
-    var replaypng = PIXI.Texture.fromImage('data/replay.png');
+    var replaypng = PIXI.Texture.fromImage('data/Pause-replay.png');
     var replay_Sprite = new PIXI.Sprite(replaypng);
 
     replay_Sprite.position.x = renderWidth *.8;
@@ -318,11 +320,18 @@
     replay_Sprite.anchor.set(0.5);
 
     stage.addChild(replay_Sprite);
-    animate();
+
+
+
+    //MODS
+
     function animate() {
         renderer.render(stage);
         requestAnimationFrame( animate );
     }
+
+
+    animate();
 
     function resize(){
         var renderWidth = window.innerWidth *.98;
