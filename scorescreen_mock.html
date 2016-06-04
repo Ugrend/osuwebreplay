@@ -320,13 +320,18 @@
     stage.addChild(replay_Sprite);
     animate();
     function animate() {
-
-
         renderer.render(stage);
         requestAnimationFrame( animate );
     }
 
+    function resize(){
+        var renderWidth = window.innerWidth *.98;
+        var renderHeight = window.innerHeight *.98;
+        renderer.view.style.width = renderWidth + 'px';
+        renderer.view.style.height = renderHeight + 'px';
 
+    }
+    window.onresize = resize;
 
 </script>
 
