@@ -661,11 +661,11 @@ osu.ui.interface.osugame = {
         this.keypress_2 = new PIXI.Sprite(keypress_texture);
         this.keypress_3 = new PIXI.Sprite(keypress_texture);
         this.keypress_4 = new PIXI.Sprite(keypress_texture);
-
-        this.keypress_1_Text = new PIXI.Text(this.key_1_count > 0 && this.key_1_count.toString() || "K1", this.score_font_style);
-        this.keypress_2_Text = new PIXI.Text(this.key_2_count > 0 && this.key_2_count.toString() || "K2", this.score_font_style);
-        this.keypress_3_Text = new PIXI.Text(this.key_3_count > 0 && this.key_3_count.toString() || "M1", this.score_font_style);
-        this.keypress_4_Text = new PIXI.Text(this.key_4_count > 0 && this.key_4_count.toString() || "K2", this.score_font_style);
+        //TODO: Style text
+        this.keypress_1_Text = new PIXI.Text(this.key_1_count > 0 && this.key_1_count.toString() || "K1");
+        this.keypress_2_Text = new PIXI.Text(this.key_2_count > 0 && this.key_2_count.toString() || "K2");
+        this.keypress_3_Text = new PIXI.Text(this.key_3_count > 0 && this.key_3_count.toString() || "M1");
+        this.keypress_4_Text = new PIXI.Text(this.key_4_count > 0 && this.key_4_count.toString() || "M2");
 
         this.keypress_1.tint = 0xFFFF00;
 
@@ -673,25 +673,49 @@ osu.ui.interface.osugame = {
         this.keypress_1.x = this.getRenderWidth() - 40;
         this.keypress_1.y = this.getRenderHeight() /2 - 50;
         this.keypress_1.anchor.set(0.5);
+        this.keypress_1_Text.anchor.set(0.5);
+        this.keypress_1_Text.x = this.keypress_1.x;
+        this.keypress_1_Text.y = this.keypress_1.y;
+
 
         this.keypress_2.x = this.getRenderWidth() - 40;
         this.keypress_2.y = this.getRenderHeight() /2;
         this.keypress_2.anchor.set(0.5);
+        this.keypress_2_Text.anchor.set(0.5);
+        this.keypress_2_Text.x = this.keypress_2.x;
+        this.keypress_2_Text.y = this.keypress_2.y;
 
         this.keypress_3.x = this.getRenderWidth() - 40;
         this.keypress_3.y = this.getRenderHeight() /2 + 50;
         this.keypress_3.anchor.set(0.5);
+        this.keypress_3_Text.anchor.set(0.5);
+        this.keypress_3_Text.x = this.keypress_3.x;
+        this.keypress_3_Text.y = this.keypress_3.y;
 
         this.keypress_4.x = this.getRenderWidth() - 40;
         this.keypress_4.y = this.getRenderHeight() /2 + 100;
         this.keypress_4.anchor.set(0.5);
+        this.keypress_4_Text.anchor.set(0.5);
+        this.keypress_4_Text.x = this.keypress_4.x;
+        this.keypress_4_Text.y = this.keypress_4.y;
+
+
 
 
         this.keypress_area.addChild(this.keypress_1);
         this.keypress_area.addChild(this.keypress_2);
         this.keypress_area.addChild(this.keypress_3);
         this.keypress_area.addChild(this.keypress_4);
+        this.keypress_area.addChild(this.keypress_1_Text);
+        this.keypress_area.addChild(this.keypress_2_Text);
+        this.keypress_area.addChild(this.keypress_3_Text);
+        this.keypress_area.addChild(this.keypress_4_Text);
+
         this.master_container.addChild(this.keypress_area);
+
+
+
+
     },
 
 
