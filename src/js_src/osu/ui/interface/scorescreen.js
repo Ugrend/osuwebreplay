@@ -298,9 +298,16 @@ osu.ui.interface.scorescreen = {
         replay_Sprite.width = this.getRenderWidth() *.2;
         replay_Sprite.height = this.getRenderHeight() *.2;
         replay_Sprite.anchor.set(0.5);
+        replay_Sprite.interactive = true;
+        replay_Sprite.on("mouseup", this.start_replay.bind(this));
         this.master_container.addChild(gradeSprite);
         this.master_container.addChild(replay_Sprite);
 
+    },
+    start_replay: function(){
+        osu.ui.interface.osugame.replay_data = replay.replayData.slice(0);
+        osu.ui.interface.osugame.renderScreen();
+        osu.ui.interface.osugame.movecursor();
     },
 
 
@@ -322,6 +329,8 @@ osu.ui.interface.scorescreen = {
     },
 
     renderScoreScreen: function(){
+        osu.ui.renderer.fixed_aspect = false;
+        osu.ui.renderer.start();
         this.create_master_container();
         osu.ui.renderer.clearStage();
         osu.ui.renderer.masterStage = this.master_container;

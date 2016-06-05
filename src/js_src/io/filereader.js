@@ -19,10 +19,11 @@ else {
         reader.onloadend = function (event) {
 
             if(event.target.readyState === 2){
-                var replay_data = event.target.result;
-                replay = new ReplayParser(replay_data);
-                showReplayData();
-
+                if(file.name.split(".").pop() == "osr"){
+                    var replay_data = event.target.result;
+                    replay = new ReplayParser(replay_data);
+                    showReplayData();
+                }
             }else{
                 dragDropLabel.innerHTML = "Well ummm, yeh i dont know what to do but something went wrong";
                 resetLabel();
@@ -30,8 +31,8 @@ else {
 
         };
 
-        if(file.name.split(".").pop() !== "osr"){
-            dragDropLabel.innerHTML = "that aint no osr file manz";
+        if(file.name.split(".").pop() !== "osr" && file.name.split(".").pop() !== "osz"){
+            dragDropLabel.innerHTML = "i dont know what that is";
             resetLabel();
         }else{
             reader.readAsBinaryString(file);

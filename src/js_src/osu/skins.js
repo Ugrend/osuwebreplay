@@ -40,6 +40,12 @@ osu.skins = {
     pause_replay: "data/Pause-replay.png",
 
 
+    cursor: "data/cursor.png",
+    cursortrail: "data/cursortrail.png",
+    cursormiddle: "data/cursormiddle.png",
+    cursor_smoke: "data/cursor-smoke.png",
+
+
     //Playfield
     section_fail: "data/Section-fail.png",
     section_pass: "data/Section-pass.png",

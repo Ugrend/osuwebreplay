@@ -6,11 +6,15 @@
 var osu = osu || {};
 osu.ui = osu.ui || {};
 osu.ui.renderer = {
+
+
+
     renderWidth: window.innerWidth *.98,
     renderHeight: window.innerHeight *.98,
     renderer: null,
     masterStage: new PIXI.Container(),
     render_zone: document.getElementById("render_zone"),
+    fixed_aspect: false,
 
     /**
      *
@@ -31,21 +35,44 @@ osu.ui.renderer = {
         requestAnimationFrame(this.animate.bind(this));
     },
     resize: function(){
-        this.renderWidth = window.innerWidth *.98;
-        this.renderHeight = window.innerHeight *.98;
-        this.renderer.view.style.width = this.renderWidth + 'px';
-        this.renderer.view.style.height = this.renderHeight + 'px';
+        var x = window.innerWidth *.98;
+        var y = window.innerHeight *.98;
+
+        //just to make my life easier fix the render ratio for game play
+        if(this.fixed_aspect) {
+            var fixed_ratio_y = (3 / 4) * x;
+            var fixed_ratio_x = (4 / 3) * y;
+
+            if (fixed_ratio_y > y) {
+                //if we increasing y bigger than the screen we need to make x smaller
+                x = fixed_ratio_x;
+            }
+            else {
+                y = fixed_ratio_y;
+            }
+        }
+        this.renderWidth =  x;
+        this.renderHeight = y;
+        if(this.renderer != null) {
+            this.renderer.view.style.width = this.renderWidth + 'px';
+            this.renderer.view.style.height = this.renderHeight + 'px';
+        }
     },
     start: function () {
+        this.resize();
         if(this.renderer == null) {
-            this.renderWidth = window.innerWidth *.98;
-            this.renderHeight = window.innerHeight *.98;
-            this.renderer = PIXI.autoDetectRenderer(this.renderWidth, this.renderHeight, {transparent: true})
+            this.renderer = PIXI.autoDetectRenderer(this.renderWidth, this.renderHeight);
             this.render_zone.appendChild(this.renderer.view);
             this.animate();
             window.onresize = this.resize.bind(this);
+        }else{
+            console.log("renderer already started resizing instead");
+            this.renderer.width =  this.renderWidth;
+            this.renderer.height = this.renderHeight;
+            this.renderer.view.width = this.renderWidth;
+            this.renderer.view.height = this.renderHeight;
         }
-        console.log("renderer already started");
+
     },
     hide: function () {
         this.render_zone.innerHTML = "";

@@ -43,7 +43,6 @@ function showReplayData(){
     osu.ui.interface.scorescreen.grade = replay.grade;
     osu.ui.interface.scorescreen.accuracy = replay.accuracy;
     hideDropZone();
-    osu.ui.renderer.start();
     osu.ui.interface.scorescreen.renderScoreScreen();
 }
 /**
@@ -54,11 +53,15 @@ function showReplayData(){
 var osu = osu || {};
 osu.ui = osu.ui || {};
 osu.ui.renderer = {
+
+
+
     renderWidth: window.innerWidth *.98,
     renderHeight: window.innerHeight *.98,
     renderer: null,
     masterStage: new PIXI.Container(),
     render_zone: document.getElementById("render_zone"),
+    fixed_aspect: false,
 
     /**
      *
@@ -79,21 +82,44 @@ osu.ui.renderer = {
         requestAnimationFrame(this.animate.bind(this));
     },
     resize: function(){
-        this.renderWidth = window.innerWidth *.98;
-        this.renderHeight = window.innerHeight *.98;
-        this.renderer.view.style.width = this.renderWidth + 'px';
-        this.renderer.view.style.height = this.renderHeight + 'px';
+        var x = window.innerWidth *.98;
+        var y = window.innerHeight *.98;
+
+        //just to make my life easier fix the render ratio for game play
+        if(this.fixed_aspect) {
+            var fixed_ratio_y = (3 / 4) * x;
+            var fixed_ratio_x = (4 / 3) * y;
+
+            if (fixed_ratio_y > y) {
+                //if we increasing y bigger than the screen we need to make x smaller
+                x = fixed_ratio_x;
+            }
+            else {
+                y = fixed_ratio_y;
+            }
+        }
+        this.renderWidth =  x;
+        this.renderHeight = y;
+        if(this.renderer != null) {
+            this.renderer.view.style.width = this.renderWidth + 'px';
+            this.renderer.view.style.height = this.renderHeight + 'px';
+        }
     },
     start: function () {
+        this.resize();
         if(this.renderer == null) {
-            this.renderWidth = window.innerWidth *.98;
-            this.renderHeight = window.innerHeight *.98;
-            this.renderer = PIXI.autoDetectRenderer(this.renderWidth, this.renderHeight, {transparent: true})
+            this.renderer = PIXI.autoDetectRenderer(this.renderWidth, this.renderHeight);
             this.render_zone.appendChild(this.renderer.view);
             this.animate();
             window.onresize = this.resize.bind(this);
+        }else{
+            console.log("renderer already started resizing instead");
+            this.renderer.width =  this.renderWidth;
+            this.renderer.height = this.renderHeight;
+            this.renderer.view.width = this.renderWidth;
+            this.renderer.view.height = this.renderHeight;
         }
-        console.log("renderer already started");
+
     },
     hide: function () {
         this.render_zone.innerHTML = "";
@@ -126,10 +152,11 @@ else {
         reader.onloadend = function (event) {
 
             if(event.target.readyState === 2){
-                var replay_data = event.target.result;
-                replay = new ReplayParser(replay_data);
-                showReplayData();
-
+                if(file.name.split(".").pop() == "osr"){
+                    var replay_data = event.target.result;
+                    replay = new ReplayParser(replay_data);
+                    showReplayData();
+                }
             }else{
                 dragDropLabel.innerHTML = "Well ummm, yeh i dont know what to do but something went wrong";
                 resetLabel();
@@ -137,8 +164,8 @@ else {
 
         };
 
-        if(file.name.split(".").pop() !== "osr"){
-            dragDropLabel.innerHTML = "that aint no osr file manz";
+        if(file.name.split(".").pop() !== "osr" && file.name.split(".").pop() !== "osz"){
+            dragDropLabel.innerHTML = "i dont know what that is";
             resetLabel();
         }else{
             reader.readAsBinaryString(file);
@@ -249,10 +276,16 @@ var ReplayParser = function(replay_data){
     LZMA.decompress(
       RP.replay_bytes.slice(RP.byte_index),
         function(data) {
-            replay.replayData = data;
+            var replayData = data.split(",");
+            for(var i = 0 ; i< replayData.length ; i++){
+               replayData[i] = replayData[i].split("|");
+            }
+            replay.replayData = replayData;
         },
         function(){}
     );
+
+
 
 
     var epoch = (replay.time_played - 621355968000000000) / 10000 ;
@@ -286,6 +319,51 @@ osu.GAMETYPES = {
     CTB: 2,
     MANIA: 3
 };
+/**
+ * Created by Ugrend on 5/06/2016.
+ */
+
+var osu  = osu || {};
+
+/*
+
+ Part	Data Type	Description
+ w	Long	Time in milliseconds since the previous action
+ x	Float	x-coordinate of the cursor from 0 - 512
+ y	Float	y-coordinate of the cursor from 0 - 384
+ z	Integer	Bitwise combination of keys/mouse buttons pressed (M1 = 1, M2 = 2, K1 = 5, K2 = 10)
+
+
+ */
+osu.keypress = Object.freeze({
+
+    KEYS: {
+        NONE : 0,
+        M1: 1,
+        M2: 2,
+        K1: 5,
+        K2: 10,
+        C: 16
+    },
+
+    getKeys: function(keys_int){
+        var keys = [];
+        if (keys_int == 0) {
+            keys.push(this.KEYS.NONE);
+            return keys;
+        }
+        for (var k in this.KEYS) {
+            var bit = keys_int & this.KEYS[k];
+            if (bit == this.KEYS[k] && bit != 0) {
+                keys.push(this.KEYS[k]);
+            }
+        }
+        return keys;
+    }
+
+});
+
+
 /**
  * Created by Ugrend on 2/06/2016.
  */
@@ -489,6 +567,12 @@ osu.skins = {
     pause_replay: "data/Pause-replay.png",
 
 
+    cursor: "data/cursor.png",
+    cursortrail: "data/cursortrail.png",
+    cursormiddle: "data/cursormiddle.png",
+    cursor_smoke: "data/cursor-smoke.png",
+
+
     //Playfield
     section_fail: "data/Section-fail.png",
     section_pass: "data/Section-pass.png",
@@ -508,6 +592,135 @@ osu.skins = {
     selection_mod_perfect: "data/selection-mod-perfect.png",
     selection_mod_spunout: "data/selection-mod-spunout.png",
     selection_mod_suddendeath: "data/selection-mod-suddendeath.png"
+
+
+};
+/**
+ * Created by Ugrend on 5/06/2016.
+ */
+
+
+/*
+
+Main Game Window
+
+ x ranges from 0 to 512 (inclusive) and y ranges from 0 to 384 (inclusive).
+
+
+4:3 aspect ratio
+ */
+
+
+var osu = osu || {};
+osu.ui = osu.ui || {};
+osu.ui.interface = osu.ui.interface || {};
+osu.ui.interface.osugame = {
+
+
+    master_container: new PIXI.Container(),
+    replay_data: [],
+
+
+    getRenderWidth: function(){
+        return osu.ui.renderer.renderWidth;
+    },
+
+    getRenderHeight: function(){
+        return osu.ui.renderer.renderHeight;
+    },
+
+    create_background: function(){
+        var background = PIXI.Texture.fromImage(this.background);
+        var background_sprite = new PIXI.Sprite(background);
+        background_sprite.width = this.getRenderWidth();
+        background_sprite.height = this.getRenderHeight();
+
+        var background_dimmer = new PIXI.Graphics();
+        background_dimmer.beginFill(0x0, 0.5);
+        background_dimmer.drawRect(0, 0, this.getRenderWidth(), this.getRenderHeight());
+        this.master_container.addChild(background_sprite);
+        this.master_container.addChild(background_dimmer);
+
+
+    },
+
+    create_cursor: function () {
+        this.cursor = new PIXI.Container();
+        var cursor_texture = PIXI.Texture.fromImage(osu.skins.cursor);
+        var cursor_middle_texture = PIXI.Texture.fromImage(osu.skins.cursormiddle);
+        var cursor_sprite = new PIXI.Sprite(cursor_texture);
+        var cursor_middle_sprite = new PIXI.Sprite(cursor_middle_texture);
+
+        cursor_sprite.anchor.set(0.5);
+        cursor_middle_sprite.anchor.set(0.5);
+
+        this.cursor.addChild(cursor_sprite);
+        this.cursor.addChild(cursor_middle_sprite);
+        this.cursor.x = this.getRenderWidth() / 2;
+        this.cursor.y = this.getRenderHeight() / 2;
+        this.master_container.addChild(this.cursor);
+    },
+
+
+
+    create_master_container: function () {
+      this.create_cursor();
+    },
+    renderScreen: function(){
+        osu.ui.renderer.fixed_aspect = true;
+        osu.ui.renderer.start();
+        this.create_master_container();
+        osu.ui.renderer.clearStage();
+        osu.ui.renderer.masterStage = this.master_container;
+    },
+
+    calculate_x: function(x){
+        if(x == 0){
+            return x;
+        }
+        return  (this.getRenderWidth()/512) * x;
+    },
+    calculate_y: function(y){
+        if(y == 0){
+            return y;
+        }
+        return  (this.getRenderHeight()/384) * y;
+    },
+
+
+    movecursor: function () {
+        if(this.replay_data.length == 1){
+            this.cursor.x = this.getRenderWidth() / 2;
+            this.cursor.y = this.getRenderHeight() / 2;
+        }
+        var next_movment = this.replay_data.shift();
+        if(next_movment.length == 4){
+
+            if(next_movment[3] != "0" && next_movment[3] != "5" && next_movment[3] != "10" && next_movment[3] != "15"){
+                console.log(next_movment);
+            }
+            var x =  this.calculate_x(parseFloat(next_movment[1]));
+            var y = this.calculate_y(parseFloat(next_movment[2]));
+            if(parseInt(next_movment[0]) < 0){
+                console.log("im not sure what to do with negatives");
+                this.cursor.x = x;
+                this.cursor.y = y;
+                console.log(osu.keypress.getKeys(next_movment[3]));
+                this.movecursor();
+            }
+            else{
+                var self = this;
+                setTimeout(function(){
+                    self.cursor.x = x;
+                    self.cursor.y = y;
+                    console.log(osu.keypress.getKeys(next_movment[3]));
+                    self.movecursor();
+                },parseInt(next_movment[0]));
+            }
+        }
+
+
+    }
 
 
 };
@@ -811,9 +1024,16 @@ osu.ui.interface.scorescreen = {
         replay_Sprite.width = this.getRenderWidth() *.2;
         replay_Sprite.height = this.getRenderHeight() *.2;
         replay_Sprite.anchor.set(0.5);
+        replay_Sprite.interactive = true;
+        replay_Sprite.on("mouseup", this.start_replay.bind(this));
         this.master_container.addChild(gradeSprite);
         this.master_container.addChild(replay_Sprite);
 
+    },
+    start_replay: function(){
+        osu.ui.interface.osugame.replay_data = replay.replayData.slice(0);
+        osu.ui.interface.osugame.renderScreen();
+        osu.ui.interface.osugame.movecursor();
     },
 
 
@@ -835,6 +1055,8 @@ osu.ui.interface.scorescreen = {
     },
 
     renderScoreScreen: function(){
+        osu.ui.renderer.fixed_aspect = false;
+        osu.ui.renderer.start();
         this.create_master_container();
         osu.ui.renderer.clearStage();
         osu.ui.renderer.masterStage = this.master_container;

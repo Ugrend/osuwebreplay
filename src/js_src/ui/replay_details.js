@@ -21,6 +21,5 @@ function showReplayData(){
     osu.ui.interface.scorescreen.grade = replay.grade;
     osu.ui.interface.scorescreen.accuracy = replay.accuracy;
     hideDropZone();
-    osu.ui.renderer.start();
     osu.ui.interface.scorescreen.renderScoreScreen();
 }

@@ -101,10 +101,16 @@ var ReplayParser = function(replay_data){
     LZMA.decompress(
       RP.replay_bytes.slice(RP.byte_index),
         function(data) {
-            replay.replayData = data;
+            var replayData = data.split(",");
+            for(var i = 0 ; i< replayData.length ; i++){
+               replayData[i] = replayData[i].split("|");
+            }
+            replay.replayData = replayData;
         },
         function(){}
     );
+
+
 
 
     var epoch = (replay.time_played - 621355968000000000) / 10000 ;
