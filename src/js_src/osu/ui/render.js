@@ -37,12 +37,15 @@ osu.ui.renderer = {
         this.renderer.view.style.height = this.renderHeight + 'px';
     },
     start: function () {
-        this.renderWidth = window.innerWidth *.98;
-        this.renderHeight = window.innerHeight *.98;
-        this.renderer = PIXI.autoDetectRenderer(this.renderWidth, this.renderHeight ,{transparent: true})
-        this.render_zone.appendChild(this.renderer.view);
-        this.animate();
-        window.onresize = this.resize.bind(this);
+        if(this.renderer == null) {
+            this.renderWidth = window.innerWidth *.98;
+            this.renderHeight = window.innerHeight *.98;
+            this.renderer = PIXI.autoDetectRenderer(this.renderWidth, this.renderHeight, {transparent: true})
+            this.render_zone.appendChild(this.renderer.view);
+            this.animate();
+            window.onresize = this.resize.bind(this);
+        }
+        console.log("renderer already started");
     },
     hide: function () {
         this.render_zone.innerHTML = "";

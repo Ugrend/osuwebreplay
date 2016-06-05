@@ -94,7 +94,7 @@ var ReplayParser = function(replay_data){
         fullClear: RP.getByte(),
         mods: RP.getInteger(),
         lifeBar: RP.getString(),
-        timeTicks: RP.getLong(),
+        time_played: RP.getLong(),
         replayByteLength: RP.getInteger()
     };
 
@@ -105,5 +105,15 @@ var ReplayParser = function(replay_data){
         },
         function(){}
     );
+
+
+    var epoch = (replay.time_played - 621355968000000000) / 10000 ;
+    var date_time = new Date(epoch);
+    replay.time_played = date_time.toLocaleString();
+
+
+    replay.grade = osu.score.getGrade(replay.h300 + replay.hGekis, replay.h100 + replay.hKatus, replay.h50,replay.hMisses).name;
+    replay.accuracy = osu.score.getAccuracy(replay.h300 + replay.hGekis, replay.h100 + replay.hKatus, replay.h50,replay.hMisses);
+
     return replay;
 };

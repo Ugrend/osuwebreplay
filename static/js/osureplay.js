@@ -30,10 +30,21 @@ Just adding this for testing will prob remove
  */
 
 function showReplayData(){
-    mainArea.innerHTML = "";
-    for(var k in replay){
-        mainArea.innerHTML += '<p>' + k + " : " + replay[k] + "</p>";
-    }
+    osu.ui.interface.scorescreen.played_by = replay.playerName;
+    osu.ui.interface.scorescreen.date_played = replay.time_played;
+    osu.ui.interface.scorescreen.total_score = replay.tScore;
+    osu.ui.interface.scorescreen.t300Hits = replay.h300;
+    osu.ui.interface.scorescreen.t300gHits = replay.hGekis;
+    osu.ui.interface.scorescreen.t100Hits = replay.h100;
+    osu.ui.interface.scorescreen.t100kHits = replay.hKatus;
+    osu.ui.interface.scorescreen.t50Hits = replay.h50;
+    osu.ui.interface.scorescreen.tMissHits = replay.hMisses ;
+    osu.ui.interface.scorescreen.maxCombo = replay.tCombo;
+    osu.ui.interface.scorescreen.grade = replay.grade;
+    osu.ui.interface.scorescreen.accuracy = replay.accuracy;
+    hideDropZone();
+    osu.ui.renderer.start();
+    osu.ui.interface.scorescreen.renderScoreScreen();
 }
 /**
  * Created by Ugrend on 4/06/2016.
@@ -74,12 +85,15 @@ osu.ui.renderer = {
         this.renderer.view.style.height = this.renderHeight + 'px';
     },
     start: function () {
-        this.renderWidth = window.innerWidth *.98;
-        this.renderHeight = window.innerHeight *.98;
-        this.renderer = PIXI.autoDetectRenderer(this.renderWidth, this.renderHeight ,{transparent: true})
-        this.render_zone.appendChild(this.renderer.view);
-        this.animate();
-        window.onresize = this.resize.bind(this);
+        if(this.renderer == null) {
+            this.renderWidth = window.innerWidth *.98;
+            this.renderHeight = window.innerHeight *.98;
+            this.renderer = PIXI.autoDetectRenderer(this.renderWidth, this.renderHeight, {transparent: true})
+            this.render_zone.appendChild(this.renderer.view);
+            this.animate();
+            window.onresize = this.resize.bind(this);
+        }
+        console.log("renderer already started");
     },
     hide: function () {
         this.render_zone.innerHTML = "";
@@ -228,7 +242,7 @@ var ReplayParser = function(replay_data){
         fullClear: RP.getByte(),
         mods: RP.getInteger(),
         lifeBar: RP.getString(),
-        timeTicks: RP.getLong(),
+        time_played: RP.getLong(),
         replayByteLength: RP.getInteger()
     };
 
@@ -239,6 +253,16 @@ var ReplayParser = function(replay_data){
         },
         function(){}
     );
+
+
+    var epoch = (replay.time_played - 621355968000000000) / 10000 ;
+    var date_time = new Date(epoch);
+    replay.time_played = date_time.toLocaleString();
+
+
+    replay.grade = osu.score.getGrade(replay.h300 + replay.hGekis, replay.h100 + replay.hKatus, replay.h50,replay.hMisses).name;
+    replay.accuracy = osu.score.getAccuracy(replay.h300 + replay.hGekis, replay.h100 + replay.hKatus, replay.h50,replay.hMisses);
+
     return replay;
 };
 
@@ -573,7 +597,7 @@ osu.ui.interface.scorescreen = {
         this.map_made_by.x = 5;
         this.map_made_by.y = this.map_name_text.y + (this.getRenderHeight() * 0.04);
 
-        this.map_played_by = new PIXI.Text("Played by "+ this.played_by  +"on " + this.date_played, this.map_details_style);
+        this.map_played_by = new PIXI.Text("Played by "+ this.played_by  +" on " + this.date_played + ".", this.map_details_style);
         this.map_played_by.x = 5;
         this.map_played_by.y = this.map_made_by.y + (this.getRenderHeight() * 0.03);
 

@@ -84,7 +84,7 @@ osu.ui.interface.scorescreen = {
         this.map_made_by.x = 5;
         this.map_made_by.y = this.map_name_text.y + (this.getRenderHeight() * 0.04);
 
-        this.map_played_by = new PIXI.Text("Played by "+ this.played_by  +"on " + this.date_played, this.map_details_style);
+        this.map_played_by = new PIXI.Text("Played by "+ this.played_by  +" on " + this.date_played + ".", this.map_details_style);
         this.map_played_by.x = 5;
         this.map_played_by.y = this.map_made_by.y + (this.getRenderHeight() * 0.03);
 
