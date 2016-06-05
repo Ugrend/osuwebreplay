@@ -22,6 +22,14 @@ osu.ui.interface.osugame = {
 
     master_container: new PIXI.Container(),
     replay_data: [],
+    key_1_count: 0,
+    key_2_count: 0,
+    key_3_count: 0,
+    key_4_count: 0,
+    key_1_pressed: false,
+    key_2_pressed: false,
+    key_3_pressed: false,
+    key_4_pressed: false,
 
 
     getRenderWidth: function(){
@@ -47,6 +55,47 @@ osu.ui.interface.osugame = {
 
     },
 
+    create_key_press: function(){
+        this.keypress_area = new PIXI.Container();
+        var keypress_texture = PIXI.Texture.fromImage(osu.skins.inputoverlay_key);
+        this.keypress_1 = new PIXI.Sprite(keypress_texture);
+        this.keypress_2 = new PIXI.Sprite(keypress_texture);
+        this.keypress_3 = new PIXI.Sprite(keypress_texture);
+        this.keypress_4 = new PIXI.Sprite(keypress_texture);
+
+        this.keypress_1_Text = new PIXI.Text(this.key_1_count > 0 && this.key_1_count.toString() || "K1", this.score_font_style);
+        this.keypress_2_Text = new PIXI.Text(this.key_2_count > 0 && this.key_2_count.toString() || "K2", this.score_font_style);
+        this.keypress_3_Text = new PIXI.Text(this.key_3_count > 0 && this.key_3_count.toString() || "M1", this.score_font_style);
+        this.keypress_4_Text = new PIXI.Text(this.key_4_count > 0 && this.key_4_count.toString() || "K2", this.score_font_style);
+
+        this.keypress_1.tint = 0xFFFF00;
+
+
+        this.keypress_1.x = this.getRenderWidth() - 40;
+        this.keypress_1.y = this.getRenderHeight() /2 - 50;
+        this.keypress_1.anchor.set(0.5);
+
+        this.keypress_2.x = this.getRenderWidth() - 40;
+        this.keypress_2.y = this.getRenderHeight() /2;
+        this.keypress_2.anchor.set(0.5);
+
+        this.keypress_3.x = this.getRenderWidth() - 40;
+        this.keypress_3.y = this.getRenderHeight() /2 + 50;
+        this.keypress_3.anchor.set(0.5);
+
+        this.keypress_4.x = this.getRenderWidth() - 40;
+        this.keypress_4.y = this.getRenderHeight() /2 + 100;
+        this.keypress_4.anchor.set(0.5);
+
+
+        this.keypress_area.addChild(this.keypress_1);
+        this.keypress_area.addChild(this.keypress_2);
+        this.keypress_area.addChild(this.keypress_3);
+        this.keypress_area.addChild(this.keypress_4);
+        this.master_container.addChild(this.keypress_area);
+    },
+
+
     create_cursor: function () {
         this.cursor = new PIXI.Container();
         var cursor_texture = PIXI.Texture.fromImage(osu.skins.cursor);
@@ -66,8 +115,11 @@ osu.ui.interface.osugame = {
 
 
 
+
     create_master_container: function () {
-      this.create_cursor();
+        this.create_key_press();
+        this.create_cursor();
+
     },
     renderScreen: function(){
         osu.ui.renderer.fixed_aspect = true;
@@ -108,7 +160,7 @@ osu.ui.interface.osugame = {
                 console.log("im not sure what to do with negatives");
                 this.cursor.x = x;
                 this.cursor.y = y;
-                console.log(osu.keypress.getKeys(next_movment[3]));
+
                 this.movecursor();
             }
             else{
@@ -116,7 +168,7 @@ osu.ui.interface.osugame = {
                 setTimeout(function(){
                     self.cursor.x = x;
                     self.cursor.y = y;
-                    console.log(osu.keypress.getKeys(next_movment[3]));
+
                     self.movecursor();
                 },parseInt(next_movment[0]));
             }

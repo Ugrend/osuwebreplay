@@ -46,6 +46,8 @@ osu.skins = {
     cursor_smoke: "data/cursor-smoke.png",
 
 
+    inputoverlay_key: "data/inputoverlay-key.png",
+
     //Playfield
     section_fail: "data/Section-fail.png",
     section_pass: "data/Section-pass.png",
