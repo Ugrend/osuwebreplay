@@ -654,6 +654,16 @@ osu.ui.interface.osugame = {
 
     },
 
+    tint_untint_key: function(key, do_tint){
+        if(do_tint) {
+            key.tint = 0xFFFF00;
+        }
+        else{
+            key.tint = 0xFFFFFF;
+        }
+    },
+
+
     create_key_press: function(){
         this.keypress_area = new PIXI.Container();
         var keypress_texture = PIXI.Texture.fromImage(osu.skins.inputoverlay_key);
@@ -773,16 +783,53 @@ osu.ui.interface.osugame = {
         }
         var next_movment = this.replay_data.shift();
         if(next_movment.length == 4){
-
-            if(next_movment[3] != "0" && next_movment[3] != "5" && next_movment[3] != "10" && next_movment[3] != "15"){
-                console.log(next_movment);
-            }
             var x =  this.calculate_x(parseFloat(next_movment[1]));
             var y = this.calculate_y(parseFloat(next_movment[2]));
+            var keys_pressed = osu.keypress.getKeys(parseInt(next_movment[3]));
+            var tint_1 = false;
+            var tint_2 = false;
+            var tint_3 = false;
+            var tint_4 = false;
+
+            for (var k in osu.keypress.KEYS) {
+                var key_int = osu.keypress.KEYS[k];
+                if(keys_pressed.indexOf(key_int) != -1){
+                    if(key_int == osu.keypress.KEYS.NONE){
+                        tint_1 = false;
+                        tint_2 = false;
+                        tint_3 = false;
+                        tint_4 = false;
+                        continue;
+                    }
+                    if(key_int == osu.keypress.KEYS.K1){
+                        tint_1 = true;
+                        continue;
+                    }
+                    if(key_int == osu.keypress.KEYS.K2){
+                        tint_2 = true;
+                        continue;
+                    }
+                    if(key_int == osu.keypress.KEYS.M1){
+                        tint_3 = true;
+                        continue;
+                    }
+                    if(key_int == osu.keypress.KEYS.M2){
+                        tint_4 = true;
+                    }
+                }
+
+            }
+            this.tint_untint_key(this.keypress_1,tint_1);
+            this.tint_untint_key(this.keypress_2,tint_2);
+            this.tint_untint_key(this.keypress_3,tint_3);
+            this.tint_untint_key(this.keypress_4,tint_4);
+
             if(parseInt(next_movment[0]) < 0){
                 console.log("im not sure what to do with negatives");
                 this.cursor.x = x;
                 this.cursor.y = y;
+
+
 
                 this.movecursor();
             }
