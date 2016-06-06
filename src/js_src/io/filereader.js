@@ -19,10 +19,21 @@ else {
         reader.onloadend = function (event) {
 
             if(event.target.readyState === 2){
-                if(file.name.split(".").pop() == "osr"){
-                    var replay_data = event.target.result;
-                    replay = new ReplayParser(replay_data);
-                    showReplayData();
+                switch(file.name.split(".").pop()){
+                    case "osr":
+                        //osu replay
+                        var replay_data = event.target.result;
+                        replay = ReplayParser(replay_data);
+                        showReplayData();
+                        break;
+                    case "osz":
+                        //osu beatmap
+                        break;
+                    case "osk":
+                        //osu skins
+                        break;
+                    default:
+                        console.log("how did you get here");
                 }
             }else{
                 dragDropLabel.innerHTML = "Well ummm, yeh i dont know what to do but something went wrong";
@@ -31,7 +42,9 @@ else {
 
         };
 
-        if(file.name.split(".").pop() !== "osr" && file.name.split(".").pop() !== "osz"){
+        if(file.name.split(".").pop() !== "osr"
+            && file.name.split(".").pop() !== "osz"
+            && file.name.split(".").pop() !== "osk"){
             dragDropLabel.innerHTML = "i dont know what that is";
             resetLabel();
         }else{

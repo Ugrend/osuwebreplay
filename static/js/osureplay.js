@@ -132,6 +132,21 @@ osu.ui.renderer = {
 
 
 /**
+ * Created by Ugrend on 6/06/2016.
+ */
+
+
+var BeatmapReader = function(beatmap_zip) {
+    var beatMap = {};
+
+
+
+
+    return beatMap;
+
+
+};
+/**
  * Created by Ugrend on 6/2/2016.
  */
 if(typeof window.FileReader === "undefined"){
@@ -152,10 +167,21 @@ else {
         reader.onloadend = function (event) {
 
             if(event.target.readyState === 2){
-                if(file.name.split(".").pop() == "osr"){
-                    var replay_data = event.target.result;
-                    replay = new ReplayParser(replay_data);
-                    showReplayData();
+                switch(file.name.split(".").pop()){
+                    case "osr":
+                        //osu replay
+                        var replay_data = event.target.result;
+                        replay = ReplayParser(replay_data);
+                        showReplayData();
+                        break;
+                    case "osz":
+                        //osu beatmap
+                        break;
+                    case "osk":
+                        //osu skins
+                        break;
+                    default:
+                        console.log("how did you get here");
                 }
             }else{
                 dragDropLabel.innerHTML = "Well ummm, yeh i dont know what to do but something went wrong";
@@ -164,7 +190,9 @@ else {
 
         };
 
-        if(file.name.split(".").pop() !== "osr" && file.name.split(".").pop() !== "osz"){
+        if(file.name.split(".").pop() !== "osr"
+            && file.name.split(".").pop() !== "osz"
+            && file.name.split(".").pop() !== "osk"){
             dragDropLabel.innerHTML = "i dont know what that is";
             resetLabel();
         }else{
@@ -300,6 +328,19 @@ var ReplayParser = function(replay_data){
 };
 
 /**
+ * Created by Ugrend on 6/06/2016.
+ */
+var SkinReader = function(skin_zip) {
+    var skins = {};
+
+
+
+
+    return skins;
+
+
+};
+/**
  * Created by Ugrend on 4/06/2016.
  */
 
@@ -346,6 +387,7 @@ osu.keypress = Object.freeze({
         C: 16
     },
 
+    //TODO: need to work out how this works, its returning wrong keys i think
     getKeys: function(keys_int){
         var keys = [];
         if (keys_int == 0) {
@@ -790,7 +832,7 @@ osu.ui.interface.osugame = {
             var tint_2 = false;
             var tint_3 = false;
             var tint_4 = false;
-
+            //TODO: fix this
             for (var k in osu.keypress.KEYS) {
                 var key_int = osu.keypress.KEYS[k];
                 if(keys_pressed.indexOf(key_int) != -1){
@@ -799,19 +841,15 @@ osu.ui.interface.osugame = {
                         tint_2 = false;
                         tint_3 = false;
                         tint_4 = false;
-                        continue;
                     }
                     if(key_int == osu.keypress.KEYS.K1){
                         tint_1 = true;
-                        continue;
                     }
                     if(key_int == osu.keypress.KEYS.K2){
                         tint_2 = true;
-                        continue;
                     }
                     if(key_int == osu.keypress.KEYS.M1){
                         tint_3 = true;
-                        continue;
                     }
                     if(key_int == osu.keypress.KEYS.M2){
                         tint_4 = true;

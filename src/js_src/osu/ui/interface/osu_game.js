@@ -191,7 +191,7 @@ osu.ui.interface.osugame = {
             var tint_2 = false;
             var tint_3 = false;
             var tint_4 = false;
-
+            //TODO: fix this
             for (var k in osu.keypress.KEYS) {
                 var key_int = osu.keypress.KEYS[k];
                 if(keys_pressed.indexOf(key_int) != -1){
@@ -200,19 +200,15 @@ osu.ui.interface.osugame = {
                         tint_2 = false;
                         tint_3 = false;
                         tint_4 = false;
-                        continue;
                     }
                     if(key_int == osu.keypress.KEYS.K1){
                         tint_1 = true;
-                        continue;
                     }
                     if(key_int == osu.keypress.KEYS.K2){
                         tint_2 = true;
-                        continue;
                     }
                     if(key_int == osu.keypress.KEYS.M1){
                         tint_3 = true;
-                        continue;
                     }
                     if(key_int == osu.keypress.KEYS.M2){
                         tint_4 = true;
