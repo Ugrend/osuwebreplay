@@ -7,6 +7,8 @@ var mainArea = document.getElementById('main_zone');
 var dragDropZone = document.getElementById('dragdrop');
 var dragDropLabel = document.getElementById('drag_label');
 var replay = "";
+var beatmap;
+zip.workerScriptsPath = "static/libs/js/";
 /**
  * Created by Ugrend on 6/2/2016.
  */
@@ -136,16 +138,100 @@ osu.ui.renderer = {
  */
 
 
-var BeatmapReader = function(beatmap_zip) {
-    var beatMap = {};
 
+var BeatmapReader = function(beatmap_zip_file) {
+    var beatMap = {
+        maps: [],
+        backgrounds: [],
+        mp3s:[],
+        skins:[]
+    };
+
+
+
+    zip.createReader(new zip.BlobReader(beatmap_zip_file), function(reader) {
+
+        // get all entries from the zip
+        reader.getEntries(function(entries) {
+            if (entries.length) {
+                for(var i = 0; i < entries.length; i++){
+                    var filename = entries[i].filename;
+                    if(entries[i].filename.split(".").pop() == "osu"){
+                        entries[i].getData(new zip.TextWriter(), function(text) {
+                            //TODO: get md5sum
+                            beatMap.maps.push(text);
+                            reader.close(function() {
+                                console.log("done");
+                            });
+                        }, function(current, total) {
+
+                        });
+                    }
+
+                   // console.log(entries[i].filename);
+                }
+
+
+            }
+
+        });
+    }, function(error) {
+        console.log(error);
+    });
 
 
 
     return beatMap;
-
-
 };
+/*
+
+ if(filename.split(".").pop() == "png"){
+ //TODO: its possible that the background is a png and is not a skin therefore does not belong here,
+ //It should later parse the beatmaps and move the png out of this and to the backgrounds array
+ entries[i].getData(new zip.Data64URIWriter('image/png'), function(data) {
+ beatMap.skins.push({
+ filename: filename,
+ data: data,
+ md5sum: "TODO",
+ });
+ reader.close(function() {
+
+ });
+ }, function(current, total) {
+
+ });
+ }
+ if(filename.split(".").pop() == "wav"){
+ entries[i].getData(new zip.Data64URIWriter('audio/wav'), function(data) {
+ beatMap.skins.push({
+ filename: filename,
+ data: data,
+ md5sum: "TODO"
+ });
+ reader.close(function() {
+
+ });
+ }, function(current, total) {
+
+ });
+ }
+
+ if(filename.split(".").pop() == "jpg" || filename.split(".").pop() == "jpeg"){
+ entries[i].getData(new zip.Data64URIWriter('image/jpeg'), function(data) {
+ beatMap.backgrounds.push({
+ filename: filename,
+ data: data,
+ md5sum: "TODO",
+ });
+ reader.close(function() {
+
+ });
+ }, function(current, total) {
+
+ });
+ }
+
+ */
 /**
  * Created by Ugrend on 6/2/2016.
  */
@@ -167,22 +253,9 @@ else {
         reader.onloadend = function (event) {
 
             if(event.target.readyState === 2){
-                switch(file.name.split(".").pop()){
-                    case "osr":
-                        //osu replay
                         var replay_data = event.target.result;
                         replay = ReplayParser(replay_data);
                         showReplayData();
-                        break;
-                    case "osz":
-                        //osu beatmap
-                        break;
-                    case "osk":
-                        //osu skins
-                        break;
-                    default:
-                        console.log("how did you get here");
-                }
             }else{
                 dragDropLabel.innerHTML = "Well ummm, yeh i dont know what to do but something went wrong";
                 resetLabel();
@@ -190,17 +263,26 @@ else {
 
         };
 
-        if(file.name.split(".").pop() !== "osr"
-            && file.name.split(".").pop() !== "osz"
-            && file.name.split(".").pop() !== "osk"){
-            dragDropLabel.innerHTML = "i dont know what that is";
-            resetLabel();
-        }else{
-            reader.readAsBinaryString(file);
-        }
+
+            if(file.name.split(".").pop() == "osr") {
+                reader.readAsBinaryString(file);
+            }else if(file.name.split(".").pop() == "osz"){
+                //beatmap
+                console.log(BeatmapReader(file));
+            }else if(file.name.split(".").pop() !== "osk"){
+                //skin
+            }else{
+                dragDropLabel.innerHTML = "i dont know what that is";
+                resetLabel();
+            }
+
         return false;
     };
 }
+/**
+ * Created by Ugrend on 6/06/2016.
+ */
+
 /**
  * Created by Ugrend on 2/06/2016.
  */
