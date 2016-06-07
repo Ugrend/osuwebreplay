@@ -10,10 +10,10 @@ osu.skins = {
 
     //hitbursts
     hit300: "data/hit300.png",
-    hit300g: "data/hit300.png",
-    hit300k: "data/hit300.png",
+    hit300g: "data/hit300g.png",
+    hit300k: "data/hit300k.png",
     hit100: "data/hit100.png",
-    hit100k: "data/hit100.png",
+    hit100k: "data/hit100k.png",
     hit50: "data/hit50.png",
     hit0: "data/hit0.png",
 
