@@ -34,7 +34,9 @@ else {
                 reader.readAsBinaryString(file);
             }else if(file.name.split(".").pop() == "osz"){
                 //beatmap
-                console.log(BeatmapReader(file));
+                BeatmapReader(file, function (bm) {
+                    beatmap =  bm;
+                });
             }else if(file.name.split(".").pop() !== "osk"){
                 //skin
             }else{
