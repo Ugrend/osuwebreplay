@@ -7,7 +7,7 @@ var mainArea = document.getElementById('main_zone');
 var dragDropZone = document.getElementById('dragdrop');
 var dragDropLabel = document.getElementById('drag_label');
 var replay = "";
-var beatmap;
+var beatmap =null;
 zip.workerScriptsPath = "static/libs/js/";
 /**
  * Created by Ugrend on 6/2/2016.
@@ -139,12 +139,12 @@ osu.ui.renderer = {
 
 
 
-var BeatmapReader = function(beatmap_zip_file, callback) {
+var BeatmapReader = function (beatmap_zip_file, callback) {
     var beatMap = {
         maps: [],
         backgrounds: [],
-        mp3s:[],
-        skins:[]
+        mp3s: [],
+        skins: []
     };
 
     var zip_length = 0;
@@ -152,21 +152,99 @@ var BeatmapReader = function(beatmap_zip_file, callback) {
     var beatmaps = 0;
     var beatmaps_loaded = 0;
 
+    /**
+     * Converts osu data/beatmap config file into a JS object
+     * @param data
+     * @returns {{version: string, general: {}, metadata: {}, difficulty: {}, events: Array, timing_points: Array, colours: {}, hit_objects: Array}}
+     */
+    var parse_osu_map_data = function (data) {
+        var beatmap_config = {
+            version: "",
+            general: {},
+            metadata: {},
+            difficulty: {},
+            events: [],
+            timing_points: [],
+            colours: {},
+            hit_objects: []
+        };
+        var lines = data.replace("\r", "").split("\n");
+        beatmap_config.version = lines[0];
+        var current_setting = null;
+        for (var i = 0; i < lines.length; i++) {
+            var line = lines[i].trim();
+            if (line === "") {
+                continue;
+            }
+            if (line.indexOf("//") == 0) {
+                continue;
+            }
+            if (line.indexOf("[") == 0) {
+                current_setting = line.toLowerCase();
+                continue;
+            }
+            switch (current_setting) {
+                case "[general]":
+                    var settings = line.split(":");
+                    if (settings.length == 2) {
+                        beatmap_config.general[settings[0]] = settings[1].trim();
+                    }
+                    break;
+                case "[editor]":
+                    break;
+                case "[metadata]":
+                    var settings = line.split(":");
+                    if (settings.length > 1) {
+                        // Im not sure if title/creator/etc can have : in them but just to be safe ill assume it can
+                        beatmap_config.metadata[settings[0]] = settings.splice(1).join(":").trim()
+                    }
+                    break;
+                case "[difficulty]":
+                    var settings = line.split(":");
+                    if (settings.length == 2) {
+                        beatmap_config.difficulty[settings[0]] = settings[1];
+                    }
+                    break;
+                case "[events]":
+                    beatmap_config.events.push(line.split(","));
+                    break;
+                case "[timingpoints]":
+                    beatmap_config.timing_points.push(line.split(","));
+                    break;
+                case "[colours]":
+                    var settings = line.split(":");
+                    if (settings.length == 2) {
+                        beatmap_config.colours[settings[0]] = settings[1].split(",");
+                    }
+                    break;
+                case "[hitobjects]":
+                    beatmap_config.hit_objects.push(line);
+                    break;
+
+            }
+
+
+        }
+
+        return beatmap_config;
+    };
+
+
     var beatmap_loaded = function () {
-        if(beatmaps_loaded == beatmaps) {
+        if (beatmaps_loaded == beatmaps) {
             console.log("beatmap processed")
             callback(beatMap);
         }
     };
 
     var processing_complete = function () {
-        if(extracted == zip_length) {
+        if (extracted == zip_length) {
 
             beatmaps = beatMap.maps.length;
-            for(var i = 0; i < beatMap.maps.length; i++){
+            for (var i = 0; i < beatMap.maps.length; i++) {
                 var beatmap = beatMap.maps[i];
                 beatmap.files = [];
-                for(var x = 0; x < beatMap.backgrounds.length; x++){
+                for (var x = 0; x < beatMap.backgrounds.length; x++) {
 
                     beatmap.files.push(
                         {
@@ -175,7 +253,7 @@ var BeatmapReader = function(beatmap_zip_file, callback) {
                         }
                     )
                 }
-                for(x = 0; x < beatMap.mp3s.length; x++){
+                for (x = 0; x < beatMap.mp3s.length; x++) {
                     beatmap.files.push(
                         {
                             md5sum: beatMap.mp3s[x].md5sum,
@@ -183,7 +261,7 @@ var BeatmapReader = function(beatmap_zip_file, callback) {
                         }
                     )
                 }
-                for(x = 0; x < beatMap.skins.length; x++){
+                for (x = 0; x < beatMap.skins.length; x++) {
                     beatmap.files.push(
                         {
                             md5sum: beatMap.mp3s[x].md5sum,
@@ -191,8 +269,8 @@ var BeatmapReader = function(beatmap_zip_file, callback) {
                         }
                     )
                 }
-
-                database.insert_data(database.TABLES.BEATMAPS,beatmap.md5sum ,beatmap, function () {
+                beatmap.parsed = parse_osu_map_data(beatmap.data);
+                database.insert_data(database.TABLES.BEATMAPS, beatmap.md5sum, beatmap, function () {
                     beatmaps_loaded++;
                     beatmap_loaded();
                 }, function () {
@@ -203,22 +281,20 @@ var BeatmapReader = function(beatmap_zip_file, callback) {
             }
 
 
-
-
         }
     };
 
-    zip.createReader(new zip.BlobReader(beatmap_zip_file), function(reader) {
+    zip.createReader(new zip.BlobReader(beatmap_zip_file), function (reader) {
 
         // get all entries from the zip
-        reader.getEntries(function(entries) {
+        reader.getEntries(function (entries) {
             if (entries.length) {
                 zip_length = entries.length;
-                for(var i = 0; i < entries.length; i++){
+                for (var i = 0; i < entries.length; i++) {
 
-                    if(entries[i].filename.split(".").pop() == "osu"){
+                    if (entries[i].filename.split(".").pop() == "osu") {
                         var extract_data = function (i) {
-                            entries[i].getData(new zip.TextWriter(), function(text) {
+                            entries[i].getData(new zip.TextWriter(), function (text) {
                                 var filename = entries[i].filename;
                                 extracted++;
                                 var md5sum = md5(text);
@@ -229,16 +305,16 @@ var BeatmapReader = function(beatmap_zip_file, callback) {
                                 });
                                 //we add beatmaps to the db last to join to all the assets
                                 processing_complete();
-                            }, function(current, total) {
+                            }, function (current, total) {
 
                             });
                         };
                         extract_data(i);
                     }
 
-                    else if(entries[i].filename.split(".").pop() == "png"){
-                        var extract_data = function(i) {
-                            entries[i].getData(new zip.Data64URIWriter('image/png'), function(data) {
+                    else if (entries[i].filename.split(".").pop() == "png") {
+                        var extract_data = function (i) {
+                            entries[i].getData(new zip.Data64URIWriter('image/png'), function (data) {
                                 var filename = entries[i].filename;
                                 extracted++;
                                 var md5sum = md5(data);
@@ -247,15 +323,15 @@ var BeatmapReader = function(beatmap_zip_file, callback) {
                                     data: data,
                                     md5sum: md5sum,
                                 });
-                                database.insert_data(database.TABLES.ASSETS,md5sum,data,processing_complete,processing_complete);
-                            }, function(current, total) {
+                                database.insert_data(database.TABLES.ASSETS, md5sum, data, processing_complete, processing_complete);
+                            }, function (current, total) {
 
                             });
                         };
                         extract_data(i);
                     }
-                    else if(entries[i].filename.split(".").pop() == "wav"){
-                        var extract_data = function(i) {
+                    else if (entries[i].filename.split(".").pop() == "wav") {
+                        var extract_data = function (i) {
                             entries[i].getData(new zip.Data64URIWriter('audio/wav'), function (data) {
                                 var filename = entries[i].filename;
                                 extracted++;
@@ -265,7 +341,7 @@ var BeatmapReader = function(beatmap_zip_file, callback) {
                                     data: data,
                                     md5sum: md5sum
                                 });
-                                database.insert_data(database.TABLES.ASSETS,md5sum,data,processing_complete,processing_complete);
+                                database.insert_data(database.TABLES.ASSETS, md5sum, data, processing_complete, processing_complete);
                             }, function (current, total) {
 
                             });
@@ -273,9 +349,9 @@ var BeatmapReader = function(beatmap_zip_file, callback) {
                         extract_data(i)
                     }
 
-                    else if(entries[i].filename.split(".").pop() == "jpg" || entries[i].filename.split(".").pop() == "jpeg"){
+                    else if (entries[i].filename.split(".").pop() == "jpg" || entries[i].filename.split(".").pop() == "jpeg") {
                         var extract_data = function (i) {
-                            entries[i].getData(new zip.Data64URIWriter('image/jpeg'), function(data) {
+                            entries[i].getData(new zip.Data64URIWriter('image/jpeg'), function (data) {
                                 var filename = entries[i].filename;
                                 extracted++;
                                 var md5sum = md5(data);
@@ -285,16 +361,16 @@ var BeatmapReader = function(beatmap_zip_file, callback) {
                                     md5sum: md5sum
                                 });
 
-                                database.insert_data(database.TABLES.ASSETS,md5sum,data,processing_complete,processing_complete);
-                            }, function(current, total) {
+                                database.insert_data(database.TABLES.ASSETS, md5sum, data, processing_complete, processing_complete);
+                            }, function (current, total) {
 
                             });
                         };
                         extract_data(i)
                     }
 
-                    else if(entries[i].filename.split(".").pop() == "mp3"){
-                        var extract_data = function(i) {
+                    else if (entries[i].filename.split(".").pop() == "mp3") {
+                        var extract_data = function (i) {
                             entries[i].getData(new zip.Data64URIWriter('audio/mpeg'), function (data) {
                                 var filename = entries[i].filename;
                                 extracted++;
@@ -304,14 +380,14 @@ var BeatmapReader = function(beatmap_zip_file, callback) {
                                     data: data,
                                     md5sum: md5sum
                                 });
-                                database.insert_data(database.TABLES.ASSETS,md5sum,data,processing_complete,processing_complete);
+                                database.insert_data(database.TABLES.ASSETS, md5sum, data, processing_complete, processing_complete);
                             }, function (current, total) {
 
                             });
                         };
                         extract_data(i)
                     }
-                    else{
+                    else {
                         extracted++;
                         processing_complete();
                     }
@@ -322,7 +398,7 @@ var BeatmapReader = function(beatmap_zip_file, callback) {
             }
 
         });
-    }, function(error) {
+    }, function (error) {
         console.log(error);
     });
 
@@ -594,10 +670,48 @@ var SkinReader = function(skin_zip) {
 /**
  * Created by Ugrend on 4/06/2016.
  */
+// https://osu.ppy.sh/wiki/Osu_%28file_format%29
+
 
 var osu = osu || {};
 osu.beatmaps = {
-    background: "data/158023 UNDEAD CORPORATION - Everything will freeze/bg.jpg"
+    background: "",
+    __load_from_memory: false,
+    map_data: "",
+    beatmap_config: {
+        version: "",
+        general: {},
+        metadata: {},
+        difficulty: {},
+        events: [],
+        timing_points: [],
+        colours: {},
+        hit_objects: [],
+    },
+
+    load: function (md5sum, onsuccess, onerror) {
+        // check if last loaded beatmap has our data first (incase indexeddb is unavailable/etc)
+        if(beatmap){
+            for(var i=0; i < beatmap.maps.length; i++){
+                if(beatmap.maps[i].md5sum == md5sum){
+                    this.map_data = beatmap.maps[i];
+                    beatmap.locked = true; //lock the data to prevent droping another beatmap
+                    this.__load_from_memory = true;
+                    break;
+                }
+            }
+        }else{
+
+
+
+
+        }
+    }
+
+
+
+
+
 };
 /**
  * Created by Ugrend on 3/06/2016.

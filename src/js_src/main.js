@@ -7,5 +7,5 @@ var mainArea = document.getElementById('main_zone');
 var dragDropZone = document.getElementById('dragdrop');
 var dragDropLabel = document.getElementById('drag_label');
 var replay = "";
-var beatmap;
+var beatmap =null;
 zip.workerScriptsPath = "static/libs/js/";
