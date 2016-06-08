@@ -7,9 +7,7 @@
 var BeatmapReader = function (beatmap_zip_file, callback) {
     var beatMap = {
         maps: [],
-        backgrounds: [],
-        mp3s: [],
-        skins: []
+        assets: []
     };
 
     var zip_length = 0;
@@ -109,28 +107,11 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
             for (var i = 0; i < beatMap.maps.length; i++) {
                 var beatmap = beatMap.maps[i];
                 beatmap.files = [];
-                for (var x = 0; x < beatMap.backgrounds.length; x++) {
-
+                for (var x = 0; x < beatMap.assets.length; x++) {
                     beatmap.files.push(
                         {
-                            md5sum: beatMap.backgrounds[x].md5sum,
-                            filename: beatMap.backgrounds[x].filename
-                        }
-                    )
-                }
-                for (x = 0; x < beatMap.mp3s.length; x++) {
-                    beatmap.files.push(
-                        {
-                            md5sum: beatMap.mp3s[x].md5sum,
-                            filename: beatMap.mp3s[x].filename
-                        }
-                    )
-                }
-                for (x = 0; x < beatMap.skins.length; x++) {
-                    beatmap.files.push(
-                        {
-                            md5sum: beatMap.skins[x].md5sum,
-                            filename: beatMap.skins[x].filename
+                            md5sum: beatMap.assets[x].md5sum,
+                            filename: beatMap.assets[x].filename
                         }
                     )
                 }
@@ -183,7 +164,7 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
                                 var filename = entries[i].filename;
                                 extracted++;
                                 var md5sum = md5(data);
-                                beatMap.skins.push({
+                                beatMap.assets.push({
                                     filename: filename,
                                     data: data,
                                     md5sum: md5sum,
@@ -201,7 +182,7 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
                                 var filename = entries[i].filename;
                                 extracted++;
                                 var md5sum = md5(data);
-                                beatMap.skins.push({
+                                beatMap.assets.push({
                                     filename: filename,
                                     data: data,
                                     md5sum: md5sum
@@ -220,7 +201,7 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
                                 var filename = entries[i].filename;
                                 extracted++;
                                 var md5sum = md5(data);
-                                beatMap.backgrounds.push({
+                                beatMap.assets.push({
                                     filename: filename,
                                     data: data,
                                     md5sum: md5sum
@@ -240,7 +221,7 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
                                 var filename = entries[i].filename;
                                 extracted++;
                                 var md5sum = md5(data);
-                                beatMap.mp3s.push({
+                                beatMap.assets.push({
                                     filename: filename,
                                     data: data,
                                     md5sum: md5sum
