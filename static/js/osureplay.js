@@ -264,8 +264,8 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
                 for (x = 0; x < beatMap.skins.length; x++) {
                     beatmap.files.push(
                         {
-                            md5sum: beatMap.mp3s[x].md5sum,
-                            filename: beatMap.mp3s[x].filename
+                            md5sum: beatMap.skins[x].md5sum,
+                            filename: beatMap.skins[x].filename
                         }
                     )
                 }
