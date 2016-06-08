@@ -149,11 +149,62 @@ var BeatmapReader = function(beatmap_zip_file, callback) {
 
     var zip_length = 0;
     var extracted = 0;
+    var beatmaps = 0;
+    var beatmaps_loaded = 0;
+
+    var beatmap_loaded = function () {
+        if(beatmaps_loaded == beatmaps) {
+            console.log("beatmap processed")
+            callback(beatMap);
+        }
+    };
 
     var processing_complete = function () {
         if(extracted == zip_length) {
-            console.log("beatmap processed");
-            callback(beatMap);
+
+            beatmaps = beatMap.maps.length;
+            for(var i = 0; i < beatMap.maps.length; i++){
+                var beatmap = beatMap.maps[i];
+                beatmap.files = [];
+                for(var x = 0; x < beatMap.backgrounds.length; x++){
+
+                    beatmap.files.push(
+                        {
+                            md5sum: beatMap.backgrounds[x].md5sum,
+                            filename: beatMap.backgrounds[x].filename
+                        }
+                    )
+                }
+                for(x = 0; x < beatMap.mp3s.length; x++){
+                    beatmap.files.push(
+                        {
+                            md5sum: beatMap.mp3s[x].md5sum,
+                            filename: beatMap.mp3s[x].filename
+                        }
+                    )
+                }
+                for(x = 0; x < beatMap.skins.length; x++){
+                    beatmap.files.push(
+                        {
+                            md5sum: beatMap.mp3s[x].md5sum,
+                            filename: beatMap.mp3s[x].filename
+                        }
+                    )
+                }
+
+                database.insert_data(database.TABLES.BEATMAPS,beatmap.md5sum ,beatmap, function () {
+                    beatmaps_loaded++;
+                    beatmap_loaded();
+                }, function () {
+                    beatmaps_loaded++;
+                    beatmap_loaded();
+                });
+
+            }
+
+
+
+
         }
     };
 
@@ -170,34 +221,33 @@ var BeatmapReader = function(beatmap_zip_file, callback) {
                             entries[i].getData(new zip.TextWriter(), function(text) {
                                 var filename = entries[i].filename;
                                 extracted++;
+                                var md5sum = md5(text);
                                 beatMap.maps.push({
                                     filename: filename,
                                     data: text,
-                                    md5sum: md5(text)
+                                    md5sum: md5sum
                                 });
+                                //we add beatmaps to the db last to join to all the assets
                                 processing_complete();
-
                             }, function(current, total) {
 
                             });
                         };
                         extract_data(i);
-
                     }
 
                     else if(entries[i].filename.split(".").pop() == "png"){
-                        //TODO: its possible that the background is a png and is not a skin therefore does not belong here,
-                        //It should later parse the beatmaps and move the png out of this and to the backgrounds array
                         var extract_data = function(i) {
                             entries[i].getData(new zip.Data64URIWriter('image/png'), function(data) {
                                 var filename = entries[i].filename;
                                 extracted++;
+                                var md5sum = md5(data);
                                 beatMap.skins.push({
                                     filename: filename,
                                     data: data,
-                                    md5sum: md5(data),
+                                    md5sum: md5sum,
                                 });
-                                processing_complete();
+                                database.insert_data(database.TABLES.ASSETS,md5sum,data,processing_complete,processing_complete);
                             }, function(current, total) {
 
                             });
@@ -209,12 +259,13 @@ var BeatmapReader = function(beatmap_zip_file, callback) {
                             entries[i].getData(new zip.Data64URIWriter('audio/wav'), function (data) {
                                 var filename = entries[i].filename;
                                 extracted++;
+                                var md5sum = md5(data);
                                 beatMap.skins.push({
                                     filename: filename,
                                     data: data,
-                                    md5sum: md5(data)
+                                    md5sum: md5sum
                                 });
-                                processing_complete();
+                                database.insert_data(database.TABLES.ASSETS,md5sum,data,processing_complete,processing_complete);
                             }, function (current, total) {
 
                             });
@@ -226,14 +277,15 @@ var BeatmapReader = function(beatmap_zip_file, callback) {
                         var extract_data = function (i) {
                             entries[i].getData(new zip.Data64URIWriter('image/jpeg'), function(data) {
                                 var filename = entries[i].filename;
-                                extracted++
+                                extracted++;
+                                var md5sum = md5(data);
                                 beatMap.backgrounds.push({
                                     filename: filename,
                                     data: data,
-                                    md5sum: md5(data),
+                                    md5sum: md5sum
                                 });
 
-                                processing_complete();
+                                database.insert_data(database.TABLES.ASSETS,md5sum,data,processing_complete,processing_complete);
                             }, function(current, total) {
 
                             });
@@ -245,13 +297,14 @@ var BeatmapReader = function(beatmap_zip_file, callback) {
                         var extract_data = function(i) {
                             entries[i].getData(new zip.Data64URIWriter('audio/mpeg'), function (data) {
                                 var filename = entries[i].filename;
-                                extracted++
+                                extracted++;
+                                var md5sum = md5(data);
                                 beatMap.mp3s.push({
                                     filename: filename,
                                     data: data,
-                                    md5sum: md5(data)
+                                    md5sum: md5sum
                                 });
-                                processing_complete();
+                                database.insert_data(database.TABLES.ASSETS,md5sum,data,processing_complete,processing_complete);
                             }, function (current, total) {
 
                             });
@@ -331,51 +384,74 @@ window.indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndex
 window.IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction || window.msIDBTransaction;
 window.IDBKeyRange = window.IDBKeyRange || window.webkitIDBKeyRange || window.msIDBKeyRange;
 
-var db;
+
+var database = {
+
+    __db: null,
+    __started: false,
+
+    TABLES: Object.freeze({
+        BEATMAPS: "beatmaps",
+        REPLAYS: "replays",
+        SKINS: "skins",
+        ASSETS: "assets",
+
+    }),
+
+
+    init: function () {
+        var self = this;
+        var openRequest = indexedDB.open("osu", 1);
+        openRequest.onupgradeneeded = function (e) {
+            var thisDB = e.target.result;
+            for(var k in database.TABLES){
+                if (!thisDB.objectStoreNames.contains(database.TABLES[k])) {
+                    thisDB.createObjectStore(database.TABLES[k]);
+                }
+            }
+        };
+        openRequest.onsuccess = function (e) {
+            self.__db = e.target.result;
+            self.__started = true;
+        };
+        openRequest.onerror = function (e) {
+            console.log(e);
+        }
+
+    },
+
+    insert_data: function (table, md5sum, data, onsuccess, onerror) {
+        if (this.__started) {
+            var transaction = this.__db.transaction([table], "readwrite").objectStore(table).add(data, md5sum);
+            transaction.onsuccess = onsuccess;
+            transaction.onerror = function(e){
+                console.log(e.target.error);
+                onerror(e);
+            };
+        }
+        else {
+            onerror("db not started");
+        }
+
+    },
+    get_data: function (table, md5sum, onsuccess, onerror) {
+        if (this.__started) {
+            var query = this.__db.transaction([table], "readonly").objectStore(table).get(md5sum);
+            query.onsuccess = onsuccess;
+            query.onerror = onerror;
+        } else {
+             onerror("db not started");
+        }
+    }
+
+};
+
 if (!window.indexedDB) {
     console.log("no index db = no storage ")
 }
-else{
-
-    var openRequest = indexedDB.open("osu",1);
-    openRequest.onupgradeneeded = function(e) {
-        var thisDB = e.target.result;
-
-        if(!thisDB.objectStoreNames.contains("beatmaps")) {
-            thisDB.createObjectStore("beatmaps");
-        }
-        if(!thisDB.objectStoreNames.contains("replays")) {
-            thisDB.createObjectStore("replays");
-        }
-        if(!thisDB.objectStoreNames.contains("skins")) {
-            thisDB.createObjectStore("skins");
-        }
-        if(!thisDB.objectStoreNames.contains("assets")) {
-            thisDB.createObjectStore("assets");
-        }
-    };
-    openRequest.onsuccess = function(e) {
-        db = e.target.result;
-    };
-    openRequest.onerror = function(e) {
-        console.log(e);
-    }
+else {
+    database.init();
 }
-
-
-function insert_data(table, md5sum, data, onsuccess, onerror) {
-    var transaction = db.transaction([table], "readwrite").objectStore(table).add(data,md5sum);
-    transaction.onsuccess = onsuccess;
-    transaction.onerror = onerror;
-}
-
-function get_data(table, md5sum, onsuccess, onerror) {
-    var query = db.transaction([table], "readonly").objectStore(table).get(md5sum);
-    query.onsuccess = onsuccess;
-    query.onerror = onerror;
-}
-
-
 /**
  * Created by Ugrend on 2/06/2016.
  */

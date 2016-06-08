@@ -5,47 +5,71 @@ window.indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndex
 window.IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction || window.msIDBTransaction;
 window.IDBKeyRange = window.IDBKeyRange || window.webkitIDBKeyRange || window.msIDBKeyRange;
 
-var db;
+
+var database = {
+
+    __db: null,
+    __started: false,
+
+    TABLES: Object.freeze({
+        BEATMAPS: "beatmaps",
+        REPLAYS: "replays",
+        SKINS: "skins",
+        ASSETS: "assets",
+
+    }),
+
+
+    init: function () {
+        var self = this;
+        var openRequest = indexedDB.open("osu", 1);
+        openRequest.onupgradeneeded = function (e) {
+            var thisDB = e.target.result;
+            for(var k in database.TABLES){
+                if (!thisDB.objectStoreNames.contains(database.TABLES[k])) {
+                    thisDB.createObjectStore(database.TABLES[k]);
+                }
+            }
+        };
+        openRequest.onsuccess = function (e) {
+            self.__db = e.target.result;
+            self.__started = true;
+        };
+        openRequest.onerror = function (e) {
+            console.log(e);
+        }
+
+    },
+
+    insert_data: function (table, md5sum, data, onsuccess, onerror) {
+        if (this.__started) {
+            var transaction = this.__db.transaction([table], "readwrite").objectStore(table).add(data, md5sum);
+            transaction.onsuccess = onsuccess;
+            transaction.onerror = function(e){
+                console.log(e.target.error);
+                onerror(e);
+            };
+        }
+        else {
+            onerror("db not started");
+        }
+
+    },
+    get_data: function (table, md5sum, onsuccess, onerror) {
+        if (this.__started) {
+            var query = this.__db.transaction([table], "readonly").objectStore(table).get(md5sum);
+            query.onsuccess = onsuccess;
+            query.onerror = onerror;
+        } else {
+             onerror("db not started");
+        }
+    }
+
+};
+
 if (!window.indexedDB) {
     console.log("no index db = no storage ")
 }
-else{
-
-    var openRequest = indexedDB.open("osu",1);
-    openRequest.onupgradeneeded = function(e) {
-        var thisDB = e.target.result;
-
-        if(!thisDB.objectStoreNames.contains("beatmaps")) {
-            thisDB.createObjectStore("beatmaps");
-        }
-        if(!thisDB.objectStoreNames.contains("replays")) {
-            thisDB.createObjectStore("replays");
-        }
-        if(!thisDB.objectStoreNames.contains("skins")) {
-            thisDB.createObjectStore("skins");
-        }
-        if(!thisDB.objectStoreNames.contains("assets")) {
-            thisDB.createObjectStore("assets");
-        }
-    };
-    openRequest.onsuccess = function(e) {
-        db = e.target.result;
-    };
-    openRequest.onerror = function(e) {
-        console.log(e);
-    }
+else {
+    database.init();
 }
-
-
-function insert_data(table, md5sum, data, onsuccess, onerror) {
-    var transaction = db.transaction([table], "readwrite").objectStore(table).add(data,md5sum);
-    transaction.onsuccess = onsuccess;
-    transaction.onerror = onerror;
-}
-
-function get_data(table, md5sum, onsuccess, onerror) {
-    var query = db.transaction([table], "readonly").objectStore(table).get(md5sum);
-    query.onsuccess = onsuccess;
-    query.onerror = onerror;
-}
-
