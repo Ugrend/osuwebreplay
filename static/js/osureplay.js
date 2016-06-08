@@ -31,7 +31,14 @@ Just adding this for testing will prob remove
 
  */
 
-function showReplayData(){
+function loadBeatMap(){
+    osu.beatmaps.load(replay.bmMd5Hash, showReplayData, function () {
+    });
+}
+
+
+function showReplayData(beatmap){
+    osu.ui.interface.scorescreen.beatmap = beatmap;
     osu.ui.interface.scorescreen.played_by = replay.playerName;
     osu.ui.interface.scorescreen.date_played = replay.time_played;
     osu.ui.interface.scorescreen.total_score = replay.tScore;
@@ -158,6 +165,7 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
     var parse_osu_map_data = function (data) {
         var beatmap_config = {
             version: "",
+            name:"",
             general: {},
             metadata: {},
             difficulty: {},
@@ -408,7 +416,7 @@ else {
             if(event.target.readyState === 2){
                         var replay_data = event.target.result;
                         replay = ReplayParser(replay_data);
-                        showReplayData();
+                        loadBeatMap();
             }else{
                 dragDropLabel.innerHTML = "Well ummm, yeh i dont know what to do but something went wrong";
                 resetLabel();
@@ -657,6 +665,7 @@ var SkinReader = function(skin_zip) {
 var osu = osu || {};
 osu.beatmaps = {
     beatmap_found: false,
+    map_name: "",
     required_files: [],
     background: "",
     map_data: "",
@@ -690,10 +699,10 @@ osu.beatmaps = {
     },
 
     __process_beatmap: function(){
-        //get song
         this.song = this.__get_asset_from_md5(this.__lookup_file_md5(this.map_data.general.AudioFilename));
-        //get background
         this.background = this.__get_asset_from_md5(this.__lookup_file_md5(this.map_data.events[0][2].replace(/"/g,'')));
+        this.map_name = this.map_data.metadata.Artist + " - " + this.map_data.metadata.Title + " [" + this.map_data.metadata.Version + "]";
+        this.author = this.map_data.metadata.Creator;
     },
     __lookup_file_md5: function(filename){
         for(var i=0;i < this.required_files.length; i++){
@@ -709,7 +718,7 @@ osu.beatmaps = {
             }
         }
     },
-    
+
 
 
 
@@ -1266,8 +1275,6 @@ var osu = osu || {};
 osu.ui = osu.ui || {};
 osu.ui.interface = osu.ui.interface || {};
 osu.ui.interface.scorescreen = {
-
-    map_name: "",
     background: "",
     made_by: "",
     played_by: "",
@@ -1283,6 +1290,7 @@ osu.ui.interface.scorescreen = {
     accuracy: "0.00",
     grade: "",
     mods: [],
+    beatmap: {},
     master_container: new PIXI.Container(),
 
     getRenderWidth: function(){
@@ -1313,7 +1321,7 @@ osu.ui.interface.scorescreen = {
 
 
     create_background_container: function(){
-        var background = PIXI.Texture.fromImage(this.background);
+        var background = PIXI.Texture.fromImage(this.beatmap.background);
         var background_sprite = new PIXI.Sprite(background);
         background_sprite.width = this.getRenderWidth();
         background_sprite.height = this.getRenderHeight();
@@ -1335,11 +1343,11 @@ osu.ui.interface.scorescreen = {
         map_details_area.lineStyle(this.getRenderHeight() *.006,0xE6E6E6,1);
         map_details_area.drawRect(0,this.getRenderHeight() *.13,this.getRenderWidth(),1);
 
-        this.map_name_text = new PIXI.Text(this.map_name, this.map_details_heading_style);
+        this.map_name_text = new PIXI.Text(this.beatmap.map_name, this.map_details_heading_style);
         this.map_name_text.x = 5;
         this.map_name_text.y = this.getRenderHeight() *0.01;
 
-        this.map_made_by = new PIXI.Text("Beatmap by " + this.made_by, this.map_details_style);
+        this.map_made_by = new PIXI.Text("Beatmap by " + this.beatmap.author, this.map_details_style);
         this.map_made_by.x = 5;
         this.map_made_by.y = this.map_name_text.y + (this.getRenderHeight() * 0.04);
 

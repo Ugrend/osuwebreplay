@@ -7,7 +7,14 @@ Just adding this for testing will prob remove
 
  */
 
-function showReplayData(){
+function loadBeatMap(){
+    osu.beatmaps.load(replay.bmMd5Hash, showReplayData, function () {
+    });
+}
+
+
+function showReplayData(beatmap){
+    osu.ui.interface.scorescreen.beatmap = beatmap;
     osu.ui.interface.scorescreen.played_by = replay.playerName;
     osu.ui.interface.scorescreen.date_played = replay.time_played;
     osu.ui.interface.scorescreen.total_score = replay.tScore;

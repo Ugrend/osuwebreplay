@@ -7,8 +7,6 @@ var osu = osu || {};
 osu.ui = osu.ui || {};
 osu.ui.interface = osu.ui.interface || {};
 osu.ui.interface.scorescreen = {
-
-    map_name: "",
     background: "",
     made_by: "",
     played_by: "",
@@ -24,6 +22,7 @@ osu.ui.interface.scorescreen = {
     accuracy: "0.00",
     grade: "",
     mods: [],
+    beatmap: {},
     master_container: new PIXI.Container(),
 
     getRenderWidth: function(){
@@ -54,7 +53,7 @@ osu.ui.interface.scorescreen = {
 
 
     create_background_container: function(){
-        var background = PIXI.Texture.fromImage(this.background);
+        var background = PIXI.Texture.fromImage(this.beatmap.background);
         var background_sprite = new PIXI.Sprite(background);
         background_sprite.width = this.getRenderWidth();
         background_sprite.height = this.getRenderHeight();
@@ -76,11 +75,11 @@ osu.ui.interface.scorescreen = {
         map_details_area.lineStyle(this.getRenderHeight() *.006,0xE6E6E6,1);
         map_details_area.drawRect(0,this.getRenderHeight() *.13,this.getRenderWidth(),1);
 
-        this.map_name_text = new PIXI.Text(this.map_name, this.map_details_heading_style);
+        this.map_name_text = new PIXI.Text(this.beatmap.map_name, this.map_details_heading_style);
         this.map_name_text.x = 5;
         this.map_name_text.y = this.getRenderHeight() *0.01;
 
-        this.map_made_by = new PIXI.Text("Beatmap by " + this.made_by, this.map_details_style);
+        this.map_made_by = new PIXI.Text("Beatmap by " + this.beatmap.author, this.map_details_style);
         this.map_made_by.x = 5;
         this.map_made_by.y = this.map_name_text.y + (this.getRenderHeight() * 0.04);
 

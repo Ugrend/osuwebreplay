@@ -7,6 +7,7 @@
 var osu = osu || {};
 osu.beatmaps = {
     beatmap_found: false,
+    map_name: "",
     required_files: [],
     background: "",
     map_data: "",
@@ -40,10 +41,10 @@ osu.beatmaps = {
     },
 
     __process_beatmap: function(){
-        //get song
         this.song = this.__get_asset_from_md5(this.__lookup_file_md5(this.map_data.general.AudioFilename));
-        //get background
         this.background = this.__get_asset_from_md5(this.__lookup_file_md5(this.map_data.events[0][2].replace(/"/g,'')));
+        this.map_name = this.map_data.metadata.Artist + " - " + this.map_data.metadata.Title + " [" + this.map_data.metadata.Version + "]";
+        this.author = this.map_data.metadata.Creator;
     },
     __lookup_file_md5: function(filename){
         for(var i=0;i < this.required_files.length; i++){
@@ -59,7 +60,7 @@ osu.beatmaps = {
             }
         }
     },
-    
+
 
 
 

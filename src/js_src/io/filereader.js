@@ -21,7 +21,7 @@ else {
             if(event.target.readyState === 2){
                         var replay_data = event.target.result;
                         replay = ReplayParser(replay_data);
-                        showReplayData();
+                        loadBeatMap();
             }else{
                 dragDropLabel.innerHTML = "Well ummm, yeh i dont know what to do but something went wrong";
                 resetLabel();

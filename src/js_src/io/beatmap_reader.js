@@ -23,6 +23,7 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
     var parse_osu_map_data = function (data) {
         var beatmap_config = {
             version: "",
+            name:"",
             general: {},
             metadata: {},
             difficulty: {},
