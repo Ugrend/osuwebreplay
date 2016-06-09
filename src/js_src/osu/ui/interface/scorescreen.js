@@ -304,8 +304,13 @@ osu.ui.interface.scorescreen = {
 
     },
     start_replay: function(){
+        osu.audio.music.stop();
+        osu.audio.music.preview_screen = false;
         osu.ui.interface.osugame.replay_data = replay.replayData.slice(0);
+        osu.ui.interface.osugame.beatmap = this.beatmap;
         osu.ui.interface.osugame.renderScreen();
+        osu.audio.music.start();
+        osu.ui.interface.osugame.date_started = Date.now();
         osu.ui.interface.osugame.movecursor();
     },
 
@@ -333,6 +338,13 @@ osu.ui.interface.scorescreen = {
         this.create_master_container();
         osu.ui.renderer.clearStage();
         osu.ui.renderer.masterStage = this.master_container;
+
+        osu.audio.music.init(this.beatmap.song);
+        osu.audio.music.preview_screen = true;
+        osu.audio.music.preview_time = this.beatmap.map_data.general.PreviewTime / 1000;
+        osu.audio.music.start();
+
+
     }
 
 };

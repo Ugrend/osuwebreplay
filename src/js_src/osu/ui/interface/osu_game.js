@@ -30,7 +30,8 @@ osu.ui.interface.osugame = {
     key_2_pressed: false,
     key_3_pressed: false,
     key_4_pressed: false,
-
+    beatmap: {},
+    expected_time: null,
 
     getRenderWidth: function(){
         return osu.ui.renderer.renderWidth;
@@ -41,16 +42,16 @@ osu.ui.interface.osugame = {
     },
 
     create_background: function(){
-        var background = PIXI.Texture.fromImage(this.background);
+        var background = PIXI.Texture.fromImage(this.beatmap.background);
         var background_sprite = new PIXI.Sprite(background);
         background_sprite.width = this.getRenderWidth();
         background_sprite.height = this.getRenderHeight();
 
-        var background_dimmer = new PIXI.Graphics();
-        background_dimmer.beginFill(0x0, 0.5);
-        background_dimmer.drawRect(0, 0, this.getRenderWidth(), this.getRenderHeight());
+        this.background_dimmer = new PIXI.Graphics();
+        this.background_dimmer.beginFill(0x0, 0.5);
+        this.background_dimmer.drawRect(0, 0, this.getRenderWidth(), this.getRenderHeight());
         this.master_container.addChild(background_sprite);
-        this.master_container.addChild(background_dimmer);
+        this.master_container.addChild(this.background_dimmer);
 
 
     },
@@ -151,6 +152,7 @@ osu.ui.interface.osugame = {
 
 
     create_master_container: function () {
+        this.create_background();
         this.create_key_press();
         this.create_cursor();
 
@@ -161,6 +163,17 @@ osu.ui.interface.osugame = {
         this.create_master_container();
         osu.ui.renderer.clearStage();
         osu.ui.renderer.masterStage = this.master_container;
+
+        //calculate x,y prior as processing slowly casues it to get out of sync
+        for(var i = 0 ; i < this.replay_data.length; i++){
+            if(this.replay_data[i].length == 4){
+                this.replay_data[i][1] = this.calculate_x(this.replay_data[i][1]);
+                this.replay_data[i][2] = this.calculate_y(this.replay_data[i][2]);
+            }
+            else{
+                console.log("LINE :" + i.toString());
+            }
+        }
     },
 
     calculate_x: function(x){
@@ -177,22 +190,90 @@ osu.ui.interface.osugame = {
     },
 
 
+
     movecursor: function () {
+
+        //recalculate for drifting
+        var difference = 0;
+        if(this.expected_time){
+            difference = Date.now() - this.expected_time;
+        }
+
         if(this.replay_data.length == 1){
+            this.time_finished = Date.now();
             this.cursor.x = this.getRenderWidth() / 2;
             this.cursor.y = this.getRenderHeight() / 2;
         }
         var next_movment = this.replay_data.shift();
         if(next_movment.length == 4){
-            var x =  this.calculate_x(parseFloat(next_movment[1]));
-            var y = this.calculate_y(parseFloat(next_movment[2]));
-            var keys_pressed = osu.keypress.getKeys(parseInt(next_movment[3]));
-            var tint_1 = false;
-            var tint_2 = false;
-            var tint_3 = false;
-            var tint_4 = false;
-            //TODO: fix this
-            for (var k in osu.keypress.KEYS) {
+
+            var x = next_movment[1];
+            var y = next_movment[2];
+
+            if(next_movment[0] < 0){
+                console.log("im not sure what to do with negatives");
+                this.cursor.x = x;
+                this.cursor.y = y;
+                this.expected_time = null;
+                this.movecursor();
+            }
+
+
+            else{
+                var next_tick = next_movment[0] - difference;
+                this.expected_time = Date.now() + next_tick;
+                var self = this;
+                setTimeout(function(){
+                    self.cursor.x = x;
+                    self.cursor.y = y;
+                    self.movecursor();
+                },next_tick);
+            }
+        }
+        else{
+            this.expected_time = null;
+            this.movecursor();
+        }
+
+    }
+
+
+};
+
+/**
+
+ //recalculate for drifting
+ var difference = 0;
+ if(this.expected){
+            difference = Date.now() - this.expected;
+        }
+
+
+ var next_movment = this.replay_data[this.curr_frame];
+ this.curr_frame++;
+ if(next_movment[0] <1){
+            osu.ui.interface.osugame.cursor.x = next_movment[1];
+            osu.ui.interface.osugame.cursor.y = next_movment[2];
+            osu.ui.interface.osugame.movecursor();
+            return;
+        }
+
+
+
+ this.interval = next_movment[0]+ difference;
+ this.expected = Date.now() + this.interval;
+ var x = next_movment[1];
+ var y  = next_movment[2];
+
+
+ /*
+ var keys_pressed = osu.keypress.getKeys(parseInt(next_movment[3]));
+ var tint_1 = false;
+ var tint_2 = false;
+ var tint_3 = false;
+ var tint_4 = false;
+ //TODO: fix this
+ for (var k in osu.keypress.KEYS) {
                 var key_int = osu.keypress.KEYS[k];
                 if(keys_pressed.indexOf(key_int) != -1){
                     if(key_int == osu.keypress.KEYS.NONE){
@@ -216,33 +297,21 @@ osu.ui.interface.osugame = {
                 }
 
             }
-            this.tint_untint_key(this.keypress_1,tint_1);
-            this.tint_untint_key(this.keypress_2,tint_2);
-            this.tint_untint_key(this.keypress_3,tint_3);
-            this.tint_untint_key(this.keypress_4,tint_4);
+ this.tint_untint_key(this.keypress_1,tint_1);
+ this.tint_untint_key(this.keypress_2,tint_2);
+ this.tint_untint_key(this.keypress_3,tint_3);
+ this.tint_untint_key(this.keypress_4,tint_4);
+ */
 
-            if(parseInt(next_movment[0]) < 0){
-                console.log("im not sure what to do with negatives");
-                this.cursor.x = x;
-                this.cursor.y = y;
-
-
-
-                this.movecursor();
-            }
-            else{
-                var self = this;
-                setTimeout(function(){
-                    self.cursor.x = x;
-                    self.cursor.y = y;
-
-                    self.movecursor();
-                },parseInt(next_movment[0]));
-            }
-        }
+/**
+var self = this;
+setTimeout(function(){
+    self.cursor.x = x;
+    self.cursor.y = y;
+    self.movecursor();
+},this.interval)
 
 
-    }
 
 
-};
+**/

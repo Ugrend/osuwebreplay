@@ -103,7 +103,11 @@ var ReplayParser = function(replay_data){
         function(data) {
             var replayData = data.split(",");
             for(var i = 0 ; i< replayData.length ; i++){
-               replayData[i] = replayData[i].split("|");
+               var splitData = replayData[i].split("|");
+                for(var x = 0; x< splitData.length ; x++){
+                    splitData[x] = parseFloat(splitData[x]);
+                }
+                replayData[i] = splitData;
             }
             replay.replayData = replayData;
         },
