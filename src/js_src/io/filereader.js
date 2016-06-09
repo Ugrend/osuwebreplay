@@ -14,8 +14,8 @@ else {
     dragDropZone.ondrop = function (e) {
         e.preventDefault();
 
-        var file = e.dataTransfer.files[0],
-            reader = new FileReader();
+        var file = e.dataTransfer.files[0];
+        var reader = new FileReader();
         reader.onloadend = function (event) {
 
             if(event.target.readyState === 2){
@@ -28,7 +28,6 @@ else {
             }
 
         };
-
 
             if(file.name.split(".").pop() == "osr") {
                 reader.readAsBinaryString(file);

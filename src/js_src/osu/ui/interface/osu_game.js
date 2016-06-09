@@ -32,6 +32,7 @@ osu.ui.interface.osugame = {
     key_4_pressed: false,
     beatmap: {},
     expected_time: null,
+    gone_over: 0,
 
     getRenderWidth: function(){
         return osu.ui.renderer.renderWidth;
@@ -193,16 +194,23 @@ osu.ui.interface.osugame = {
 
     movecursor: function () {
 
-        //recalculate for drifting
         var difference = 0;
         if(this.expected_time){
-            difference = Date.now() - this.expected_time;
+            var time = Date.now();
+            if(time < this.expected_time){
+                // isnt time yet
+                setTimeout(this.movecursor.bind(this),0);
+                return;
+            }
+            // if we have gone over remove the difference from next action to keep in sync
+            difference = time - this.expected_time;
         }
 
         if(this.replay_data.length == 1){
             this.time_finished = Date.now();
             this.cursor.x = this.getRenderWidth() / 2;
             this.cursor.y = this.getRenderHeight() / 2;
+            return;
         }
         var next_movment = this.replay_data.shift();
         if(next_movment.length == 4){
@@ -211,23 +219,18 @@ osu.ui.interface.osugame = {
             var y = next_movment[2];
 
             if(next_movment[0] < 0){
-                console.log("im not sure what to do with negatives");
+                //console.log("im not sure what to do with negatives");
                 this.cursor.x = x;
                 this.cursor.y = y;
                 this.expected_time = null;
                 this.movecursor();
             }
-
-
             else{
                 var next_tick = next_movment[0] - difference;
                 this.expected_time = Date.now() + next_tick;
-                var self = this;
-                setTimeout(function(){
-                    self.cursor.x = x;
-                    self.cursor.y = y;
-                    self.movecursor();
-                },next_tick);
+                this.cursor.x = x;
+                this.cursor.y = y;
+                this.movecursor();
             }
         }
         else{
@@ -239,34 +242,7 @@ osu.ui.interface.osugame = {
 
 
 };
-
 /**
-
- //recalculate for drifting
- var difference = 0;
- if(this.expected){
-            difference = Date.now() - this.expected;
-        }
-
-
- var next_movment = this.replay_data[this.curr_frame];
- this.curr_frame++;
- if(next_movment[0] <1){
-            osu.ui.interface.osugame.cursor.x = next_movment[1];
-            osu.ui.interface.osugame.cursor.y = next_movment[2];
-            osu.ui.interface.osugame.movecursor();
-            return;
-        }
-
-
-
- this.interval = next_movment[0]+ difference;
- this.expected = Date.now() + this.interval;
- var x = next_movment[1];
- var y  = next_movment[2];
-
-
- /*
  var keys_pressed = osu.keypress.getKeys(parseInt(next_movment[3]));
  var tint_1 = false;
  var tint_2 = false;
@@ -297,19 +273,14 @@ osu.ui.interface.osugame = {
                 }
 
             }
+
+
  this.tint_untint_key(this.keypress_1,tint_1);
  this.tint_untint_key(this.keypress_2,tint_2);
  this.tint_untint_key(this.keypress_3,tint_3);
  this.tint_untint_key(this.keypress_4,tint_4);
- */
 
-/**
-var self = this;
-setTimeout(function(){
-    self.cursor.x = x;
-    self.cursor.y = y;
-    self.movecursor();
-},this.interval)
+
 
 
 

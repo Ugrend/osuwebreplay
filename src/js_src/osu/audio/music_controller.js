@@ -13,6 +13,7 @@ osu.audio.music =  {
         this.__audio.pause();
         this.__audio.src = src;
         this.__audio.onended = this.repeat.bind(this);
+        this.__audio.volume = 0.2;
     },
 
     stop: function () {
