@@ -68,7 +68,32 @@ var database = {
         } else {
              onerror("db not started");
         }
+    },
+
+    delete_database: function () {
+      if(DEBUG) {
+          indexedDB.deleteDatabase('osu');
+      }else{
+          console.log("no");
+      }
+    },
+    clear_table: function(table_name){
+        if(DEBUG){
+            var transaction = this.__db.transaction([table_name], "readwrite");
+            var objectStore = transaction.objectStore(table_name);
+            var objectStoreRequest = objectStore.clear();
+
+            objectStoreRequest.onsuccess = function(event) {
+                console.log(table_name + " cleared!");
+
+            }
+        }else{
+            console.log("no");
+        }
+
     }
+
+
 
 };
 

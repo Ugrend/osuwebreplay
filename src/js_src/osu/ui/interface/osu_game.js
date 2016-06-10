@@ -31,7 +31,7 @@ osu.ui.interface.osugame = {
     key_3_pressed: false,
     key_4_pressed: false,
     beatmap: {},
-    expected_time: null,
+    expected_replay_movment_time: null,
     gone_over: 0,
 
     getRenderWidth: function(){
@@ -171,10 +171,13 @@ osu.ui.interface.osugame = {
                 this.replay_data[i][1] = this.calculate_x(this.replay_data[i][1]);
                 this.replay_data[i][2] = this.calculate_y(this.replay_data[i][2]);
             }
-            else{
-                console.log("LINE :" + i.toString());
-            }
         }
+
+        for(i=0;i<this.beatmap.map_data.hit_objects.length; i++){
+            this.beatmap.map_data.hit_objects[i][0] = this.calculate_x(this.beatmap.map_data.hit_objects[i][0]);
+            this.beatmap.map_data.hit_objects[i][1] = this.calculate_x(this.beatmap.map_data.hit_objects[i][1]);
+        }
+
     },
 
     calculate_x: function(x){
@@ -191,19 +194,19 @@ osu.ui.interface.osugame = {
     },
 
 
-
+    //TODO: refactor this name to something else cos it gonna do alot more than move the cursor
     movecursor: function () {
 
         var difference = 0;
-        if(this.expected_time){
+        if(this.expected_replay_movment_time){
             var time = Date.now();
-            if(time < this.expected_time){
+            if(time < this.expected_replay_movment_time){
                 // isnt time yet
                 setTimeout(this.movecursor.bind(this),0);
                 return;
             }
             // if we have gone over remove the difference from next action to keep in sync
-            difference = time - this.expected_time;
+            difference = time - this.expected_replay_movment_time;
         }
 
         if(this.replay_data.length == 1){
@@ -222,19 +225,19 @@ osu.ui.interface.osugame = {
                 //console.log("im not sure what to do with negatives");
                 this.cursor.x = x;
                 this.cursor.y = y;
-                this.expected_time = null;
+                this.expected_replay_movment_time = null;
                 this.movecursor();
             }
             else{
                 var next_tick = next_movment[0] - difference;
-                this.expected_time = Date.now() + next_tick;
+                this.expected_replay_movment_time = Date.now() + next_tick;
                 this.cursor.x = x;
                 this.cursor.y = y;
                 this.movecursor();
             }
         }
         else{
-            this.expected_time = null;
+            this.expected_replay_movment_time = null;
             this.movecursor();
         }
 

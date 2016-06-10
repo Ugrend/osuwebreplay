@@ -2,7 +2,7 @@
  * Created by Ugrend on 2/06/2016.
  */
 
-
+var DEBUG = true;
 var mainArea = document.getElementById('main_zone');
 var dragDropZone = document.getElementById('dragdrop');
 var dragDropLabel = document.getElementById('drag_label');
@@ -270,7 +270,37 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
                     }
                     break;
                 case "[hitobjects]":
-                    beatmap_config.hit_objects.push(line);
+                    //TODO: this will only convert circles need to do sliders and spinz
+                    //TODO: this might fuck other game modes need to look into
+                    //This will prepend a int to the start of the array so i can check easier for the type of hitobject later instead of checking the length all the time
+                    var hit_object = line.split(",");
+                    switch(hit_object[3]){
+                        case "1":
+                        case "4":
+                        case "9":
+                            //circle /spinner
+                            if(hit_object.length > 7){
+                                console.log("mayber slider " + line);
+                            }
+                            for(var x = 0; x < hit_object.length; x++){
+                                //convert from string to int/float
+                                hit_object[x] = parseFloat(hit_object[x]);
+                            }
+                            break;
+                        case "2":
+                            //slider
+                            break;
+                        case "5":
+                        case "6":
+                        case "12":
+                        case "21":
+                            //not sure but is for taiko
+                            //12 appears in normal beatmaps
+                            break;
+                        default:
+                            console.log("WARNING: unknown hit object line:" + i + " -- " +  line);
+                    }
+                    beatmap_config.hit_objects.push(hit_object);
                     break;
 
             }
@@ -562,7 +592,32 @@ var database = {
         } else {
              onerror("db not started");
         }
+    },
+
+    delete_database: function () {
+      if(DEBUG) {
+          indexedDB.deleteDatabase('osu');
+      }else{
+          console.log("no");
+      }
+    },
+    clear_table: function(table_name){
+        if(DEBUG){
+            var transaction = this.__db.transaction([table_name], "readwrite");
+            var objectStore = transaction.objectStore(table_name);
+            var objectStoreRequest = objectStore.clear();
+
+            objectStoreRequest.onsuccess = function(event) {
+                console.log(table_name + " cleared!");
+
+            }
+        }else{
+            console.log("no");
+        }
+
     }
+
+
 
 };
 
@@ -1214,7 +1269,7 @@ osu.ui.interface.osugame = {
     key_3_pressed: false,
     key_4_pressed: false,
     beatmap: {},
-    expected_time: null,
+    expected_replay_movment_time: null,
     gone_over: 0,
 
     getRenderWidth: function(){
@@ -1354,10 +1409,13 @@ osu.ui.interface.osugame = {
                 this.replay_data[i][1] = this.calculate_x(this.replay_data[i][1]);
                 this.replay_data[i][2] = this.calculate_y(this.replay_data[i][2]);
             }
-            else{
-                console.log("LINE :" + i.toString());
-            }
         }
+
+        for(i=0;i<this.beatmap.map_data.hit_objects.length; i++){
+            this.beatmap.map_data.hit_objects[i][0] = this.calculate_x(this.beatmap.map_data.hit_objects[i][0]);
+            this.beatmap.map_data.hit_objects[i][1] = this.calculate_x(this.beatmap.map_data.hit_objects[i][1]);
+        }
+
     },
 
     calculate_x: function(x){
@@ -1374,19 +1432,19 @@ osu.ui.interface.osugame = {
     },
 
 
-
+    //TODO: refactor this name to something else cos it gonna do alot more than move the cursor
     movecursor: function () {
 
         var difference = 0;
-        if(this.expected_time){
+        if(this.expected_replay_movment_time){
             var time = Date.now();
-            if(time < this.expected_time){
+            if(time < this.expected_replay_movment_time){
                 // isnt time yet
                 setTimeout(this.movecursor.bind(this),0);
                 return;
             }
             // if we have gone over remove the difference from next action to keep in sync
-            difference = time - this.expected_time;
+            difference = time - this.expected_replay_movment_time;
         }
 
         if(this.replay_data.length == 1){
@@ -1405,19 +1463,19 @@ osu.ui.interface.osugame = {
                 //console.log("im not sure what to do with negatives");
                 this.cursor.x = x;
                 this.cursor.y = y;
-                this.expected_time = null;
+                this.expected_replay_movment_time = null;
                 this.movecursor();
             }
             else{
                 var next_tick = next_movment[0] - difference;
-                this.expected_time = Date.now() + next_tick;
+                this.expected_replay_movment_time = Date.now() + next_tick;
                 this.cursor.x = x;
                 this.cursor.y = y;
                 this.movecursor();
             }
         }
         else{
-            this.expected_time = null;
+            this.expected_replay_movment_time = null;
             this.movecursor();
         }
 
