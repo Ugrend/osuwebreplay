@@ -33,9 +33,14 @@ else {
                 reader.readAsBinaryString(file);
             }else if(file.name.split(".").pop() == "osz"){
                 //beatmap
-                BeatmapReader(file, function (bm) {
-                    beatmap =  bm;
-                });
+                if(beatmap &&  beatmap.locked){
+                    event_handler.emit(event_handler.EVENTS.BEATMAP_LOADING_FAILED, "beatmap is locked")
+                }else{
+                    BeatmapReader(file, function (bm) {
+                            beatmap = bm;
+                    });
+                }
+
             }else if(file.name.split(".").pop() !== "osk"){
                 //skin
             }else{

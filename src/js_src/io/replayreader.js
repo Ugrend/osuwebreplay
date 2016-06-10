@@ -10,7 +10,7 @@
  * @constructor
  */
 var ReplayParser = function(replay_data){
-
+    event_handler.emit(event_handler.EVENTS.REPLAY_LOADING);
     //https://osu.ppy.sh/wiki/Osr_%28file_format%29
     var RP = {
         replay_data: replay_data,
@@ -124,6 +124,6 @@ var ReplayParser = function(replay_data){
 
     replay.grade = osu.score.getGrade(replay.h300 + replay.hGekis, replay.h100 + replay.hKatus, replay.h50,replay.hMisses).name;
     replay.accuracy = osu.score.getAccuracy(replay.h300 + replay.hGekis, replay.h100 + replay.hKatus, replay.h50,replay.hMisses);
-
+    event_handler.emit(event_handler.EVENTS.REPLAY_LOADED);
     return replay;
 };

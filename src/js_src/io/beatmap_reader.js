@@ -9,7 +9,7 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
         maps: [],
         assets: []
     };
-
+    event_handler.emit(event_handler.EVENTS.BEATMAP_LOADING, beatmap_zip_file.name);
     var zip_length = 0;
     var extracted = 0;
     var beatmaps = 0;
@@ -96,7 +96,7 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
 
     var beatmap_loaded = function () {
         if (beatmaps_loaded == beatmaps) {
-            console.log("beatmap processed")
+            event_handler.emit(event_handler.EVENTS.BEATMAP_LOADED, beatmap_zip_file.name);
             callback(beatMap);
         }
     };

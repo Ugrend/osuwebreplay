@@ -10,6 +10,7 @@ var database = {
 
     __db: null,
     __started: false,
+    indexeddb_available: false,
 
     TABLES: Object.freeze({
         BEATMAPS: "beatmaps",
@@ -37,14 +38,16 @@ var database = {
         };
         openRequest.onerror = function (e) {
             console.log(e);
-        }
+        };
+
+        this.indexeddb_available = true;
 
     },
 
     insert_data: function (table, md5sum, data, onsuccess, onerror) {
         if (this.__started) {
             var transaction = this.__db.transaction([table], "readwrite").objectStore(table).add(data, md5sum);
-            transaction.onsuccess = onsuccess;
+            transaction.onsuccess =   onsuccess;
             transaction.onerror = function(e){
                 console.log(e.target.error);
                 onerror(e);
@@ -58,7 +61,9 @@ var database = {
     get_data: function (table, md5sum, onsuccess, onerror) {
         if (this.__started) {
             var query = this.__db.transaction([table], "readonly").objectStore(table).get(md5sum);
-            query.onsuccess = onsuccess;
+            query.onsuccess = function (e) {
+              onsuccess({md5sum: md5sum, data:e.target.result});
+            };
             query.onerror = onerror;
         } else {
              onerror("db not started");

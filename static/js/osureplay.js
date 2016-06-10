@@ -141,6 +141,52 @@ osu.ui.renderer = {
 
 
 /**
+ * Created by Ugrend on 10/06/2016.
+ */
+var event_handler = {
+
+    EVENTS: Object.freeze({
+        BEATMAP_LOADING: 1,
+        BEATMAP_LOADED: 2,
+        BEATMAP_LOADING_FAILED: 3,
+        REPLAY_LOADING: 4,
+        REPLAY_LOADED: 5,
+        REPLAY_LOAD_FAILED:6,
+        BEATMAP_NOTFOUND: 7,
+        DB_ERROR: 8,
+        ASSET_NOT_FOUND:9
+    }),
+
+    __events: {},
+    on: function (eventName, fn, parent_object) {
+        this.__events[eventName] = this.__events[eventName] || [];
+        this.__events[eventName].push({fn: fn, parent: parent_object});
+    },
+    off: function (eventName, fn) {
+        if (this.__events[eventName]) {
+            for (var i = 0; i < this.__events[eventName].length; i++) {
+                if (this.__events[eventName][i].fn === fn) {
+                    this.__events[eventName].splice(i, 1);
+                    break;
+                }
+            }
+        }
+    },
+    emit: function (eventName, data) {
+        if (this.__events[eventName]) {
+            this.__events[eventName].forEach(function (obj) {
+                if (obj.parent) {
+                    obj.parent[obj.fn](data);
+                } else {
+                    obj.fn(data);
+                }
+
+            });
+        }
+    }
+};
+
+/**
  * Created by Ugrend on 6/06/2016.
  */
 
@@ -151,7 +197,7 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
         maps: [],
         assets: []
     };
-
+    event_handler.emit(event_handler.EVENTS.BEATMAP_LOADING, beatmap_zip_file.name);
     var zip_length = 0;
     var extracted = 0;
     var beatmaps = 0;
@@ -238,7 +284,7 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
 
     var beatmap_loaded = function () {
         if (beatmaps_loaded == beatmaps) {
-            console.log("beatmap processed")
+            event_handler.emit(event_handler.EVENTS.BEATMAP_LOADED, beatmap_zip_file.name);
             callback(beatMap);
         }
     };
@@ -428,9 +474,14 @@ else {
                 reader.readAsBinaryString(file);
             }else if(file.name.split(".").pop() == "osz"){
                 //beatmap
-                BeatmapReader(file, function (bm) {
-                    beatmap =  bm;
-                });
+                if(beatmap &&  beatmap.locked){
+                    event_handler.emit(event_handler.EVENTS.BEATMAP_LOADING_FAILED, "beatmap is locked")
+                }else{
+                    BeatmapReader(file, function (bm) {
+                            beatmap = bm;
+                    });
+                }
+
             }else if(file.name.split(".").pop() !== "osk"){
                 //skin
             }else{
@@ -453,6 +504,7 @@ var database = {
 
     __db: null,
     __started: false,
+    indexeddb_available: false,
 
     TABLES: Object.freeze({
         BEATMAPS: "beatmaps",
@@ -480,14 +532,16 @@ var database = {
         };
         openRequest.onerror = function (e) {
             console.log(e);
-        }
+        };
+
+        this.indexeddb_available = true;
 
     },
 
     insert_data: function (table, md5sum, data, onsuccess, onerror) {
         if (this.__started) {
             var transaction = this.__db.transaction([table], "readwrite").objectStore(table).add(data, md5sum);
-            transaction.onsuccess = onsuccess;
+            transaction.onsuccess =   onsuccess;
             transaction.onerror = function(e){
                 console.log(e.target.error);
                 onerror(e);
@@ -501,7 +555,9 @@ var database = {
     get_data: function (table, md5sum, onsuccess, onerror) {
         if (this.__started) {
             var query = this.__db.transaction([table], "readonly").objectStore(table).get(md5sum);
-            query.onsuccess = onsuccess;
+            query.onsuccess = function (e) {
+              onsuccess({md5sum: md5sum, data:e.target.result});
+            };
             query.onerror = onerror;
         } else {
              onerror("db not started");
@@ -528,7 +584,7 @@ else {
  * @constructor
  */
 var ReplayParser = function(replay_data){
-
+    event_handler.emit(event_handler.EVENTS.REPLAY_LOADING);
     //https://osu.ppy.sh/wiki/Osr_%28file_format%29
     var RP = {
         replay_data: replay_data,
@@ -642,7 +698,7 @@ var ReplayParser = function(replay_data){
 
     replay.grade = osu.score.getGrade(replay.h300 + replay.hGekis, replay.h100 + replay.hKatus, replay.h50,replay.hMisses).name;
     replay.accuracy = osu.score.getAccuracy(replay.h300 + replay.hGekis, replay.h100 + replay.hKatus, replay.h50,replay.hMisses);
-
+    event_handler.emit(event_handler.EVENTS.REPLAY_LOADED);
     return replay;
 };
 
@@ -734,8 +790,12 @@ osu.beatmaps = {
     map_data: "",
     assets: [],
     song: "",
+    __beatmap: "",
+    __files_needed: [],
 
     load: function (md5sum, onsuccess, onerror) {
+        this.onsuccess = onsuccess;
+        this.onerror = onerror;
         // check if last loaded beatmap has our data first (incase indexeddb is unavailable/etc)
         if(beatmap){
             for(var i=0; i < beatmap.maps.length; i++){
@@ -748,15 +808,51 @@ osu.beatmaps = {
                     break;
                 }
             }
+            this.__beatmap_loaded();
         }else{
-            //look in db
+            database.get_data(database.TABLES.BEATMAPS,md5sum,this.__load_bm_from_db.bind(this), function (e) {
+                event_handler.emit(event_handler.EVENTS.DB_ERROR, e.event.error);
+            } );
+        }
+    },
+    __load_bm_from_db: function (result) {
+        if(result && result.data){
+            this.__beatmap = result.data;
+            this.map_data = this.__beatmap.parsed;
+            this.required_files = this.__beatmap.files;
+            this.__files_needed = this.__beatmap.files.slice(0);
+            var file_to_get =  this.__files_needed.pop().md5sum;
+            database.get_data(database.TABLES.ASSETS, file_to_get, this.__load_assets_from_db.bind(this), function (e) {
+                event_handler.emit(event_handler.EVENTS.DB_ERROR, e.event.error);
+            } );
+        }
+    },
+    __load_assets_from_db: function (result) {
+        if(result && result.data){
+            this.assets.push(result);
+        }else{
+            event_handler.emit(event_handler.EVENTS.ASSET_NOT_FOUND, result.md5sum)
+        }
+        if(this.__files_needed.length){
+            var file_to_get =  this.__files_needed.pop().md5sum;
+            database.get_data(database.TABLES.ASSETS, file_to_get, this.__load_assets_from_db.bind(this), function (e) {
+                event_handler.emit(event_handler.EVENTS.DB_ERROR, e.event.error);
+            } );
+        }else{
+            this.beatmap_found = true;
+            this.__beatmap_loaded();
         }
 
+    }
+    ,
+
+    __beatmap_loaded: function () {
         if(this.beatmap_found){
             this.__process_beatmap();
-            onsuccess(this);
+            this.onsuccess(this);
         }else{
-            onerror("beatmap not found");
+            event_handler.emit(event_handler.EVENTS.BEATMAP_NOTFOUND, md5sum);
+            this.onerror("beatmap not found: " + md5sum);
 
         }
     },

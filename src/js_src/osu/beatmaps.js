@@ -13,8 +13,12 @@ osu.beatmaps = {
     map_data: "",
     assets: [],
     song: "",
+    __beatmap: "",
+    __files_needed: [],
 
     load: function (md5sum, onsuccess, onerror) {
+        this.onsuccess = onsuccess;
+        this.onerror = onerror;
         // check if last loaded beatmap has our data first (incase indexeddb is unavailable/etc)
         if(beatmap){
             for(var i=0; i < beatmap.maps.length; i++){
@@ -27,15 +31,51 @@ osu.beatmaps = {
                     break;
                 }
             }
+            this.__beatmap_loaded();
         }else{
-            //look in db
+            database.get_data(database.TABLES.BEATMAPS,md5sum,this.__load_bm_from_db.bind(this), function (e) {
+                event_handler.emit(event_handler.EVENTS.DB_ERROR, e.event.error);
+            } );
+        }
+    },
+    __load_bm_from_db: function (result) {
+        if(result && result.data){
+            this.__beatmap = result.data;
+            this.map_data = this.__beatmap.parsed;
+            this.required_files = this.__beatmap.files;
+            this.__files_needed = this.__beatmap.files.slice(0);
+            var file_to_get =  this.__files_needed.pop().md5sum;
+            database.get_data(database.TABLES.ASSETS, file_to_get, this.__load_assets_from_db.bind(this), function (e) {
+                event_handler.emit(event_handler.EVENTS.DB_ERROR, e.event.error);
+            } );
+        }
+    },
+    __load_assets_from_db: function (result) {
+        if(result && result.data){
+            this.assets.push(result);
+        }else{
+            event_handler.emit(event_handler.EVENTS.ASSET_NOT_FOUND, result.md5sum)
+        }
+        if(this.__files_needed.length){
+            var file_to_get =  this.__files_needed.pop().md5sum;
+            database.get_data(database.TABLES.ASSETS, file_to_get, this.__load_assets_from_db.bind(this), function (e) {
+                event_handler.emit(event_handler.EVENTS.DB_ERROR, e.event.error);
+            } );
+        }else{
+            this.beatmap_found = true;
+            this.__beatmap_loaded();
         }
 
+    }
+    ,
+
+    __beatmap_loaded: function () {
         if(this.beatmap_found){
             this.__process_beatmap();
-            onsuccess(this);
+            this.onsuccess(this);
         }else{
-            onerror("beatmap not found");
+            event_handler.emit(event_handler.EVENTS.BEATMAP_NOTFOUND, md5sum);
+            this.onerror("beatmap not found: " + md5sum);
 
         }
     },
