@@ -3,7 +3,7 @@ module.exports = function (grunt) {
     grunt.initConfig({
         concat: {
             js: {
-                src: ['js_src/main.js','js_src/libs/*.js',  'js_src/ui/**/*.js',
+                src: ['js_src/main.js','js_src/libs/*.js', 'js_src/osu/skins.js',  'js_src/ui/**/*.js',
                     'js_src/osu/ui/render.js', '!js_src/osu/ui/interface/*.js', 'js_src/**/*.js',
                     'js_src/osu/ui/interface/*.js'],
                 dest: '../static/js/osureplay.js'

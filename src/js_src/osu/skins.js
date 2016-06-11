@@ -2,6 +2,7 @@
  * Created by Ugrend on 4/06/2016.
  */
 var osu = osu || {};
+//TODO: create PIXI textures
 osu.skins = {
 
     //https://osu.ppy.sh/wiki/Skinning_Standard
@@ -53,6 +54,10 @@ osu.skins = {
     section_pass: "data/Section-pass.png",
     play_warningarrow: "data/Play-warningarrow.png",
     play_skip: "data/play-skip.png",
+
+    hitcircle: "data/hitcircle.png",
+    hitcicleoverlay: "data/hitcircleoverlay.png",
+
 
     //Mods
 
