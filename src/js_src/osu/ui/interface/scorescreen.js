@@ -306,9 +306,9 @@ osu.ui.interface.scorescreen = {
     start_replay: function(){
         osu.audio.music.stop();
         osu.audio.music.preview_screen = false;
-        osu.ui.interface.osugame.replay_data = replay.replayData.slice(0);
+        osu.ui.interface.osugame.replay_data = replay.replayData;
         osu.ui.interface.osugame.beatmap = this.beatmap;
-        osu.ui.interface.osugame.renderScreen();
+        osu.ui.interface.osugame.initGame();
         osu.ui.interface.osugame.game_loop();
     },
 

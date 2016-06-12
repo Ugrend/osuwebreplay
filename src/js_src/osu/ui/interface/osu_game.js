@@ -36,6 +36,7 @@ osu.ui.interface.osugame = {
     has_started: false,
     audioLeadIn: 0,
     countdown_started: false,
+    curr_replay_frame:0,
 
     getRenderWidth: function(){
         return osu.ui.renderer.renderWidth;
@@ -165,20 +166,29 @@ osu.ui.interface.osugame = {
         this.create_cursor();
 
     },
-    //TODO: prob should rename this init or etc as its not really just rendering
-    renderScreen: function(){
+
+    initGame: function(){
         osu.ui.renderer.fixed_aspect = true;
         osu.ui.renderer.start();
         this.create_master_container();
         osu.ui.renderer.clearStage();
         osu.ui.renderer.masterStage = this.master_container;
+        this.has_started = false;
+        this.countdown_started = false;
+        this.curr_replay_frame = 0;
+        this.expected_replay_movment_time = null;
+        this.hit_objects = [];
 
         //calculate x,y prior as processing slowly casues it to get out of sync
-        for(var i = 0 ; i < this.replay_data.length; i++){
-            if(this.replay_data[i].length == 4){
-                this.replay_data[i][1] = this.calculate_x(this.replay_data[i][1]);
-                this.replay_data[i][2] = this.calculate_y(this.replay_data[i][2]);
+
+        if(!replay.been_rendered){
+            for(var i = 0 ; i < this.replay_data.length; i++){
+                if(this.replay_data[i].length == 4){
+                    this.replay_data[i][1] = this.calculate_x(this.replay_data[i][1]);
+                    this.replay_data[i][2] = this.calculate_y(this.replay_data[i][2]);
+                }
             }
+            replay.been_rendered = true;
         }
         //prob cant do this, but will see if it works.
         for(i=0;i<this.beatmap.map_data.hit_objects.length; i++){
@@ -267,13 +277,16 @@ osu.ui.interface.osugame = {
             difference = time - this.expected_replay_movment_time;
         }
 
-        if(this.replay_data.length == 1){
+        if(this.replay_data.length == this.curr_replay_frame){
             this.time_finished = Date.now();
             this.cursor.x = this.getRenderWidth() / 2;
             this.cursor.y = this.getRenderHeight() / 2;
+
+            osu.ui.interface.scorescreen.renderScoreScreen();
             return;
         }
-        var next_movment = this.replay_data.shift();
+        var next_movment = this.replay_data[this.curr_replay_frame];
+        this.curr_replay_frame++;
         if(next_movment.length == 4){
 
             var x = next_movment[1];
