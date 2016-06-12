@@ -37,6 +37,8 @@ osu.ui.interface.osugame = {
     audioLeadIn: 0,
     countdown_started: false,
     curr_replay_frame:0,
+    mods: [],
+
 
     getRenderWidth: function(){
         return osu.ui.renderer.renderWidth;
@@ -190,6 +192,16 @@ osu.ui.interface.osugame = {
             }
             replay.been_rendered = true;
         }
+
+        var is_hidden  = false;
+        for(i=0;i < this.mods.length; i++){
+            if(this.mods[i].code = "HD"){
+                is_hidden = true;
+                break;
+            }
+
+        }
+
         //prob cant do this, but will see if it works.
         for(i=0;i<this.beatmap.map_data.hit_objects.length; i++){
             if(this.beatmap.map_data.hit_objects[i][3] == 1){
@@ -199,7 +211,7 @@ osu.ui.interface.osugame = {
                 var t = this.beatmap.map_data.hit_objects[i][2]; //time to hit cricle
                 this.hit_objects.push({
                     t: t,
-                    object: new Circle(this.hit_object_container,x,y,300,t,180,0xFF0040,0)
+                    object: new Circle(this.hit_object_container,is_hidden,x,y,300,t,180,0xFF0040,0)
                 })
 
             }

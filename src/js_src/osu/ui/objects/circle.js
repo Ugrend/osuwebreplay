@@ -8,10 +8,11 @@ var hit_circle_overlay = PIXI.Texture.fromImage(osu.skins.hitcicleoverlay);
 var approach_circle_texture = PIXI.Texture.fromImage(osu.skins.approachcircle);
 
 class Circle{
-    constructor(container,x, y, approach_rate, time,diameter, colour, combo) {
+    constructor(container,is_hidden, x, y, approach_rate, time,diameter, colour, combo) {
         this.container = container;
         this.x = x;
         this.y = y;
+        this.is_hidden = is_hidden;
         this.diameter = diameter;
         this.colour = colour;
         this.circleContainer = new PIXI.Container();
@@ -33,8 +34,11 @@ class Circle{
         this.circleOverlaySprite.anchor.set(0.5);
 
         this.circleContainer.addChild(this.circleSprite);
+        if(!is_hidden) {
+            this.circleContainer.addChild(this.approchCircleSprite);
+        }
         this.circleContainer.addChild(this.circleOverlaySprite);
-        this.circleContainer.addChild(this.approchCircleSprite);
+
         this.circleContainer.x = x;
         this.circleContainer.y = y;
         this.drawn = false;
