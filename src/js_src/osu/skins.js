@@ -57,6 +57,7 @@ osu.skins = {
 
     hitcircle: "data/hitcircle.png",
     hitcicleoverlay: "data/hitcircleoverlay.png",
+    approachcircle: "data/approachcircle.png",
 
 
     //Mods

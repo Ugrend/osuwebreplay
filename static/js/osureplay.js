@@ -68,6 +68,7 @@ osu.skins = {
 
     hitcircle: "data/hitcircle.png",
     hitcicleoverlay: "data/hitcircleoverlay.png",
+    approachcircle: "data/approachcircle.png",
 
 
     //Mods
@@ -1276,6 +1277,9 @@ osu.ui.interface.osugame = {
     beatmap: {},
     expected_replay_movment_time: null,
     gone_over: 0,
+    has_started: false,
+    audioLeadIn: 0,
+    countdown_started: false,
 
     getRenderWidth: function(){
         return osu.ui.renderer.renderWidth;
@@ -1368,11 +1372,12 @@ osu.ui.interface.osugame = {
         this.keypress_area.addChild(this.keypress_4_Text);
 
         this.master_container.addChild(this.keypress_area);
-
+        this.hit_objects = [];
 
 
 
     },
+
 
 
     create_cursor: function () {
@@ -1396,11 +1401,15 @@ osu.ui.interface.osugame = {
 
 
     create_master_container: function () {
+        this.hit_object_container = new PIXI.Container();
+
         this.create_background();
         this.create_key_press();
+        this.master_container.addChild(this.hit_object_container);
         this.create_cursor();
 
     },
+    //TODO: prob should rename this init or etc as its not really just rendering
     renderScreen: function(){
         osu.ui.renderer.fixed_aspect = true;
         osu.ui.renderer.start();
@@ -1415,11 +1424,21 @@ osu.ui.interface.osugame = {
                 this.replay_data[i][2] = this.calculate_y(this.replay_data[i][2]);
             }
         }
-
+        //prob cant do this, but will see if it works.
         for(i=0;i<this.beatmap.map_data.hit_objects.length; i++){
-            this.beatmap.map_data.hit_objects[i][0] = this.calculate_x(this.beatmap.map_data.hit_objects[i][0]);
-            this.beatmap.map_data.hit_objects[i][1] = this.calculate_x(this.beatmap.map_data.hit_objects[i][1]);
+            if(this.beatmap.map_data.hit_objects[i][3] == 1){
+                var x = this.calculate_x(this.beatmap.map_data.hit_objects[i][0]);
+                var y = this.calculate_y(this.beatmap.map_data.hit_objects[i][1]);
+                //TODO combo/colours/diameter/etc
+                var t = this.beatmap.map_data.hit_objects[i][2]; //time to hit cricle
+                this.hit_objects.push({
+                    t: t,
+                    object: new Circle(this.hit_object_container,x,y,300,t,180,0xFF0040,0)
+                })
+
+            }
         }
+        this.audioLeadIn = parseInt(this.beatmap.map_data.general.AudioLeadIn);
 
     },
 
@@ -1435,17 +1454,57 @@ osu.ui.interface.osugame = {
         }
         return  (this.getRenderHeight()/384) * y;
     },
+    render_object: function(){
+        /*
+        Im not sure if i want to shift these out of the array when done
+        That would obviously make it more efficient as the map goes on as it doesnt have to interate over dead objects
+
+        One reason why I am thinking of leaving them in there is because if I was to make it so you can change position in the replay
+        It would be good to have all the objects already here and ready.
+
+        This would be the same for replay data, atm it shifts it out, so I would need to change that once i get to it
+
+         */
+        var time = Date.now() - this.date_started;
+        var ApproachRate = 300; //TODO: calculate this
+        for(var i = 0; i< this.hit_objects.length ; i++){
+            if(this.hit_objects[i].t - ApproachRate  > time){
+                break;
+            }
+            this.hit_objects[i].object.draw(time);
+        }
+    },
 
 
-    //TODO: refactor this name to something else cos it gonna do alot more than move the cursor
-    movecursor: function () {
+    game_loop: function () {
+        //TODO: check if i need to do something with replays also
+        if(!this.has_started && this.audioLeadIn == 0) {
+            osu.audio.music.start();
+            this.date_started = Date.now();
+            this.has_started = true;
+        }else{
 
+            if(!this.countdown_started){
+                var self = this;
+                setTimeout(function(){
+                    self.audioLeadIn = 0;
+                }, this.audioLeadIn);
+                this.countdown_started = true;
+            }
+
+        }
         var difference = 0;
+        var time = Date.now();
+        if(this.has_started){
+            this.render_object();
+        }
+
+
         if(this.expected_replay_movment_time){
-            var time = Date.now();
+
             if(time < this.expected_replay_movment_time){
                 // isnt time yet
-                setTimeout(this.movecursor.bind(this),0);
+                setTimeout(this.game_loop.bind(this),0);
                 return;
             }
             // if we have gone over remove the difference from next action to keep in sync
@@ -1469,19 +1528,19 @@ osu.ui.interface.osugame = {
                 this.cursor.x = x;
                 this.cursor.y = y;
                 this.expected_replay_movment_time = null;
-                this.movecursor();
+                this.game_loop();
             }
             else{
                 var next_tick = next_movment[0] - difference;
                 this.expected_replay_movment_time = Date.now() + next_tick;
                 this.cursor.x = x;
                 this.cursor.y = y;
-                this.movecursor();
+                this.game_loop();
             }
         }
         else{
             this.expected_replay_movment_time = null;
-            this.movecursor();
+            this.game_loop();
         }
 
     }
@@ -1843,9 +1902,7 @@ osu.ui.interface.scorescreen = {
         osu.ui.interface.osugame.replay_data = replay.replayData.slice(0);
         osu.ui.interface.osugame.beatmap = this.beatmap;
         osu.ui.interface.osugame.renderScreen();
-        osu.audio.music.start();
-        osu.ui.interface.osugame.date_started = Date.now();
-        osu.ui.interface.osugame.movecursor();
+        osu.ui.interface.osugame.game_loop();
     },
 
 
@@ -1889,31 +1946,70 @@ osu.ui.interface.scorescreen = {
     //TODO: THIS WILL MOVE ONCE SKIN SECTION IS DONE
 var hit_circle_texture = PIXI.Texture.fromImage(osu.skins.hitcircle);
 var hit_circle_overlay = PIXI.Texture.fromImage(osu.skins.hitcicleoverlay);
+var approach_circle_texture = PIXI.Texture.fromImage(osu.skins.approachcircle);
 
-//float diameter = 108.848f - (circleSize * 8.9646f);
 class Circle{
-    constructor(x, y, diameter, colour) {
+    constructor(container,x, y, approach_rate, time,diameter, colour, combo) {
+        this.container = container;
         this.x = x;
         this.y = y;
         this.diameter = diameter;
         this.colour = colour;
+        this.circleContainer = new PIXI.Container();
+        this.circleSprite =  new PIXI.Sprite(hit_circle_texture);
+        this.circleSprite.tint = this.colour;
+        this.circleSprite.anchor.set(0.5);
+        this.circleSprite.height = diameter;
+        this.circleSprite.width = diameter;
+        this.approach_rate = approach_rate;
+        this.time = time;
 
+        this.approchCircleSprite = new PIXI.Sprite(approach_circle_texture);
+        this.approchCircleSprite.tint = colour;
+        this.approchCircleSprite.anchor.set(0.5);
 
+        this.circleOverlaySprite =  new PIXI.Sprite(hit_circle_overlay);
+        this.circleOverlaySprite.height = diameter;
+        this.circleOverlaySprite.width = diameter;
+        this.circleOverlaySprite.anchor.set(0.5);
+
+        this.circleContainer.addChild(this.circleSprite);
+        this.circleContainer.addChild(this.circleOverlaySprite);
+        this.circleContainer.addChild(this.approchCircleSprite);
+        this.circleContainer.x = x;
+        this.circleContainer.y = y;
+        this.drawn = false;
+        this.destroyed = false;
     }
 
 
     draw(cur_time){
-        this.circleSprite = this.circleSprite || new PIXI.Sprite(hit_circle_texture);
-        this.circleSprite.tint = this.colour;
-        this.circleOverlay = this.circleOverlay || new PIXI.Sprite(hit_circle_overlay);
-        this.circleOverlay.tint = this.colour;
-
+        if(cur_time < this.time + 150){
+            if(!this.destroyed && !this.drawn){
+                this.container.addChildAt(this.circleContainer,0);
+                this.drawn = true;
+            }
+        }
+        else{
+            if(!this.destroyed){
+                this.destroy();
+                this.destroyed = true;
+            }
+        }
     }
 
     hit(time){
 
     }
+
+    destroy(){
+        this.container.removeChild(this.circleContainer);
+
+    }
+
 }
+
+
 /**
  * Created by Ugrend on 11/06/2016.
  */
