@@ -38,6 +38,7 @@ osu.ui.interface.osugame = {
     countdown_started: false,
     curr_replay_frame:0,
     mods: [],
+    last_object_pos: 0,
 
 
     getRenderWidth: function(){
@@ -180,6 +181,7 @@ osu.ui.interface.osugame = {
         this.curr_replay_frame = 0;
         this.expected_replay_movment_time = null;
         this.hit_objects = [];
+        this.last_object_pos =0;
 
         //calculate x,y prior as processing slowly casues it to get out of sync
         //might have to calculate replay times as time passed, as it is starting to get out of sync
@@ -243,20 +245,17 @@ osu.ui.interface.osugame = {
         return  (this.getRenderHeight()/384) * y;
     },
     render_object: function(){
-        /*
-        Im not sure if i want to shift these out of the array when done
-        That would obviously make it more efficient as the map goes on as it doesnt have to interate over dead objects
 
-        One reason why I am thinking of leaving them in there is because if I was to make it so you can change position in the replay
-        It would be good to have all the objects already here and ready.
-
-         */
         var time = Date.now() - this.date_started;
-        for(var i = 0; i< this.hit_objects.length ; i++){
+        for(var i = this.last_object_pos; i< this.hit_objects.length ; i++){
             if(this.hit_objects[i].t - this.approachTime  > time){
                 break;
             }
-            this.hit_objects[i].object.draw(time);
+            //draw will return false if the object has been destroyed
+            //if it has been destroyed we will set the last object count to that pos so we dont interate over all the objects later on
+            if(!this.hit_objects[i].object.draw(time)){
+                this.last_object_pos = i;
+            }
         }
     },
 

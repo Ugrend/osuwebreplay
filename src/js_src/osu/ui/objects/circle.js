@@ -54,7 +54,11 @@ class Circle{
 
     draw(cur_time){
 
-        if(cur_time > this.hit_time + 100 && !this.destroyed){
+        if(this.destroyed){
+            return false;
+        }
+
+        if(!this.destroyed && cur_time > this.hit_time + 110 ){
             this.destroy();
             this.destroyed = true;
         }
@@ -77,7 +81,7 @@ class Circle{
                 this.drawn = true;
             }
         }
-
+        return true;
     }
 
     hit(time){
