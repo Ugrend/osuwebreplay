@@ -182,6 +182,7 @@ osu.ui.interface.osugame = {
         this.hit_objects = [];
 
         //calculate x,y prior as processing slowly casues it to get out of sync
+        //might have to calculate replay times as time passed, as it is starting to get out of sync
 
         if(!replay.been_rendered){
             for(var i = 0 ; i < this.replay_data.length; i++){
@@ -209,18 +210,18 @@ osu.ui.interface.osugame = {
                 var y = this.calculate_y(this.beatmap.map_data.hit_objects[i][1]);
                 //TODO combo/colours/diameter/etc
                 var approachRate = parseInt(this.beatmap.map_data.difficulty.ApproachRate);
-                var approachTime = 0;
+                this.approachTime = 0;
                 if( approachRate < 5){
-                    approachTime = (1800 - (approchRate * 120))
+                    this.approachTime = (1800 - (approachRate * 120))
                 }else{
-                    approachTime =  (1200 - ((approachRate - 5) * 150));
+                    this.approachTime =  (1200 - ((approachRate - 5) * 150));
                 }
 
 
                 var t = this.beatmap.map_data.hit_objects[i][2]; //time to hit cricle
                 this.hit_objects.push({
                     t: t,
-                    object: new Circle(this.hit_object_container,is_hidden,x,y,approachTime,t,180,0xFF0040,0)
+                    object: new Circle(this.hit_object_container,is_hidden,x,y,this.approachTime,t,180,0xFF0040,0)
                 })
 
             }
@@ -249,13 +250,10 @@ osu.ui.interface.osugame = {
         One reason why I am thinking of leaving them in there is because if I was to make it so you can change position in the replay
         It would be good to have all the objects already here and ready.
 
-        This would be the same for replay data, atm it shifts it out, so I would need to change that once i get to it
-
          */
         var time = Date.now() - this.date_started;
-        var ApproachRate = 300; //TODO: calculate this
         for(var i = 0; i< this.hit_objects.length ; i++){
-            if(this.hit_objects[i].t - ApproachRate  > time){
+            if(this.hit_objects[i].t - this.approachTime  > time){
                 break;
             }
             this.hit_objects[i].object.draw(time);

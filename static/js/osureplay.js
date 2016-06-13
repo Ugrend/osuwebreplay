@@ -1427,6 +1427,7 @@ osu.ui.interface.osugame = {
         this.hit_objects = [];
 
         //calculate x,y prior as processing slowly casues it to get out of sync
+        //might have to calculate replay times as time passed, as it is starting to get out of sync
 
         if(!replay.been_rendered){
             for(var i = 0 ; i < this.replay_data.length; i++){
@@ -1454,18 +1455,18 @@ osu.ui.interface.osugame = {
                 var y = this.calculate_y(this.beatmap.map_data.hit_objects[i][1]);
                 //TODO combo/colours/diameter/etc
                 var approachRate = parseInt(this.beatmap.map_data.difficulty.ApproachRate);
-                var approachTime = 0;
+                this.approachTime = 0;
                 if( approachRate < 5){
-                    approachTime = (1800 - (approchRate * 120))
+                    this.approachTime = (1800 - (approachRate * 120))
                 }else{
-                    approachTime =  (1200 - ((approachRate - 5) * 150));
+                    this.approachTime =  (1200 - ((approachRate - 5) * 150));
                 }
 
 
                 var t = this.beatmap.map_data.hit_objects[i][2]; //time to hit cricle
                 this.hit_objects.push({
                     t: t,
-                    object: new Circle(this.hit_object_container,is_hidden,x,y,approachTime,t,180,0xFF0040,0)
+                    object: new Circle(this.hit_object_container,is_hidden,x,y,this.approachTime,t,180,0xFF0040,0)
                 })
 
             }
@@ -1494,13 +1495,10 @@ osu.ui.interface.osugame = {
         One reason why I am thinking of leaving them in there is because if I was to make it so you can change position in the replay
         It would be good to have all the objects already here and ready.
 
-        This would be the same for replay data, atm it shifts it out, so I would need to change that once i get to it
-
          */
         var time = Date.now() - this.date_started;
-        var ApproachRate = 300; //TODO: calculate this
         for(var i = 0; i< this.hit_objects.length ; i++){
-            if(this.hit_objects[i].t - ApproachRate  > time){
+            if(this.hit_objects[i].t - this.approachTime  > time){
                 break;
             }
             this.hit_objects[i].object.draw(time);
@@ -2018,7 +2016,7 @@ class Circle{
 
 
 
-
+        this.last_draw_time = 0;
 
 
         this.circleContainer.x = x;
@@ -2030,7 +2028,7 @@ class Circle{
 
     draw(cur_time){
 
-        if(cur_time > this.hit_time && !this.destroyed){
+        if(cur_time > this.hit_time + 100 && !this.destroyed){
             this.destroy();
             this.destroyed = true;
         }
@@ -2038,11 +2036,15 @@ class Circle{
 
         if(!this.destroyed && cur_time < this.hit_time + this.approach_rate){
             if(!this.is_hidden){
-                var time_diff = this.hit_time - cur_time;
-                var scale = 1 +(time_diff / this.approach_rate) *3;
-                if(scale < 1) scale = 1;
-                this.approchCircleSprite.width = this.diameter * scale;
-                this.approchCircleSprite.height = this.diameter * scale;
+                //dont need to calculate this so often
+                if(Date.now() - this.last_draw_time > 35) {
+                    var time_diff = this.hit_time - cur_time;
+                    var scale = 1 + (time_diff / this.approach_rate) * 3;
+                    if (scale < 1) scale = 1;
+                    this.approchCircleSprite.width = this.diameter * scale;
+                    this.approchCircleSprite.height = this.diameter * scale;
+                    this.last_draw_time = Date.now();
+                }
             }
             if(!this.drawn){
                 this.container.addChildAt(this.circleContainer,0);
