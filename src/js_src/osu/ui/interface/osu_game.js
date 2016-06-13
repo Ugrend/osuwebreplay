@@ -208,10 +208,19 @@ osu.ui.interface.osugame = {
                 var x = this.calculate_x(this.beatmap.map_data.hit_objects[i][0]);
                 var y = this.calculate_y(this.beatmap.map_data.hit_objects[i][1]);
                 //TODO combo/colours/diameter/etc
+                var approachRate = parseInt(this.beatmap.map_data.difficulty.ApproachRate);
+                var approachTime = 0;
+                if( approachRate < 5){
+                    approachTime = (1800 - (approchRate * 120))
+                }else{
+                    approachTime =  (1200 - ((approachRate - 5) * 150));
+                }
+
+
                 var t = this.beatmap.map_data.hit_objects[i][2]; //time to hit cricle
                 this.hit_objects.push({
                     t: t,
-                    object: new Circle(this.hit_object_container,is_hidden,x,y,300,t,180,0xFF0040,0)
+                    object: new Circle(this.hit_object_container,is_hidden,x,y,approachTime,t,180,0xFF0040,0)
                 })
 
             }

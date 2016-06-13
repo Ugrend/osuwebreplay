@@ -1453,10 +1453,19 @@ osu.ui.interface.osugame = {
                 var x = this.calculate_x(this.beatmap.map_data.hit_objects[i][0]);
                 var y = this.calculate_y(this.beatmap.map_data.hit_objects[i][1]);
                 //TODO combo/colours/diameter/etc
+                var approachRate = parseInt(this.beatmap.map_data.difficulty.ApproachRate);
+                var approachTime = 0;
+                if( approachRate < 5){
+                    approachTime = (1800 - (approchRate * 120))
+                }else{
+                    approachTime =  (1200 - ((approachRate - 5) * 150));
+                }
+
+
                 var t = this.beatmap.map_data.hit_objects[i][2]; //time to hit cricle
                 this.hit_objects.push({
                     t: t,
-                    object: new Circle(this.hit_object_container,is_hidden,x,y,300,t,180,0xFF0040,0)
+                    object: new Circle(this.hit_object_container,is_hidden,x,y,approachTime,t,180,0xFF0040,0)
                 })
 
             }
@@ -1975,7 +1984,7 @@ var hit_circle_overlay = PIXI.Texture.fromImage(osu.skins.hitcicleoverlay);
 var approach_circle_texture = PIXI.Texture.fromImage(osu.skins.approachcircle);
 
 class Circle{
-    constructor(container,is_hidden, x, y, approach_rate, time,diameter, colour, combo) {
+    constructor(container,is_hidden, x, y, approach_rate, hit_time,diameter, colour, combo) {
         this.container = container;
         this.x = x;
         this.y = y;
@@ -1989,22 +1998,28 @@ class Circle{
         this.circleSprite.height = diameter;
         this.circleSprite.width = diameter;
         this.approach_rate = approach_rate;
-        this.time = time;
+        this.hit_time = hit_time;
+        if(!is_hidden) {
+            this.approchCircleSprite = new PIXI.Sprite(approach_circle_texture);
+            this.approchCircleSprite.tint = colour;
+            this.approchCircleSprite.anchor.set(0.5);
+            this.approchCircleSprite.width = this.diameter * 3;
+            this.approchCircleSprite.height = this.diameter * 3;
+            this.circleContainer.addChild(this.approchCircleSprite);
+        }
 
-        this.approchCircleSprite = new PIXI.Sprite(approach_circle_texture);
-        this.approchCircleSprite.tint = colour;
-        this.approchCircleSprite.anchor.set(0.5);
 
         this.circleOverlaySprite =  new PIXI.Sprite(hit_circle_overlay);
         this.circleOverlaySprite.height = diameter;
         this.circleOverlaySprite.width = diameter;
         this.circleOverlaySprite.anchor.set(0.5);
-
         this.circleContainer.addChild(this.circleSprite);
-        if(!is_hidden) {
-            this.circleContainer.addChild(this.approchCircleSprite);
-        }
         this.circleContainer.addChild(this.circleOverlaySprite);
+
+
+
+
+
 
         this.circleContainer.x = x;
         this.circleContainer.y = y;
@@ -2014,18 +2029,27 @@ class Circle{
 
 
     draw(cur_time){
-        if(cur_time < this.time + 150){
-            if(!this.destroyed && !this.drawn){
+
+        if(cur_time > this.hit_time && !this.destroyed){
+            this.destroy();
+            this.destroyed = true;
+        }
+
+
+        if(!this.destroyed && cur_time < this.hit_time + this.approach_rate){
+            if(!this.is_hidden){
+                var time_diff = this.hit_time - cur_time;
+                var scale = 1 +(time_diff / this.approach_rate) *3;
+                if(scale < 1) scale = 1;
+                this.approchCircleSprite.width = this.diameter * scale;
+                this.approchCircleSprite.height = this.diameter * scale;
+            }
+            if(!this.drawn){
                 this.container.addChildAt(this.circleContainer,0);
                 this.drawn = true;
             }
         }
-        else{
-            if(!this.destroyed){
-                this.destroy();
-                this.destroyed = true;
-            }
-        }
+
     }
 
     hit(time){
