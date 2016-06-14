@@ -1428,19 +1428,6 @@ osu.ui.interface.osugame = {
         this.hit_objects = [];
         this.last_object_pos =0;
 
-        //calculate x,y prior as processing slowly casues it to get out of sync
-        //might have to calculate replay times as time passed, as it is starting to get out of sync
-
-        if(!replay.been_rendered){
-            for(var i = 0 ; i < this.replay_data.length; i++){
-                if(this.replay_data[i].length == 4){
-                    this.replay_data[i][1] = this.calculate_x(this.replay_data[i][1]);
-                    this.replay_data[i][2] = this.calculate_y(this.replay_data[i][2]);
-                }
-            }
-            replay.been_rendered = true;
-        }
-
         var is_hidden  = false;
         for(i=0;i < this.mods.length; i++){
             if(this.mods[i].code = "HD"){
@@ -1450,8 +1437,9 @@ osu.ui.interface.osugame = {
 
         }
 
-        //prob cant do this, but will see if it works.
+
         for(i=0;i<this.beatmap.map_data.hit_objects.length; i++){
+
             if(this.beatmap.map_data.hit_objects[i][3] == 1){
                 var x = this.calculate_x(this.beatmap.map_data.hit_objects[i][0]);
                 var y = this.calculate_y(this.beatmap.map_data.hit_objects[i][1]);
@@ -1474,6 +1462,22 @@ osu.ui.interface.osugame = {
             }
         }
         this.audioLeadIn = parseInt(this.beatmap.map_data.general.AudioLeadIn);
+
+
+        //calculate x,y prior as processing slowly casues it to get out of sync
+        //might have to calculate replay times as time passed, as it is starting to get out of sync
+
+        if(!replay.been_rendered){
+            for(var i = 0 ; i < this.replay_data.length; i++){
+                if(this.replay_data[i].length == 4){
+                    this.replay_data[i][1] = this.calculate_x(this.replay_data[i][1]);
+                    this.replay_data[i][2] = this.calculate_y(this.replay_data[i][2]);
+                }
+            }
+            replay.been_rendered = true;
+        }
+
+
 
     },
 
@@ -1555,7 +1559,9 @@ osu.ui.interface.osugame = {
             var x = next_movment[1];
             var y = next_movment[2];
 
-            if(next_movment[0] < 0){
+            if(next_movment[0] < 0 || next_movment[2] < 0){
+                //negatives seem to do something with skips? 1 of the replays adds 8seconds then takes it away then adds it again later.
+                //the y coord seems to be negative, if i skip that it keeps the replay in sync with the song so ill do that for now
                 //console.log("im not sure what to do with negatives");
                 this.cursor.x = x;
                 this.cursor.y = y;
