@@ -1445,7 +1445,7 @@ osu.ui.interface.osugame = {
                 var y = this.calculate_y(this.beatmap.map_data.hit_objects[i][1]);
                 //TODO combo/colours/diameter/etc
                 var approachRate = parseInt(this.beatmap.map_data.difficulty.ApproachRate);
-                var circleSize = this.calculate_x(108.848 - (parseInt(this.beatmap.map_data.difficulty.CircleSize) * 8.9646));
+                var circleSize = (this.getRenderWidth()/640) * (108.848 - (parseInt(this.beatmap.map_data.difficulty.CircleSize) * 8.9646));
                 this.approachTime = 0;
                 if( approachRate < 5){
                     this.approachTime = (1800 - (approachRate * 120))
@@ -1482,17 +1482,14 @@ osu.ui.interface.osugame = {
 
     },
 
+    /*osu coords are 512/384 but we dont want 0,512/etc to appear almost off screen
+    So instead will devide by a bigger but same aspect ratio and increase the original x/y by the difference/2
+     */
     calculate_x: function(x){
-        if(x == 0){
-            return x;
-        }
-        return  (this.getRenderWidth()/640) * x;
+        return  (this.getRenderWidth()/640) * (x + 64);
     },
     calculate_y: function(y){
-        if(y == 0){
-            return y;
-        }
-        return  (this.getRenderHeight()/480) * y;
+        return  (this.getRenderHeight()/480) * (y + 48);
     },
     render_object: function(){
 
