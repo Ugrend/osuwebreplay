@@ -200,6 +200,7 @@ osu.ui.interface.osugame = {
                 var y = this.calculate_y(this.beatmap.map_data.hit_objects[i][1]);
                 //TODO combo/colours/diameter/etc
                 var approachRate = parseInt(this.beatmap.map_data.difficulty.ApproachRate);
+                var circleSize = this.calculate_x(108.848 - (parseInt(this.beatmap.map_data.difficulty.CircleSize) * 8.9646));
                 this.approachTime = 0;
                 if( approachRate < 5){
                     this.approachTime = (1800 - (approachRate * 120))
@@ -211,7 +212,7 @@ osu.ui.interface.osugame = {
                 var t = this.beatmap.map_data.hit_objects[i][2]; //time to hit cricle
                 this.hit_objects.push({
                     t: t,
-                    object: new Circle(this.hit_object_container,is_hidden,x,y,this.approachTime,t,180,0xFF0040,0)
+                    object: new Circle(this.hit_object_container,is_hidden,x,y,this.approachTime,t,circleSize,0xFF0040,0)
                 })
 
             }
@@ -240,13 +241,13 @@ osu.ui.interface.osugame = {
         if(x == 0){
             return x;
         }
-        return  (this.getRenderWidth()/512) * x;
+        return  (this.getRenderWidth()/640) * x;
     },
     calculate_y: function(y){
         if(y == 0){
             return y;
         }
-        return  (this.getRenderHeight()/384) * y;
+        return  (this.getRenderHeight()/480) * y;
     },
     render_object: function(){
 
@@ -256,7 +257,7 @@ osu.ui.interface.osugame = {
                 break;
             }
             //draw will return false if the object has been destroyed
-            //if it has been destroyed we will set the last object count to that pos so we dont interate over all the objects later on
+            //if it has been destroyed we will set the last object count to that pos so we don't iterate over all the objects later on
             if(!this.hit_objects[i].object.draw(time)){
                 this.last_object_pos = i;
             }
