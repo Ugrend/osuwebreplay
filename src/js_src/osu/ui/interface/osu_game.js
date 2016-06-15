@@ -313,10 +313,24 @@ osu.ui.interface.osugame = {
             var y = next_movment[2];
 
             if(next_movment[0] < 0 || next_movment[2] < 0){
-                //TODO: this doesnt work, need to work out how exactly this works as maps with skips always break
-                //negatives seem to do something with skips? 1 of the replays adds 8seconds then takes it away then adds it again later.
-                //the y coord seems to be negative, if i skip that it keeps the replay in sync with the song so ill do that for now
-                //console.log("im not sure what to do with negatives");
+                /*
+
+                 It seems if Y coord is negative it indicates how much time to skip ahead
+                 I have had a map replay where it will go
+
+                 8383T , -500Y
+
+                 which does seem to be the skip value
+
+                  on the next frame
+                  -8383 , 310Y
+                  Which would also to be with the skip but i cant see how it would be used
+                  The replay would then continue as normal
+
+                  To skip I would need to calculate the time spent in the skip duration and skip that far ahead in the replay
+
+
+                */
                 this.cursor.x = x;
                 this.cursor.y = y;
                 this.expected_replay_movment_time = null;

@@ -122,8 +122,8 @@ var ReplayParser = function(replay_data){
     replay.time_played = date_time.toLocaleString();
 
 
-    replay.grade = osu.score.getGrade(replay.h300 + replay.hGekis, replay.h100 + replay.hKatus, replay.h50,replay.hMisses).name;
-    replay.accuracy = osu.score.getAccuracy(replay.h300 + replay.hGekis, replay.h100 + replay.hKatus, replay.h50,replay.hMisses);
+    replay.grade = osu.score.getGrade(replay.h300, replay.h100, replay.h50,replay.hMisses).name;
+    replay.accuracy = osu.score.getAccuracy(replay.h300, replay.h100, replay.h50,replay.hMisses);
     event_handler.emit(event_handler.EVENTS.REPLAY_LOADED);
     replay.been_rendered = false;
     return replay;

@@ -829,8 +829,8 @@ var ReplayParser = function(replay_data){
     replay.time_played = date_time.toLocaleString();
 
 
-    replay.grade = osu.score.getGrade(replay.h300 + replay.hGekis, replay.h100 + replay.hKatus, replay.h50,replay.hMisses).name;
-    replay.accuracy = osu.score.getAccuracy(replay.h300 + replay.hGekis, replay.h100 + replay.hKatus, replay.h50,replay.hMisses);
+    replay.grade = osu.score.getGrade(replay.h300, replay.h100, replay.h50,replay.hMisses).name;
+    replay.accuracy = osu.score.getAccuracy(replay.h300, replay.h100, replay.h50,replay.hMisses);
     event_handler.emit(event_handler.EVENTS.REPLAY_LOADED);
     replay.been_rendered = false;
     return replay;
@@ -1225,9 +1225,9 @@ osu.score = {
 
     getAccuracy: function(h300,h100,h50,hMisses){
         //TODO: This calculation doesn't seem to get same results as game, i must be missing something
-        var maxHits = (h300 + h100 + h50 + hMisses)*300;
-        var actualHits = (h300*300 + h100*100 + h50*50);
-        return parseFloat((actualHits / maxHits * 100).toFixed(2));
+        var maxHits = h300 + h100 + h50 + hMisses;
+        var percent = (h300 * 300 + h100* 100 + h50 * 50) / (maxHits * 300) * 100;
+        return parseFloat(percent).toFixed(2);
     },
 
     parseAccuracyFromReplay: function (replay) {
@@ -1558,9 +1558,24 @@ osu.ui.interface.osugame = {
             var y = next_movment[2];
 
             if(next_movment[0] < 0 || next_movment[2] < 0){
-                //negatives seem to do something with skips? 1 of the replays adds 8seconds then takes it away then adds it again later.
-                //the y coord seems to be negative, if i skip that it keeps the replay in sync with the song so ill do that for now
-                //console.log("im not sure what to do with negatives");
+                /*
+
+                 It seems if Y coord is negative it indicates how much time to skip ahead
+                 I have had a map replay where it will go
+
+                 8383T , -500Y
+
+                 which does seem to be the skip value
+
+                  on the next frame
+                  -8383 , 310Y
+                  Which would also to be with the skip but i cant see how it would be used
+                  The replay would then continue as normal
+
+                  To skip I would need to calculate the time spent in the skip duration and skip that far ahead in the replay
+
+
+                */
                 this.cursor.x = x;
                 this.cursor.y = y;
                 this.expected_replay_movment_time = null;
