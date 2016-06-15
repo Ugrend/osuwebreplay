@@ -313,6 +313,7 @@ osu.ui.interface.osugame = {
             var y = next_movment[2];
 
             if(next_movment[0] < 0 || next_movment[2] < 0){
+                //TODO: this doesnt work, need to work out how exactly this works as maps with skips always break
                 //negatives seem to do something with skips? 1 of the replays adds 8seconds then takes it away then adds it again later.
                 //the y coord seems to be negative, if i skip that it keeps the replay in sync with the song so ill do that for now
                 //console.log("im not sure what to do with negatives");
