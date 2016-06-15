@@ -39,6 +39,9 @@ osu.skins = {
 
     //Interface
     pause_replay: "data/Pause-replay.png",
+    play_skiped: "data/play-skip.png",
+    play_warningarrow: "data/play-warningarrow.png",
+
 
 
     cursor: "data/cursor.png",

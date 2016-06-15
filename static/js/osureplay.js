@@ -50,6 +50,9 @@ osu.skins = {
 
     //Interface
     pause_replay: "data/Pause-replay.png",
+    play_skiped: "data/play-skip.png",
+    play_warningarrow: "data/play-warningarrow.png",
+
 
 
     cursor: "data/cursor.png",
@@ -1284,6 +1287,7 @@ osu.ui.interface.osugame = {
     curr_replay_frame:0,
     mods: [],
     last_object_pos: 0,
+    replay_intro_time: -1,
 
 
     getRenderWidth: function(){
@@ -1401,7 +1405,19 @@ osu.ui.interface.osugame = {
         this.cursor.y = this.getRenderHeight() / 2;
         this.master_container.addChild(this.cursor);
     },
+    create_skip_container: function () {
+        this.skip_container = new PIXI.Container();
+        var skip_texture =  new PIXI.Texture.fromImage(osu.skins.play_skip);
+        var skip_sprite = new PIXI.Sprite(skip_texture);
+        skip_sprite.anchor.set(0.5);
+        skip_sprite.x = this.calculate_x(512);
+        skip_sprite.y = this.calculate_y(384);
+        this.skip_container.visible = false;
 
+        this.skip_container.addChild(skip_sprite);
+        this.master_container.addChild(this.skip_container);
+
+    },
 
 
 
@@ -1411,6 +1427,7 @@ osu.ui.interface.osugame = {
         this.create_background();
         this.create_key_press();
         this.master_container.addChild(this.hit_object_container);
+        this.create_skip_container();
         this.create_cursor();
 
     },
@@ -1491,6 +1508,7 @@ osu.ui.interface.osugame = {
     calculate_y: function(y){
         return  (this.getRenderHeight()/480) * (y + 48);
     },
+
     render_object: function(){
 
         var time = Date.now() - this.date_started;
@@ -1527,6 +1545,12 @@ osu.ui.interface.osugame = {
         var difference = 0;
         var time = Date.now();
         if(this.has_started){
+            if(this.replay_intro_time > -1 && this.date_started + this.replay_intro_time < Date.now()){
+                this.replay_intro_time = -1;
+                this.skip_container.visible = false;
+            }
+
+
             this.render_object();
         }
 
@@ -1576,6 +1600,10 @@ osu.ui.interface.osugame = {
 
 
                 */
+                if(next_movment[2] < 0){
+                    this.replay_intro_time = next_movment[0];
+                    this.skip_container.visible = true;
+                }
                 this.cursor.x = x;
                 this.cursor.y = y;
                 this.expected_replay_movment_time = null;
