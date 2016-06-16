@@ -74,7 +74,17 @@ osu.skins = {
     selection_mod_nofail: "data/selection-mod-nofail.png",
     selection_mod_perfect: "data/selection-mod-perfect.png",
     selection_mod_spunout: "data/selection-mod-spunout.png",
-    selection_mod_suddendeath: "data/selection-mod-suddendeath.png"
+    selection_mod_suddendeath: "data/selection-mod-suddendeath.png",
+
+
+
+    //AUDIO
+
+    audio: {
+        sectionpass: "data/sectionpass.wav"
+
+
+    }
 
 
 };

@@ -85,7 +85,17 @@ osu.skins = {
     selection_mod_nofail: "data/selection-mod-nofail.png",
     selection_mod_perfect: "data/selection-mod-perfect.png",
     selection_mod_spunout: "data/selection-mod-spunout.png",
-    selection_mod_suddendeath: "data/selection-mod-suddendeath.png"
+    selection_mod_suddendeath: "data/selection-mod-suddendeath.png",
+
+
+
+    //AUDIO
+
+    audio: {
+        sectionpass: "data/sectionpass.wav"
+
+
+    }
 
 
 };
@@ -915,6 +925,23 @@ osu.audio.music =  {
 
 
 /**
+ * Created by Ugrend on 16/06/2016.
+ */
+var osu = osu || {};
+osu.audio = osu.audio || {};
+osu.audio.sound = {
+
+    section_success:   {
+        __audio: new Audio(src=osu.skins.audio.sectionpass),
+        play: function () {
+            this.__audio.play();
+        }
+
+    }
+
+
+};
+/**
  * Created by Ugrend on 4/06/2016.
  */
 // https://osu.ppy.sh/wiki/Osu_%28file_format%29
@@ -1518,6 +1545,7 @@ osu.ui.interface.osugame = {
 
     show_success: function () {
         this.success_container.visible = true;
+        osu.audio.sound.section_success.play();
         var self = this;
         setTimeout(function () {
             self.success_container.visible = false;

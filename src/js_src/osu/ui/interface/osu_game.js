@@ -268,6 +268,7 @@ osu.ui.interface.osugame = {
 
     show_success: function () {
         this.success_container.visible = true;
+        osu.audio.sound.section_success.play();
         var self = this;
         setTimeout(function () {
             self.success_container.visible = false;
