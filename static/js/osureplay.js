@@ -1291,6 +1291,8 @@ osu.ui.interface.osugame = {
     replay_intro_time: -1,
     end_skip_frame: -1,
     skip_frames: [],
+    flash_count:0,
+    warning_arrow_times: [],
 
 
     getRenderWidth: function(){
@@ -1453,11 +1455,10 @@ osu.ui.interface.osugame = {
         this.arrow_container.addChild(skip_arrow_sprite_2);
         this.arrow_container.addChild(skip_arrow_sprite_3);
         this.arrow_container.addChild(skip_arrow_sprite_4);
-
+        this.arrow_container.visible = false;
         this.master_container.addChild(this.arrow_container);
 
     },
-
 
 
     create_master_container: function () {
@@ -1469,6 +1470,22 @@ osu.ui.interface.osugame = {
         this.create_skip_container();
         this.create_play_warn_arrows_container();
         this.create_cursor();
+
+    },
+
+    flash_warning_arrows: function () {
+        if(this.flash_count < 15){
+            var self  = this;
+            setTimeout(function () {
+                self.arrow_container.visible = !self.arrow_container.visible;
+                self.flash_count++;
+                self.flash_warning_arrows()
+            },150);
+
+        }else{
+           this.arrow_container.visible = false;
+            this.flash_count = 0;
+        }
 
     },
 
@@ -1484,7 +1501,7 @@ osu.ui.interface.osugame = {
         this.expected_replay_movment_time = null;
         this.hit_objects = [];
         this.last_object_pos =0;
-
+        this.warning_arrow_times = [];
         var is_hidden  = false;
         for(i=0;i < this.mods.length; i++){
             if(this.mods[i].code = "HD"){
@@ -1549,10 +1566,12 @@ osu.ui.interface.osugame = {
                 break;
             }
             if(i > 5){
+                //no need to go too far into the future
                 break;
             }
         }
         if(skip_time > -1){
+            this.warning_arrow_times.push(skip_time);
             for (var i = skip_frame+1; i < this.replay_data.length; i++) {
                 if(this.replay_data[i][0] >= 0){
                     if(time_count < skip_time){
@@ -1605,6 +1624,13 @@ osu.ui.interface.osugame = {
     render_object: function(){
 
         var time = Date.now() - this.date_started;
+        for(var x = 0; x < this.warning_arrow_times.length ; x++){
+            if(time > this.warning_arrow_times[x]){
+                this.warning_arrow_times.splice(x,1);
+                this.flash_warning_arrows();
+                break;
+            }
+        }
         for(var i = this.last_object_pos; i< this.hit_objects.length ; i++){
             if(this.hit_objects[i].t - this.approachTime  > time){
                 break;
