@@ -418,7 +418,7 @@ osu.ui.interface.osugame = {
             }
         }
 
-        event_handler.on(event_handler.EVENTS.RENDER, this.move_replay_text.bind(this))
+        event_handler.on(event_handler.EVENTS.RENDER, this.move_replay_text.bind(this),"replay_text")
 
     },
 
@@ -537,7 +537,7 @@ osu.ui.interface.osugame = {
             this.time_finished = Date.now();
             this.cursor.x = this.getRenderWidth() / 2;
             this.cursor.y = this.getRenderHeight() / 2;
-
+            event_handler.off(event_handler.EVENTS.RENDER,"replay_text");
             osu.ui.interface.scorescreen.renderScoreScreen();
             return;
         }

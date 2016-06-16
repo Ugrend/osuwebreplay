@@ -251,15 +251,19 @@ var event_handler = {
     }),
 
     __events: {},
-    on: function (eventName, fn, parent_object) {
+    on: function (eventName, fn, alias, parent_object) {
         this.__events[eventName] = this.__events[eventName] || [];
-        this.__events[eventName].push({fn: fn, parent: parent_object});
+        this.__events[eventName].push({fn: fn, alias: alias, parent: parent_object});
     },
-    off: function (eventName, fn) {
+    off: function (eventName, alias,fn) {
         if (this.__events[eventName]) {
             for (var i = 0; i < this.__events[eventName].length; i++) {
                 if (this.__events[eventName][i].fn === fn) {
                     this.__events[eventName].splice(i, 1);
+                    break;
+                }
+                if(this.__events[eventName][i].alias == alias){
+                    this.__events[eventName].splice(i,1);
                     break;
                 }
             }
@@ -1698,7 +1702,7 @@ osu.ui.interface.osugame = {
             }
         }
 
-        event_handler.on(event_handler.EVENTS.RENDER, this.move_replay_text.bind(this))
+        event_handler.on(event_handler.EVENTS.RENDER, this.move_replay_text.bind(this),"replay_text")
 
     },
 
@@ -1817,7 +1821,7 @@ osu.ui.interface.osugame = {
             this.time_finished = Date.now();
             this.cursor.x = this.getRenderWidth() / 2;
             this.cursor.y = this.getRenderHeight() / 2;
-
+            event_handler.off(event_handler.EVENTS.RENDER,"replay_text");
             osu.ui.interface.scorescreen.renderScoreScreen();
             return;
         }
