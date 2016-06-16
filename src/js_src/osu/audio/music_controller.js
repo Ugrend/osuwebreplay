@@ -32,6 +32,9 @@ osu.audio.music =  {
         }
 
     },
+    set_position: function (t) {
+        this.__audio.currentTime = t;
+    },
 
     play: function(){
         this.__audio.play()

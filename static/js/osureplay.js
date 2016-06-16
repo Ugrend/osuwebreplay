@@ -886,6 +886,9 @@ osu.audio.music =  {
         }
 
     },
+    set_position: function (t) {
+        this.__audio.currentTime = t;
+    },
 
     play: function(){
         this.__audio.play()
@@ -1288,6 +1291,8 @@ osu.ui.interface.osugame = {
     mods: [],
     last_object_pos: 0,
     replay_intro_time: -1,
+    end_skip_frame: -1,
+    skip_frames: [],
 
 
     getRenderWidth: function(){
@@ -1412,6 +1417,8 @@ osu.ui.interface.osugame = {
         skip_sprite.anchor.set(0.5);
         skip_sprite.x = this.calculate_x(512);
         skip_sprite.y = this.calculate_y(384);
+        skip_sprite.interactive = true;
+        skip_sprite.on("mouseup", this.skip_intro.bind(this));
         this.skip_container.visible = false;
 
         this.skip_container.addChild(skip_sprite);
@@ -1495,6 +1502,59 @@ osu.ui.interface.osugame = {
             replay.been_rendered = true;
         }
 
+        this.skip_frames =[];
+
+        //calculate skip values
+        var skip_time = -1;
+        var skip_frame = -1;
+        this.end_skip_frame = -1;
+        var time_count = 0;
+        for (var i = 0; i < this.replay_data.length; i++) {
+            if(this.replay_data[i][2] < 0 && this.replay_data[i][0] > 0){
+                skip_time = this.replay_data[i][0];
+                skip_frame = i;
+                break;
+            }
+            if(i > 5){
+                break;
+            }
+        }
+        if(skip_time > -1){
+            for (var i = skip_frame+1; i < this.replay_data.length; i++) {
+                if(this.replay_data[i][0] >= 0){
+                    if(time_count < skip_time){
+                        time_count += this.replay_data[i][0]
+                    }else{
+                        this.end_skip_frame = i;
+                        break;
+                    }
+                }
+            }
+            var time_difference = time_count - skip_time;
+            if(time_difference > 0){
+                var i = this.end_skip_frame;
+                while(time_difference > 0){
+                    var remainder = time_difference % this.replay_data[i][0];
+                    if(remainder > 0 && remainder != time_difference){
+                        this.skip_frames.push({
+                            frame: i,
+                            minus: remainder
+                        });
+                        time_difference -= remainder;
+                        i++
+                    }else{
+                        this.skip_frames.push({
+                            frame: i,
+                            minus: remainder
+                        });
+                        time_difference = 0;
+
+                    }
+
+                }
+
+            }
+        }
 
 
     },
@@ -1524,6 +1584,21 @@ osu.ui.interface.osugame = {
         }
     },
 
+    skip_intro: function () {
+        if(this.replay_intro_time != -1){
+            for(var i = 0; i< this.skip_frames.length ; i++){
+                var frame = this.skip_frames[i].frame;
+                var minus = this.skip_frames[i].minus;
+                this.replay_data[frame][0] -= minus
+            }
+            osu.audio.music.set_position(this.replay_intro_time/1000);
+            this.curr_replay_frame = this.end_skip_frame;
+            //set the time we started back in time so objects will spawn
+            this.date_started -= this.replay_intro_time;
+
+        }
+
+    },
 
     game_loop: function () {
         //TODO: check if i need to do something with replays also
