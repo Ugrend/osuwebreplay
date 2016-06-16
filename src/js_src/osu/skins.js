@@ -40,8 +40,6 @@ osu.skins = {
     //Interface
     pause_replay: "data/Pause-replay.png",
     play_skiped: "data/play-skip.png",
-    play_warningarrow: "data/play-warningarrow.png",
-
 
 
     cursor: "data/cursor.png",
@@ -55,7 +53,7 @@ osu.skins = {
     //Playfield
     section_fail: "data/Section-fail.png",
     section_pass: "data/Section-pass.png",
-    play_warningarrow: "data/Play-warningarrow.png",
+    play_warningarrow: "data/play-warningarrow.png",
     play_skip: "data/play-skip.png",
 
     hitcircle: "data/hitcircle.png",

@@ -175,6 +175,40 @@ osu.ui.interface.osugame = {
 
     },
 
+    create_play_warn_arrows_container: function () {
+        this.arrow_container = new PIXI.Container();
+        var arrow_texture = new PIXI.Texture.fromImage(osu.skins.play_warningarrow);
+        var skip_arrow_sprite_1 = new PIXI.Sprite(arrow_texture);
+        var skip_arrow_sprite_2 = new PIXI.Sprite(arrow_texture);
+        var skip_arrow_sprite_3 = new PIXI.Sprite(arrow_texture);
+        var skip_arrow_sprite_4 = new PIXI.Sprite(arrow_texture);
+        skip_arrow_sprite_1.anchor.set(0.5);
+        skip_arrow_sprite_2.anchor.set(0.5);
+        skip_arrow_sprite_3.anchor.set(0.5);
+        skip_arrow_sprite_4.anchor.set(0.5);
+        skip_arrow_sprite_1.x = this.calculate_x(25);
+        skip_arrow_sprite_1.y = this.calculate_y(19);
+        skip_arrow_sprite_2.scale.x = -1; //flip arrow
+        skip_arrow_sprite_2.x = this.calculate_x(487);
+        skip_arrow_sprite_2.y = this.calculate_y(19);
+
+
+        skip_arrow_sprite_3.x = this.calculate_x(25);
+        skip_arrow_sprite_3.y = this.calculate_y(365);
+        skip_arrow_sprite_4.scale.x = -1; //flip arrow
+        skip_arrow_sprite_4.x = this.calculate_x(487);
+        skip_arrow_sprite_4.y = this.calculate_y(365);
+
+
+        this.arrow_container.addChild(skip_arrow_sprite_1);
+        this.arrow_container.addChild(skip_arrow_sprite_2);
+        this.arrow_container.addChild(skip_arrow_sprite_3);
+        this.arrow_container.addChild(skip_arrow_sprite_4);
+
+        this.master_container.addChild(this.arrow_container);
+
+    },
+
 
 
     create_master_container: function () {
@@ -184,6 +218,7 @@ osu.ui.interface.osugame = {
         this.create_key_press();
         this.master_container.addChild(this.hit_object_container);
         this.create_skip_container();
+        this.create_play_warn_arrows_container();
         this.create_cursor();
 
     },
@@ -351,6 +386,8 @@ osu.ui.interface.osugame = {
         }
 
     },
+
+
 
     game_loop: function () {
         //TODO: check if i need to do something with replays also
