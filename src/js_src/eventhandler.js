@@ -12,7 +12,8 @@ var event_handler = {
         REPLAY_LOAD_FAILED:6,
         BEATMAP_NOTFOUND: 7,
         DB_ERROR: 8,
-        ASSET_NOT_FOUND:9
+        ASSET_NOT_FOUND:9,
+        RENDER:10
     }),
 
     __events: {},

@@ -16,6 +16,7 @@ osu.ui.renderer = {
     render_zone: document.getElementById("render_zone"),
     fixed_aspect: false,
 
+
     /**
      *
      * @param child add to renderer stage
@@ -31,6 +32,7 @@ osu.ui.renderer = {
         this.masterStage.removeChildren();
     },
     animate: function () {
+        event_handler.emit(event_handler.EVENTS.RENDER);
         this.renderer.render(this.masterStage);
         requestAnimationFrame(this.animate.bind(this));
     },

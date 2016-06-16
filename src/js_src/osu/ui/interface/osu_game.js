@@ -45,6 +45,7 @@ osu.ui.interface.osugame = {
     flash_count:0,
     warning_arrow_times: [],
     break_times: [],
+    replay_played_by_text: "",
 
 
     getRenderWidth: function(){
@@ -234,13 +235,22 @@ osu.ui.interface.osugame = {
         this.master_container.addChild(this.fail_container);
     },
 
-
+    create_replay_by_text: function () {
+        this.replay_text = new PIXI.Text(this.replay_played_by_text,{
+            font: "20px Arial",
+            fill: "#FFFFFF"
+        });
+        this.replay_text.y = this.getRenderHeight()/10;
+        this.replay_text.x = this.getRenderWidth() /2;
+        this.master_container.addChild(this.replay_text);
+    },
 
     create_master_container: function () {
         this.hit_object_container = new PIXI.Container();
 
         this.create_background();
         this.create_key_press();
+        this.create_replay_by_text();
         this.master_container.addChild(this.hit_object_container);
         this.create_skip_container();
         this.create_success_container();
@@ -408,7 +418,15 @@ osu.ui.interface.osugame = {
             }
         }
 
+        event_handler.on(event_handler.EVENTS.RENDER, this.move_replay_text.bind(this))
 
+    },
+
+    move_replay_text: function () {
+        if(this.replay_text.x < (-this.replay_text.width +5)){
+            this.replay_text.x = this.getRenderWidth();
+        }
+        this.replay_text.x -= 1.5;
     },
 
     /*osu coords are 512/384 but we dont want 0,512/etc to appear almost off screen

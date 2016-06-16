@@ -162,6 +162,7 @@ osu.ui.renderer = {
     render_zone: document.getElementById("render_zone"),
     fixed_aspect: false,
 
+
     /**
      *
      * @param child add to renderer stage
@@ -177,6 +178,7 @@ osu.ui.renderer = {
         this.masterStage.removeChildren();
     },
     animate: function () {
+        event_handler.emit(event_handler.EVENTS.RENDER);
         this.renderer.render(this.masterStage);
         requestAnimationFrame(this.animate.bind(this));
     },
@@ -244,7 +246,8 @@ var event_handler = {
         REPLAY_LOAD_FAILED:6,
         BEATMAP_NOTFOUND: 7,
         DB_ERROR: 8,
-        ASSET_NOT_FOUND:9
+        ASSET_NOT_FOUND:9,
+        RENDER:10
     }),
 
     __events: {},
@@ -1322,6 +1325,7 @@ osu.ui.interface.osugame = {
     flash_count:0,
     warning_arrow_times: [],
     break_times: [],
+    replay_played_by_text: "",
 
 
     getRenderWidth: function(){
@@ -1511,13 +1515,22 @@ osu.ui.interface.osugame = {
         this.master_container.addChild(this.fail_container);
     },
 
-
+    create_replay_by_text: function () {
+        this.replay_text = new PIXI.Text(this.replay_played_by_text,{
+            font: "20px Arial",
+            fill: "#FFFFFF"
+        });
+        this.replay_text.y = this.getRenderHeight()/10;
+        this.replay_text.x = this.getRenderWidth() /2;
+        this.master_container.addChild(this.replay_text);
+    },
 
     create_master_container: function () {
         this.hit_object_container = new PIXI.Container();
 
         this.create_background();
         this.create_key_press();
+        this.create_replay_by_text();
         this.master_container.addChild(this.hit_object_container);
         this.create_skip_container();
         this.create_success_container();
@@ -1685,7 +1698,15 @@ osu.ui.interface.osugame = {
             }
         }
 
+        event_handler.on(event_handler.EVENTS.RENDER, this.move_replay_text.bind(this))
 
+    },
+
+    move_replay_text: function () {
+        if(this.replay_text.x < (-this.replay_text.width +5)){
+            this.replay_text.x = this.getRenderWidth();
+        }
+        this.replay_text.x -= 1.5;
     },
 
     /*osu coords are 512/384 but we dont want 0,512/etc to appear almost off screen
@@ -2206,6 +2227,7 @@ osu.ui.interface.scorescreen = {
         osu.audio.music.preview_screen = false;
         osu.ui.interface.osugame.replay_data = replay.replayData;
         osu.ui.interface.osugame.beatmap = this.beatmap;
+        osu.ui.interface.osugame.replay_played_by_text = "REPLAY MODE - Watching " + replay.playerName + " play " + this.beatmap.map_name;
         osu.ui.interface.osugame.initGame();
         osu.ui.interface.osugame.game_loop();
     },
