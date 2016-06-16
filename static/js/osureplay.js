@@ -50,8 +50,6 @@ osu.skins = {
 
     //Interface
     pause_replay: "data/Pause-replay.png",
-    play_skiped: "data/play-skip.png",
-
 
     cursor: "data/cursor.png",
     cursortrail: "data/cursortrail.png",
@@ -70,6 +68,9 @@ osu.skins = {
     hitcircle: "data/hitcircle.png",
     hitcicleoverlay: "data/hitcircleoverlay.png",
     approachcircle: "data/approachcircle.png",
+
+    section_pass: "data/section-pass.png",
+    section_fail: "data/section-fail.png",
 
 
     //Mods
@@ -1461,10 +1462,26 @@ osu.ui.interface.osugame = {
 
     },
     create_success_container: function () {
-
+        this.success_container = new PIXI.Container();
+        var success_texture = new PIXI.Texture.fromImage(osu.skins.section_pass);
+        var success_sprite = new PIXI.Sprite(success_texture);
+        success_sprite.anchor.set(0.5);
+        success_sprite.x = this.getRenderWidth() /2;
+        success_sprite.y = this.getRenderHeight() /2;
+        this.success_container.visible = false;
+        this.success_container.addChild(success_sprite);
+        this.master_container.addChild(this.success_container);
     },
     create_fail_container: function () {
-
+        this.fail_container = new PIXI.Container();
+        var fail_texture = new PIXI.Texture.fromImage(osu.skins.section_fail);
+        var fail_sprite = new PIXI.Sprite(fail_texture);
+        fail_sprite.anchor.set(0.5);
+        fail_sprite.x = this.getRenderWidth() /2;
+        fail_sprite.y = this.getRenderHeight() /2;
+        this.fail_container.visible = false;
+        this.fail_container.addChild(fail_sprite);
+        this.master_container.addChild(this.fail_container);
     },
 
 
@@ -1476,6 +1493,8 @@ osu.ui.interface.osugame = {
         this.create_key_press();
         this.master_container.addChild(this.hit_object_container);
         this.create_skip_container();
+        this.create_success_container();
+        this.create_fail_container();
         this.create_play_warn_arrows_container();
         this.create_cursor();
 
@@ -1498,10 +1517,18 @@ osu.ui.interface.osugame = {
     },
 
     show_success: function () {
-
+        this.success_container.visible = true;
+        var self = this;
+        setTimeout(function () {
+            self.success_container.visible = false;
+        }, 4000);
     },
     show_failure: function () {
-
+        this.fail_container.visible = true;
+        var self = this;
+        setTimeout(function () {
+            self.fail_container.visible = false;
+        }, 4000);
     },
 
     initGame: function(){
@@ -1653,6 +1680,15 @@ osu.ui.interface.osugame = {
                 break;
             }
         }
+        for(var x = 0; x < this.break_times.length ; x++){
+            if(time > this.break_times[x] + 2000){
+                this.break_times.splice(x,1);
+                //TODO: check performance to toggle correct break screen
+                this.show_success();
+                break;
+            }
+        }
+
         for(var i = this.last_object_pos; i< this.hit_objects.length ; i++){
             if(this.hit_objects[i].t - this.approachTime  > time){
                 break;

@@ -39,8 +39,6 @@ osu.skins = {
 
     //Interface
     pause_replay: "data/Pause-replay.png",
-    play_skiped: "data/play-skip.png",
-
 
     cursor: "data/cursor.png",
     cursortrail: "data/cursortrail.png",
@@ -59,6 +57,9 @@ osu.skins = {
     hitcircle: "data/hitcircle.png",
     hitcicleoverlay: "data/hitcircleoverlay.png",
     approachcircle: "data/approachcircle.png",
+
+    section_pass: "data/section-pass.png",
+    section_fail: "data/section-fail.png",
 
 
     //Mods
