@@ -1293,6 +1293,7 @@ osu.ui.interface.osugame = {
     skip_frames: [],
     flash_count:0,
     warning_arrow_times: [],
+    break_times: [],
 
 
     getRenderWidth: function(){
@@ -1526,7 +1527,11 @@ osu.ui.interface.osugame = {
         }
 
         for(i=0; i<this.beatmap.map_data.events.length;i++){
-
+            //2 looks to be breaks
+            if(this.beatmap.map_data.events[i][0] == "2"){
+                this.break_times.push(parseInt(this.beatmap.map_data.events[i][1]));
+                this.warning_arrow_times.push(parseInt(this.beatmap.map_data.events[i][2]) - 2300);
+            }
         }
 
         for(i=0;i<this.beatmap.map_data.hit_objects.length; i++){
