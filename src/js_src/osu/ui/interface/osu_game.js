@@ -321,27 +321,46 @@ osu.ui.interface.osugame = {
                 this.warning_arrow_times.push(parseInt(this.beatmap.map_data.events[i][2]) - 2300);
             }
         }
+        var comboNum = 0;
+        var comboColour = 0;
+        var approachRate = parseInt(this.beatmap.map_data.difficulty.ApproachRate);
+        var circleSize = (this.getRenderWidth()/640) * (108.848 - (parseInt(this.beatmap.map_data.difficulty.CircleSize) * 8.9646));
+
+        this.approachTime = 0;
+        if( approachRate < 5){
+            this.approachTime = (1800 - (approachRate * 120))
+        }else{
+            this.approachTime =  (1200 - ((approachRate - 5) * 150));
+        }
 
         for(i=0;i<this.beatmap.map_data.hit_objects.length; i++){
+            var hitObjectInt = parseInt(this.beatmap.map_data.hit_objects[i][3]);
+            var circle = hitObjectInt & osu.objects.hitobjects.TYPES.CIRCLE;
+            var slider = hitObjectInt & osu.objects.hitobjects.TYPES.SLIDER;
+            var new_combo = hitObjectInt & osu.objects.hitobjects.TYPES.NEW_COMBO;
+            var spinner = hitObjectInt & osu.objects.hitobjects.TYPES.SPINNER;
 
-            if(this.beatmap.map_data.hit_objects[i][3] == 1){
-                var x = this.calculate_x(this.beatmap.map_data.hit_objects[i][0]);
-                var y = this.calculate_y(this.beatmap.map_data.hit_objects[i][1]);
-                //TODO combo/colours/diameter/etc
-                var approachRate = parseInt(this.beatmap.map_data.difficulty.ApproachRate);
-                var circleSize = (this.getRenderWidth()/640) * (108.848 - (parseInt(this.beatmap.map_data.difficulty.CircleSize) * 8.9646));
-                this.approachTime = 0;
-                if( approachRate < 5){
-                    this.approachTime = (1800 - (approachRate * 120))
-                }else{
-                    this.approachTime =  (1200 - ((approachRate - 5) * 150));
+
+            if(comboNum == 0 || new_combo > 0){
+                comboNum = 1;
+                if(comboColour == osu.skins.COMBO_COLOURS.length-1){
+                    comboColour = 0;
                 }
+                else{
+                    comboColour++;
+                }
+            }else{
+                comboNum++;
+            }
 
 
-                var t = this.beatmap.map_data.hit_objects[i][2]; //time to hit cricle
+            if(circle > 0){
+                var x = this.calculate_x(parseInt(this.beatmap.map_data.hit_objects[i][0]));
+                var y = this.calculate_y(parseInt(this.beatmap.map_data.hit_objects[i][1]));
+                var t = parseInt(this.beatmap.map_data.hit_objects[i][2]); //time to hit cricle
                 this.hit_objects.push({
                     t: t,
-                    object: new Circle(this.hit_object_container,is_hidden,x,y,this.approachTime,t,circleSize,0xFF0040,0)
+                    object: new Circle(this.hit_object_container,is_hidden,x,y,this.approachTime,t,circleSize,osu.skins.COMBO_COLOURS[comboColour],comboNum)
                 })
 
             }

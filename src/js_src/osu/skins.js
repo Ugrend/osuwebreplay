@@ -8,6 +8,7 @@ osu.skins = {
     //https://osu.ppy.sh/wiki/Skinning_Standard
     //https://osu.ppy.sh/wiki/Skinning_Interface
 
+    COMBO_COLOURS: [0xFFC000,0x00CA00,0x127CFF,0xF21839],
 
     //hitbursts
     hit300: "data/hit300.png",
@@ -49,8 +50,8 @@ osu.skins = {
     inputoverlay_key: "data/inputoverlay-key.png",
 
     //Playfield
-    section_fail: "data/Section-fail.png",
-    section_pass: "data/Section-pass.png",
+    section_fail: "data/section-fail.png",
+    section_pass: "data/section-pass.png",
     play_warningarrow: "data/play-warningarrow.png",
     play_skip: "data/play-skip.png",
 
@@ -58,10 +59,18 @@ osu.skins = {
     hitcicleoverlay: "data/hitcircleoverlay.png",
     approachcircle: "data/approachcircle.png",
 
-    section_pass: "data/section-pass.png",
-    section_fail: "data/section-fail.png",
 
 
+    default_0: "data/default-0.png",
+    default_1: "data/default-1.png",
+    default_2: "data/default-2.png",
+    default_3: "data/default-3.png",
+    default_4: "data/default-4.png",
+    default_5: "data/default-5.png",
+    default_6: "data/default-6.png",
+    default_7: "data/default-7.png",
+    default_8: "data/default-8.png",
+    default_9: "data/default-9.png",
     //Mods
 
     selection_mod_doubletime: "data/selection-mod-doubletime.png",
@@ -82,8 +91,6 @@ osu.skins = {
 
     audio: {
         sectionpass: "data/sectionpass.wav"
-
-
     }
 
 

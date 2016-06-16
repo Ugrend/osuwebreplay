@@ -6,9 +6,23 @@
 var hit_circle_texture = PIXI.Texture.fromImage(osu.skins.hitcircle);
 var hit_circle_overlay = PIXI.Texture.fromImage(osu.skins.hitcicleoverlay);
 var approach_circle_texture = PIXI.Texture.fromImage(osu.skins.approachcircle);
+var num_0 = PIXI.Texture.fromImage(osu.skins.default_1);
+var num_1 = PIXI.Texture.fromImage(osu.skins.default_1);
+var num_2 = PIXI.Texture.fromImage(osu.skins.default_2);
+var num_3 = PIXI.Texture.fromImage(osu.skins.default_3);
+var num_4 = PIXI.Texture.fromImage(osu.skins.default_4);
+var num_5 = PIXI.Texture.fromImage(osu.skins.default_5);
+var num_6 = PIXI.Texture.fromImage(osu.skins.default_6);
+var num_7 = PIXI.Texture.fromImage(osu.skins.default_7);
+var num_8 = PIXI.Texture.fromImage(osu.skins.default_8);
+var num_9 = PIXI.Texture.fromImage(osu.skins.default_9);
+
 
 class Circle{
     constructor(container,is_hidden, x, y, approach_rate, hit_time,diameter, colour, combo) {
+
+
+
         this.container = container;
         this.x = x;
         this.y = y;
@@ -41,14 +55,65 @@ class Circle{
         this.circleContainer.addChild(this.circleOverlaySprite);
 
 
+        var comboString = combo.toString();
+        this.comboNumSprites = [];
+        for(var i = 0; i< comboString.length ; i++){
+            switch(comboString.charAt(i)){
+                case "0":
+                    this.comboNumSprites.push(new PIXI.Sprite(num_0));
+                    break;
+                case "1":
+                    this.comboNumSprites.push(new PIXI.Sprite(num_1));
+                    break;
+                case "2":
+                    this.comboNumSprites.push(new PIXI.Sprite(num_2));
+                    break;
+                case "3":
+                    this.comboNumSprites.push(new PIXI.Sprite(num_3));
+                    break;
+                case "4":
+                    this.comboNumSprites.push(new PIXI.Sprite(num_4));
+                    break;
+                case "5":
+                    this.comboNumSprites.push(new PIXI.Sprite(num_5));
+                    break;
+                case "6":
+                    this.comboNumSprites.push(new PIXI.Sprite(num_6));
+                    break;
+                case "7":
+                    this.comboNumSprites.push(new PIXI.Sprite(num_7));
+                    break;
+                case "8":
+                    this.comboNumSprites.push(new PIXI.Sprite(num_8));
+                    break;
+                case "9":
+                    this.comboNumSprites.push(new PIXI.Sprite(num_9));
+                    break;
+            }
+
+        }
+
+        if(this.comboNumSprites.length > 1){
+            this.comboSprite1 = this.comboNumSprites[0];
+            this.comboSprite2 = this.comboNumSprites[1];
+            this.comboSprite1.x -= this.diameter/10;
+            this.comboSprite2.x += this.diameter/10;
+            this.comboSprite1.anchor.set(0.5);
+            this.comboSprite2.anchor.set(0.5);
+            this.circleContainer.addChild(this.comboSprite1);
+            this.circleContainer.addChild(this.comboSprite2);
+        }else{
+            this.comboSprite1 = this.comboNumSprites[0];
+            this.comboSprite1.anchor.set(0.5);
+            this.circleContainer.addChild(this.comboSprite1);
+        }
 
         this.last_draw_time = 0;
-
-
         this.circleContainer.x = x;
         this.circleContainer.y = y;
         this.drawn = false;
         this.destroyed = false;
+
     }
 
 

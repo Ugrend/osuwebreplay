@@ -82,36 +82,7 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
                     }
                     break;
                 case "[hitobjects]":
-                    //TODO: this will only convert circles need to do sliders and spinz
-                    //TODO: this might fuck other game modes need to look into
-                    //This will prepend a int to the start of the array so i can check easier for the type of hitobject later instead of checking the length all the time
                     var hit_object = line.split(",");
-                    switch(hit_object[3]){
-                        case "1":
-                        case "4":
-                        case "9":
-                            //circle /spinner
-                            if(hit_object.length > 7){
-                                console.log("mayber slider " + line);
-                            }
-                            for(var x = 0; x < hit_object.length; x++){
-                                //convert from string to int/float
-                                hit_object[x] = parseFloat(hit_object[x]);
-                            }
-                            break;
-                        case "2":
-                            //slider
-                            break;
-                        case "5":
-                        case "6":
-                        case "12":
-                        case "21":
-                            //not sure but is for taiko
-                            //12 appears in normal beatmaps
-                            break;
-                        default:
-                            console.log("WARNING: unknown hit object line:" + i + " -- " +  line);
-                    }
                     beatmap_config.hit_objects.push(hit_object);
                     break;
 

@@ -19,6 +19,7 @@ osu.skins = {
     //https://osu.ppy.sh/wiki/Skinning_Standard
     //https://osu.ppy.sh/wiki/Skinning_Interface
 
+    COMBO_COLOURS: [0xFFC000,0x00CA00,0x127CFF,0xF21839],
 
     //hitbursts
     hit300: "data/hit300.png",
@@ -60,8 +61,8 @@ osu.skins = {
     inputoverlay_key: "data/inputoverlay-key.png",
 
     //Playfield
-    section_fail: "data/Section-fail.png",
-    section_pass: "data/Section-pass.png",
+    section_fail: "data/section-fail.png",
+    section_pass: "data/section-pass.png",
     play_warningarrow: "data/play-warningarrow.png",
     play_skip: "data/play-skip.png",
 
@@ -69,10 +70,18 @@ osu.skins = {
     hitcicleoverlay: "data/hitcircleoverlay.png",
     approachcircle: "data/approachcircle.png",
 
-    section_pass: "data/section-pass.png",
-    section_fail: "data/section-fail.png",
 
 
+    default_0: "data/default-0.png",
+    default_1: "data/default-1.png",
+    default_2: "data/default-2.png",
+    default_3: "data/default-3.png",
+    default_4: "data/default-4.png",
+    default_5: "data/default-5.png",
+    default_6: "data/default-6.png",
+    default_7: "data/default-7.png",
+    default_8: "data/default-8.png",
+    default_9: "data/default-9.png",
     //Mods
 
     selection_mod_doubletime: "data/selection-mod-doubletime.png",
@@ -93,8 +102,6 @@ osu.skins = {
 
     audio: {
         sectionpass: "data/sectionpass.wav"
-
-
     }
 
 
@@ -367,36 +374,7 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
                     }
                     break;
                 case "[hitobjects]":
-                    //TODO: this will only convert circles need to do sliders and spinz
-                    //TODO: this might fuck other game modes need to look into
-                    //This will prepend a int to the start of the array so i can check easier for the type of hitobject later instead of checking the length all the time
                     var hit_object = line.split(",");
-                    switch(hit_object[3]){
-                        case "1":
-                        case "4":
-                        case "9":
-                            //circle /spinner
-                            if(hit_object.length > 7){
-                                console.log("mayber slider " + line);
-                            }
-                            for(var x = 0; x < hit_object.length; x++){
-                                //convert from string to int/float
-                                hit_object[x] = parseFloat(hit_object[x]);
-                            }
-                            break;
-                        case "2":
-                            //slider
-                            break;
-                        case "5":
-                        case "6":
-                        case "12":
-                        case "21":
-                            //not sure but is for taiko
-                            //12 appears in normal beatmaps
-                            break;
-                        default:
-                            console.log("WARNING: unknown hit object line:" + i + " -- " +  line);
-                    }
                     beatmap_config.hit_objects.push(hit_object);
                     break;
 
@@ -1605,27 +1583,46 @@ osu.ui.interface.osugame = {
                 this.warning_arrow_times.push(parseInt(this.beatmap.map_data.events[i][2]) - 2300);
             }
         }
+        var comboNum = 0;
+        var comboColour = 0;
+        var approachRate = parseInt(this.beatmap.map_data.difficulty.ApproachRate);
+        var circleSize = (this.getRenderWidth()/640) * (108.848 - (parseInt(this.beatmap.map_data.difficulty.CircleSize) * 8.9646));
+
+        this.approachTime = 0;
+        if( approachRate < 5){
+            this.approachTime = (1800 - (approachRate * 120))
+        }else{
+            this.approachTime =  (1200 - ((approachRate - 5) * 150));
+        }
 
         for(i=0;i<this.beatmap.map_data.hit_objects.length; i++){
+            var hitObjectInt = parseInt(this.beatmap.map_data.hit_objects[i][3]);
+            var circle = hitObjectInt & osu.objects.hitobjects.TYPES.CIRCLE;
+            var slider = hitObjectInt & osu.objects.hitobjects.TYPES.SLIDER;
+            var new_combo = hitObjectInt & osu.objects.hitobjects.TYPES.NEW_COMBO;
+            var spinner = hitObjectInt & osu.objects.hitobjects.TYPES.SPINNER;
 
-            if(this.beatmap.map_data.hit_objects[i][3] == 1){
-                var x = this.calculate_x(this.beatmap.map_data.hit_objects[i][0]);
-                var y = this.calculate_y(this.beatmap.map_data.hit_objects[i][1]);
-                //TODO combo/colours/diameter/etc
-                var approachRate = parseInt(this.beatmap.map_data.difficulty.ApproachRate);
-                var circleSize = (this.getRenderWidth()/640) * (108.848 - (parseInt(this.beatmap.map_data.difficulty.CircleSize) * 8.9646));
-                this.approachTime = 0;
-                if( approachRate < 5){
-                    this.approachTime = (1800 - (approachRate * 120))
-                }else{
-                    this.approachTime =  (1200 - ((approachRate - 5) * 150));
+
+            if(comboNum == 0 || new_combo > 0){
+                comboNum = 1;
+                if(comboColour == osu.skins.COMBO_COLOURS.length-1){
+                    comboColour = 0;
                 }
+                else{
+                    comboColour++;
+                }
+            }else{
+                comboNum++;
+            }
 
 
-                var t = this.beatmap.map_data.hit_objects[i][2]; //time to hit cricle
+            if(circle > 0){
+                var x = this.calculate_x(parseInt(this.beatmap.map_data.hit_objects[i][0]));
+                var y = this.calculate_y(parseInt(this.beatmap.map_data.hit_objects[i][1]));
+                var t = parseInt(this.beatmap.map_data.hit_objects[i][2]); //time to hit cricle
                 this.hit_objects.push({
                     t: t,
-                    object: new Circle(this.hit_object_container,is_hidden,x,y,this.approachTime,t,circleSize,0xFF0040,0)
+                    object: new Circle(this.hit_object_container,is_hidden,x,y,this.approachTime,t,circleSize,osu.skins.COMBO_COLOURS[comboColour],comboNum)
                 })
 
             }
@@ -2278,9 +2275,23 @@ osu.ui.interface.scorescreen = {
 var hit_circle_texture = PIXI.Texture.fromImage(osu.skins.hitcircle);
 var hit_circle_overlay = PIXI.Texture.fromImage(osu.skins.hitcicleoverlay);
 var approach_circle_texture = PIXI.Texture.fromImage(osu.skins.approachcircle);
+var num_0 = PIXI.Texture.fromImage(osu.skins.default_1);
+var num_1 = PIXI.Texture.fromImage(osu.skins.default_1);
+var num_2 = PIXI.Texture.fromImage(osu.skins.default_2);
+var num_3 = PIXI.Texture.fromImage(osu.skins.default_3);
+var num_4 = PIXI.Texture.fromImage(osu.skins.default_4);
+var num_5 = PIXI.Texture.fromImage(osu.skins.default_5);
+var num_6 = PIXI.Texture.fromImage(osu.skins.default_6);
+var num_7 = PIXI.Texture.fromImage(osu.skins.default_7);
+var num_8 = PIXI.Texture.fromImage(osu.skins.default_8);
+var num_9 = PIXI.Texture.fromImage(osu.skins.default_9);
+
 
 class Circle{
     constructor(container,is_hidden, x, y, approach_rate, hit_time,diameter, colour, combo) {
+
+
+
         this.container = container;
         this.x = x;
         this.y = y;
@@ -2313,14 +2324,65 @@ class Circle{
         this.circleContainer.addChild(this.circleOverlaySprite);
 
 
+        var comboString = combo.toString();
+        this.comboNumSprites = [];
+        for(var i = 0; i< comboString.length ; i++){
+            switch(comboString.charAt(i)){
+                case "0":
+                    this.comboNumSprites.push(new PIXI.Sprite(num_0));
+                    break;
+                case "1":
+                    this.comboNumSprites.push(new PIXI.Sprite(num_1));
+                    break;
+                case "2":
+                    this.comboNumSprites.push(new PIXI.Sprite(num_2));
+                    break;
+                case "3":
+                    this.comboNumSprites.push(new PIXI.Sprite(num_3));
+                    break;
+                case "4":
+                    this.comboNumSprites.push(new PIXI.Sprite(num_4));
+                    break;
+                case "5":
+                    this.comboNumSprites.push(new PIXI.Sprite(num_5));
+                    break;
+                case "6":
+                    this.comboNumSprites.push(new PIXI.Sprite(num_6));
+                    break;
+                case "7":
+                    this.comboNumSprites.push(new PIXI.Sprite(num_7));
+                    break;
+                case "8":
+                    this.comboNumSprites.push(new PIXI.Sprite(num_8));
+                    break;
+                case "9":
+                    this.comboNumSprites.push(new PIXI.Sprite(num_9));
+                    break;
+            }
+
+        }
+
+        if(this.comboNumSprites.length > 1){
+            this.comboSprite1 = this.comboNumSprites[0];
+            this.comboSprite2 = this.comboNumSprites[1];
+            this.comboSprite1.x -= this.diameter/10;
+            this.comboSprite2.x += this.diameter/10;
+            this.comboSprite1.anchor.set(0.5);
+            this.comboSprite2.anchor.set(0.5);
+            this.circleContainer.addChild(this.comboSprite1);
+            this.circleContainer.addChild(this.comboSprite2);
+        }else{
+            this.comboSprite1 = this.comboNumSprites[0];
+            this.comboSprite1.anchor.set(0.5);
+            this.circleContainer.addChild(this.comboSprite1);
+        }
 
         this.last_draw_time = 0;
-
-
         this.circleContainer.x = x;
         this.circleContainer.y = y;
         this.drawn = false;
         this.destroyed = false;
+
     }
 
 
@@ -2368,6 +2430,22 @@ class Circle{
 }
 
 
+/**
+ * Created by Ugrend on 17/06/2016.
+ */
+
+osu = osu || {};
+osu.objects = osu.objects || {};
+osu.objects.hitobjects = {
+    TYPES: {
+        CIRCLE: 1,
+        SLIDER: 2,
+        NEW_COMBO: 4,
+        SPINNER: 8,
+    }
+
+
+}
 /**
  * Created by Ugrend on 11/06/2016.
  */
