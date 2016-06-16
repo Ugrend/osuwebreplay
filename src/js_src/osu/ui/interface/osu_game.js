@@ -343,7 +343,9 @@ osu.ui.interface.osugame = {
             osu.audio.music.set_position(this.replay_intro_time/1000);
             this.curr_replay_frame = this.end_skip_frame;
             //set the time we started back in time so objects will spawn
-            this.date_started -= this.replay_intro_time;
+            var elapsed_time = Date.now() - this.date_started;
+
+            this.date_started -= (this.replay_intro_time - elapsed_time);
 
         }
 
