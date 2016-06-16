@@ -1459,6 +1459,13 @@ osu.ui.interface.osugame = {
         this.master_container.addChild(this.arrow_container);
 
     },
+    create_success_container: function () {
+
+    },
+    create_fail_container: function () {
+
+    },
+
 
 
     create_master_container: function () {
@@ -1489,6 +1496,13 @@ osu.ui.interface.osugame = {
 
     },
 
+    show_success: function () {
+
+    },
+    show_failure: function () {
+
+    },
+
     initGame: function(){
         osu.ui.renderer.fixed_aspect = true;
         osu.ui.renderer.start();
@@ -1503,7 +1517,7 @@ osu.ui.interface.osugame = {
         this.last_object_pos =0;
         this.warning_arrow_times = [];
         var is_hidden  = false;
-        for(i=0;i < this.mods.length; i++){
+        for(var i=0;i < this.mods.length; i++){
             if(this.mods[i].code = "HD"){
                 is_hidden = true;
                 break;
@@ -1511,6 +1525,9 @@ osu.ui.interface.osugame = {
 
         }
 
+        for(i=0; i<this.beatmap.map_data.events.length;i++){
+
+        }
 
         for(i=0;i<this.beatmap.map_data.hit_objects.length; i++){
 
@@ -1690,6 +1707,7 @@ osu.ui.interface.osugame = {
             }
 
 
+
             this.render_object();
         }
 
@@ -1739,7 +1757,7 @@ osu.ui.interface.osugame = {
 
 
                 */
-                if(next_movment[2] < 0){
+                if(next_movment[2] < 0 && next_movment[0] > 0){
                     this.replay_intro_time = next_movment[0];
                     this.skip_container.visible = true;
                 }
