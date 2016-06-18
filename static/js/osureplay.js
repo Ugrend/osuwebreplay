@@ -1736,7 +1736,7 @@ osu.ui.interface.osugame = {
     /*osu coords are 512/384 but we dont want 0,512/etc to appear almost off screen
      So instead will devide by a bigger but same aspect ratio and increase the original x/y by the difference/2
      */
-    calculate_x: function (x, log) {
+    calculate_x: function (x) {
         x = parseInt(x);
         var result = (this.getRenderWidth() / 640) * (x + 64);
         return result;
@@ -2491,11 +2491,8 @@ osu.objects.sliders = {
             var slider_type = slider_points[0];
             if(slider_type == osu.objects.sliders.TYPES.LINEAR){
                 var draw_to_point = slider_points[1].split(':');
-                var final_x = game.calculate_x(draw_to_point[0], true);
+                var final_x = game.calculate_x(draw_to_point[0]);
                 var final_y = game.calculate_y(draw_to_point[1]);
-                console.log(x + " " + y + " " + final_x + " " + final_y );
-                console.log(draw_to_point);
-                console.log("");
                 this.sliderGraphics.moveTo(x, y);
                 this.sliderGraphics.bezierCurveTo(final_x,final_y,final_x,final_y,final_x,final_y);
             }

@@ -15,11 +15,8 @@ osu.objects.sliders = {
             var slider_type = slider_points[0];
             if(slider_type == osu.objects.sliders.TYPES.LINEAR){
                 var draw_to_point = slider_points[1].split(':');
-                var final_x = game.calculate_x(draw_to_point[0], true);
+                var final_x = game.calculate_x(draw_to_point[0]);
                 var final_y = game.calculate_y(draw_to_point[1]);
-                console.log(x + " " + y + " " + final_x + " " + final_y );
-                console.log(draw_to_point);
-                console.log("");
                 this.sliderGraphics.moveTo(x, y);
                 this.sliderGraphics.bezierCurveTo(final_x,final_y,final_x,final_y,final_x,final_y);
             }

@@ -464,7 +464,7 @@ osu.ui.interface.osugame = {
     /*osu coords are 512/384 but we dont want 0,512/etc to appear almost off screen
      So instead will devide by a bigger but same aspect ratio and increase the original x/y by the difference/2
      */
-    calculate_x: function (x, log) {
+    calculate_x: function (x) {
         x = parseInt(x);
         var result = (this.getRenderWidth() / 640) * (x + 64);
         return result;
