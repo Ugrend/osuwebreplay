@@ -73,7 +73,17 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
                     beatmap_config.events.push(line.split(","));
                     break;
                 case "[timingpoints]":
-                    beatmap_config.timing_points.push(line.split(","));
+                    var parts = line.split(",");
+                    beatmap_config.timing_points.push({
+                        offset: +parts[0],
+                        millisecondsPerBeat: +parts[1],
+                        meter: +parts[2],
+                        sampleType: +parts[3],
+                        sampleSet: +parts[4],
+                        volume: +parts[5],
+                        inherited: +parts[6],
+                        kaiMode: +parts[7]
+                    });
                     break;
                 case "[colours]":
                     var settings = line.split(":");
