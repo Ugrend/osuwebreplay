@@ -295,7 +295,7 @@ osu.ui.interface.osugame = {
         osu.ui.renderer.start();
         this.create_master_container();
         osu.ui.renderer.clearStage();
-        osu.ui.renderer.masterStage = this.master_container;
+        osu.ui.renderer.addChild(this.master_container);
         this.has_started = false;
         this.countdown_started = false;
         this.curr_replay_frame = 0;
