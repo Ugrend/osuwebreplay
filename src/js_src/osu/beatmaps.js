@@ -16,8 +16,10 @@ osu.beatmaps = {
     song: "",
     __beatmap: "",
     __files_needed: [],
+    md5sum:"",
 
     load: function (md5sum, onsuccess, onerror) {
+        this.md5sum = md5sum;
         this.onsuccess = onsuccess;
         this.onerror = onerror;
         // check if last loaded beatmap has our data first (incase indexeddb is unavailable/etc)
@@ -32,12 +34,21 @@ osu.beatmaps = {
                     break;
                 }
             }
-            this.__beatmap_loaded();
+            if(this.beatmap_found) {
+                this.__beatmap_loaded();
+            }
+            else{
+                this.__look_in_db();
+            }
         }else{
-            database.get_data(database.TABLES.BEATMAPS,md5sum,this.__load_bm_from_db.bind(this), function (e) {
-                event_handler.emit(event_handler.EVENTS.DB_ERROR, e.event.error);
-            } );
+            this.__look_in_db();
         }
+    },
+
+    __look_in_db: function () {
+        database.get_data(database.TABLES.BEATMAPS,this.md5sum,this.__load_bm_from_db.bind(this), function (e) {
+            event_handler.emit(event_handler.EVENTS.DB_ERROR, e.event.error);
+        } );
     },
     __load_bm_from_db: function (result) {
 
@@ -78,8 +89,8 @@ osu.beatmaps = {
             this.__process_beatmap();
             this.onsuccess(this);
         }else{
-            event_handler.emit(event_handler.EVENTS.BEATMAP_NOTFOUND, md5sum);
-            this.onerror("beatmap not found: " + md5sum);
+            event_handler.emit(event_handler.EVENTS.BEATMAP_NOTFOUND, this.md5sum);
+            this.onerror("beatmap not found: " + this.md5sum);
 
         }
     },
