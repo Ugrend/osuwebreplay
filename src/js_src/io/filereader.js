@@ -1,4 +1,5 @@
 /**
+ * filereader.js
  * Created by Ugrend on 6/2/2016.
  */
 if(typeof window.FileReader === "undefined"){

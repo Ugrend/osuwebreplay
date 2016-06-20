@@ -1,4 +1,5 @@
 /**
+ * hitobjects.js
  * Created by Ugrend on 17/06/2016.
  */
 

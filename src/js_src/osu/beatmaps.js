@@ -1,4 +1,5 @@
 /**
+ * beatmaps.js
  * Created by Ugrend on 4/06/2016.
  */
 // https://osu.ppy.sh/wiki/Osu_%28file_format%29

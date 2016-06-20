@@ -1,4 +1,5 @@
 /**
+ * mods.js
  * Created by Ugrend on 2/06/2016.
  */
 //https://osu.ppy.sh/wiki/Game_Modifiers

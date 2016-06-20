@@ -1,4 +1,5 @@
 /**
+ * gametypes.js
  * Created by Ugrend on 3/06/2016.
  */
 

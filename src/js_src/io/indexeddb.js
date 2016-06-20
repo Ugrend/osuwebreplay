@@ -1,4 +1,5 @@
 /**
+ * indexeddb.js
  * Created by Ugrend on 6/06/2016.
  */
 window.indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;

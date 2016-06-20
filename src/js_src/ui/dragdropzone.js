@@ -1,4 +1,5 @@
 /**
+ * dragdropzone.js
  * Created by Ugrend on 6/2/2016.
  */
 function resetLabel(){

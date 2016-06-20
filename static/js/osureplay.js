@@ -1,4 +1,5 @@
 /**
+ * main.js
  * Created by Ugrend on 2/06/2016.
  */
 
@@ -10,6 +11,7 @@ var replay = "";
 var beatmap =null;
 zip.workerScriptsPath = "static/libs/js/";
 /**
+ * skins.js
  * Created by Ugrend on 4/06/2016.
  */
 var osu = osu || {};
@@ -107,6 +109,7 @@ osu.skins = {
 
 };
 /**
+ * dragdropzone.js
  * Created by Ugrend on 6/2/2016.
  */
 function resetLabel(){
@@ -120,6 +123,7 @@ function hideDropZone(){
 
 }
 /**
+ * replay_details.js
  * Created by Ugrend on 6/2/2016.
  */
 
@@ -152,6 +156,7 @@ function showReplayData(beatmap){
     osu.ui.interface.scorescreen.renderScoreScreen();
 }
 /**
+ * render.js
  * Created by Ugrend on 4/06/2016.
  */
 
@@ -240,6 +245,7 @@ osu.ui.renderer = {
 
 
 /**
+ * eventhandler.js
  * Created by Ugrend on 10/06/2016.
  */
 var event_handler = {
@@ -295,20 +301,26 @@ var event_handler = {
 };
 
 
-event_handler.on(event_handler.EVENTS.BEATMAP_LOADED, function (data) {
-    PNotify.removeAll();
-    new PNotify({
-        title: 'Beatmap Loaded',
-        text: data + "\nhas been successfully processed",
-        type: 'success'
-    });
-});
+
 event_handler.on(event_handler.EVENTS.BEATMAP_LOADING, function (data) {
-    new PNotify({
+    var loading =   new PNotify({
         title: 'Loading beatmap',
         text: "Loading \n" + data,
-        type: 'info'
+        type: 'info',
+        hide: 'false'
     });
+    var alias = Date.now().toString();
+    event_handler.on(event_handler.EVENTS.BEATMAP_LOADED, function (data_loaded) {
+        var options = {
+            type: "success",
+            title: "Beatmap Loaded",
+            text: data_loaded + "\n has been successfully processed",
+            hide: "true"
+        };
+        loading.update(options);
+        //one time only event
+        event_handler.off(event_handler.EVENTS.BEATMAP_LOADED, alias);
+    }, alias);
 });
 
 
@@ -338,6 +350,7 @@ event_handler.on(event_handler.EVENTS.BEATMAP_NOTFOUND, function (data) {
     });
 });
 /**
+ * beatmap_reader.js
  * Created by Ugrend on 6/06/2016.
  */
 
@@ -606,6 +619,7 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
 };
 
 /**
+ * filereader.js
  * Created by Ugrend on 6/2/2016.
  */
 if(typeof window.FileReader === "undefined"){
@@ -659,6 +673,7 @@ else {
     };
 }
 /**
+ * indexeddb.js
  * Created by Ugrend on 6/06/2016.
  */
 window.indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
@@ -775,6 +790,7 @@ else {
     database.init();
 }
 /**
+ * replayreader.js
  * Created by Ugrend on 2/06/2016.
  */
 
@@ -906,6 +922,7 @@ var ReplayParser = function(replay_data){
 };
 
 /**
+ * skinreader.js
  * Created by Ugrend on 6/06/2016.
  */
 var SkinReader = function(skin_zip) {
@@ -919,6 +936,7 @@ var SkinReader = function(skin_zip) {
 
 };
 /**
+ * music_controller.js
  * Created by Ugrend on 9/06/2016.
  */
 var osu = osu || {};
@@ -982,6 +1000,7 @@ osu.audio.music =  {
 
 
 /**
+ * sound_effects.js
  * Created by Ugrend on 16/06/2016.
  */
 var osu = osu || {};
@@ -999,6 +1018,7 @@ osu.audio.sound = {
 
 };
 /**
+ * beatmaps.js
  * Created by Ugrend on 4/06/2016.
  */
 // https://osu.ppy.sh/wiki/Osu_%28file_format%29
@@ -1113,6 +1133,7 @@ osu.beatmaps = {
 
 };
 /**
+ * gametypes.js
  * Created by Ugrend on 3/06/2016.
  */
 
@@ -1125,6 +1146,7 @@ osu.GAMETYPES = {
     MANIA: 3
 };
 /**
+ * keypress.js
  * Created by Ugrend on 5/06/2016.
  */
 
@@ -1171,6 +1193,7 @@ osu.keypress = Object.freeze({
 
 
 /**
+ * mods.js
  * Created by Ugrend on 2/06/2016.
  */
 //https://osu.ppy.sh/wiki/Game_Modifiers
@@ -1236,6 +1259,7 @@ osu.mods = Object.freeze({
 
 
 /**
+ * score.js
  * Created by ugrend on 2/06/2016.
  */
 
@@ -1332,10 +1356,12 @@ osu.score = {
 
 };
 /**
+ * settings.js
  * Created by Ugrend on 9/06/2016.
  */
 
 /**
+ * main_screen.js
  * Created by Ugrend on 20/06/2016.
  */
 var osu = osu || {};
@@ -1347,6 +1373,7 @@ osu.ui.interface.mainscreen = {
 };
 
 /**
+ * osu_game.js
  * Created by Ugrend on 5/06/2016.
  */
 
@@ -2018,6 +2045,7 @@ osu.ui.interface.osugame = {
 
  **/
 /**
+ * scorescreen.js
  * Created by Ugrend on 4/06/2016.
  */
 
@@ -2367,6 +2395,7 @@ osu.ui.interface.scorescreen = {
 
 };
 /**
+ * circle.js
  * Created by Ugrend on 11/06/2016.
  */
 
@@ -2530,6 +2559,7 @@ class Circle{
 
 
 /**
+ * hitobjects.js
  * Created by Ugrend on 17/06/2016.
  */
 
@@ -2546,6 +2576,7 @@ osu.objects.hitobjects = {
 
 }
 /**
+ * slider.js
  * Created by Ugrend on 11/06/2016.
  */
 osu = osu || {};
@@ -2615,5 +2646,6 @@ osu.objects.sliders = {
 
 
 /**
+ * spinner.js
  * Created by Ugrend on 11/06/2016.
  */

@@ -1,4 +1,5 @@
 /**
+ * osu_game.js
  * Created by Ugrend on 5/06/2016.
  */
 

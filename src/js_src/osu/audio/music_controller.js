@@ -1,4 +1,5 @@
 /**
+ * music_controller.js
  * Created by Ugrend on 9/06/2016.
  */
 var osu = osu || {};

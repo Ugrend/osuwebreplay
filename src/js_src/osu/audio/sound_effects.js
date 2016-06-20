@@ -1,4 +1,5 @@
 /**
+ * sound_effects.js
  * Created by Ugrend on 16/06/2016.
  */
 var osu = osu || {};

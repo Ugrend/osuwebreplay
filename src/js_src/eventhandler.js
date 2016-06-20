@@ -1,4 +1,5 @@
 /**
+ * eventhandler.js
  * Created by Ugrend on 10/06/2016.
  */
 var event_handler = {
@@ -54,20 +55,26 @@ var event_handler = {
 };
 
 
-event_handler.on(event_handler.EVENTS.BEATMAP_LOADED, function (data) {
-    PNotify.removeAll();
-    new PNotify({
-        title: 'Beatmap Loaded',
-        text: data + "\nhas been successfully processed",
-        type: 'success'
-    });
-});
+
 event_handler.on(event_handler.EVENTS.BEATMAP_LOADING, function (data) {
-    new PNotify({
+    var loading =   new PNotify({
         title: 'Loading beatmap',
         text: "Loading \n" + data,
-        type: 'info'
+        type: 'info',
+        hide: 'false'
     });
+    var alias = Date.now().toString();
+    event_handler.on(event_handler.EVENTS.BEATMAP_LOADED, function (data_loaded) {
+        var options = {
+            type: "success",
+            title: "Beatmap Loaded",
+            text: data_loaded + "\n has been successfully processed",
+            hide: "true"
+        };
+        loading.update(options);
+        //one time only event
+        event_handler.off(event_handler.EVENTS.BEATMAP_LOADED, alias);
+    }, alias);
 });
 
 
