@@ -39,6 +39,11 @@ var database = {
                         table.createIndex("creator", "creator", {unique: false});
                         table.createIndex("tags", "tags", {unique: false});
                     }
+                    if(database.TABLES[k] == database.TABLES.REPLAYS){
+                        table.createIndex("beatmap_id", "bmMd5Hash", {unique: false});
+                        table.createIndex("player", "playerName", {unique: false});
+
+                    }
                 }
             }
         };

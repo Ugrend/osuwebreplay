@@ -19,6 +19,16 @@ osu.beatmaps = {
     md5sum:"",
 
     load: function (md5sum, onsuccess, onerror) {
+        //clear out old data
+        this.beatmap_found = false;
+        this.map_name = false;
+        this.required_files = [];
+        this.assets = [];
+        this.song = "";
+        this.__beatmap = "";
+        this.__files_needed = [];
+        this.background = "";
+
         this.md5sum = md5sum;
         this.onsuccess = onsuccess;
         this.onerror = onerror;

@@ -718,6 +718,11 @@ var database = {
                         table.createIndex("creator", "creator", {unique: false});
                         table.createIndex("tags", "tags", {unique: false});
                     }
+                    if(database.TABLES[k] == database.TABLES.REPLAYS){
+                        table.createIndex("beatmap_id", "bmMd5Hash", {unique: false});
+                        table.createIndex("player", "playerName", {unique: false});
+
+                    }
                 }
             }
         };
@@ -1047,6 +1052,16 @@ osu.beatmaps = {
     md5sum:"",
 
     load: function (md5sum, onsuccess, onerror) {
+        //clear out old data
+        this.beatmap_found = false;
+        this.map_name = false;
+        this.required_files = [];
+        this.assets = [];
+        this.song = "";
+        this.__beatmap = "";
+        this.__files_needed = [];
+        this.background = "";
+
         this.md5sum = md5sum;
         this.onsuccess = onsuccess;
         this.onerror = onerror;
