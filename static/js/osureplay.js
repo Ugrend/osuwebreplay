@@ -296,14 +296,25 @@ var event_handler = {
 
 
 event_handler.on(event_handler.EVENTS.BEATMAP_LOADED, function (data) {
+    PNotify.removeAll();
     new PNotify({
         title: 'Beatmap Loaded',
         text: data + "\nhas been successfully processed",
         type: 'success'
     });
 });
+event_handler.on(event_handler.EVENTS.BEATMAP_LOADING, function (data) {
+    new PNotify({
+        title: 'Loading beatmap',
+        text: "Loading \n" + data,
+        type: 'info'
+    });
+});
+
+
 
 event_handler.on(event_handler.EVENTS.BEATMAP_LOADING_FAILED, function (data) {
+    PNotify.removeAll();
     new PNotify({
         title: 'Beatmap Loading Failed',
         text: "Failed to load beatmap: " + data,
