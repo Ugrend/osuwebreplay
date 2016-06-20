@@ -290,6 +290,7 @@ osu.ui.interface.osugame = {
     },
 
     initGame: function () {
+        event_handler.off(event_handler.EVENTS.RENDER, "replay_text"); //unsubscrbe incase another replay closed early
         osu.ui.renderer.fixed_aspect = true;
         osu.ui.renderer.start();
         this.create_master_container();
