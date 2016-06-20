@@ -10,7 +10,7 @@
  * @returns {{type: *, version: *, bmMd5Hash: *, playerName: *, rMd5Hash: *, h300: *, h100: *, h50: *, hGekis: *, hKatus: *, hMisses: *, tScore: *, tCombo: *, fullClear: *, mods: *, lifeBar: *, timeTicks: *, replayByteLength: *}}
  * @constructor
  */
-var ReplayParser = function(replay_data){
+var ReplayParser = function(replay_data, callback){
     event_handler.emit(event_handler.EVENTS.REPLAY_LOADING);
     //https://osu.ppy.sh/wiki/Osr_%28file_format%29
     var RP = {
@@ -98,26 +98,6 @@ var ReplayParser = function(replay_data){
         time_played: RP.getLong(),
         replayByteLength: RP.getInteger()
     };
-
-    LZMA.decompress(
-      RP.replay_bytes.slice(RP.byte_index),
-        function(data) {
-            var replayData = data.split(",");
-            for(var i = 0 ; i< replayData.length ; i++){
-               var splitData = replayData[i].split("|");
-                for(var x = 0; x< splitData.length ; x++){
-                    splitData[x] = parseFloat(splitData[x]);
-                }
-                replayData[i] = splitData;
-            }
-            replay.replayData = replayData;
-        },
-        function(){}
-    );
-
-
-
-
     var epoch = (replay.time_played - 621355968000000000) / 10000 ;
     var date_time = new Date(epoch);
     replay.time_played = date_time.toLocaleString();
@@ -125,7 +105,31 @@ var ReplayParser = function(replay_data){
 
     replay.grade = osu.score.getGrade(replay.h300, replay.h100, replay.h50,replay.hMisses).name;
     replay.accuracy = osu.score.getAccuracy(replay.h300, replay.h100, replay.h50,replay.hMisses);
-    event_handler.emit(event_handler.EVENTS.REPLAY_LOADED);
+
     replay.been_rendered = false;
-    return replay;
+
+    LZMA.decompress(
+        RP.replay_bytes.slice(RP.byte_index),
+        function(data) {
+            var replayData = data.split(",");
+            for(var i = 0 ; i< replayData.length ; i++){
+                var splitData = replayData[i].split("|");
+                for(var x = 0; x< splitData.length ; x++){
+                    splitData[x] = parseFloat(splitData[x]);
+                }
+                replayData[i] = splitData;
+            }
+            replay.replayData = replayData;
+
+            database.insert_data(database.TABLES.REPLAYS, replay.rMd5Hash, replay, function () {
+                event_handler.emit(event_handler.EVENTS.REPLAY_LOADED);
+                callback(replay);
+            }, function () {
+                event_handler.emit(event_handler.EVENTS.REPLAY_LOADED);
+                callback(replay);
+            });
+        },
+        function(){}
+    );
+
 };
