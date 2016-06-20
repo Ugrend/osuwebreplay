@@ -23,22 +23,33 @@ var database = {
 
     init: function () {
         var self = this;
-        var openRequest = indexedDB.open("osu", 1);
-        openRequest.onupgradeneeded = function (e) {
+        var createDatabase = indexedDB.open("osu", 1);
+        createDatabase.onupgradeneeded = function (e) {
             var thisDB = e.target.result;
             for(var k in database.TABLES){
                 if (!thisDB.objectStoreNames.contains(database.TABLES[k])) {
-                    thisDB.createObjectStore(database.TABLES[k]);
+                    var table = thisDB.createObjectStore(database.TABLES[k]);
+                    if(database.TABLES[k] == database.TABLES.BEATMAPS){
+                        table.createIndex("beatmapsetid", "beatmapsetid", {unique: false});
+                        table.createIndex("title", "title", {unique: false});
+                        table.createIndex("titleunicode", "titleunicode", {unique: false});
+                        table.createIndex("artist", "artist", {unique: false});
+                        table.createIndex("artistunicode", "artistunicode", {unique: false});
+                        table.createIndex("creator", "creator", {unique: false});
+                        table.createIndex("tags", "tags", {unique: false});
+                    }
                 }
             }
         };
-        openRequest.onsuccess = function (e) {
+        createDatabase.onsuccess = function (e) {
             self.__db = e.target.result;
             self.__started = true;
         };
-        openRequest.onerror = function (e) {
+        createDatabase.onerror = function (e) {
             console.log(e);
         };
+
+
 
         this.indexeddb_available = true;
 

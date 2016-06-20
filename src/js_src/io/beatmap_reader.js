@@ -101,6 +101,7 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
 
         }
 
+
         return beatmap_config;
     };
 
@@ -128,6 +129,9 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
                     )
                 }
                 beatmap.parsed = parse_osu_map_data(beatmap.data);
+                for(var k in beatmap.parsed.metadata){
+                    beatmap[k.toLocaleLowerCase()] = beatmap.parsed.metadata[k];
+                }
                 database.insert_data(database.TABLES.BEATMAPS, beatmap.md5sum, beatmap, function () {
                     beatmaps_loaded++;
                     beatmap_loaded();

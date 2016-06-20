@@ -371,11 +371,6 @@ osu.ui.interface.osugame = {
 
 
             }
-            if (slider > 0) {
-                var x = this.calculate_x(parseInt(this.beatmap.map_data.hit_objects[i][0]));
-                var y = this.calculate_y(parseInt(this.beatmap.map_data.hit_objects[i][1]));
-
-            }
 
         }
         this.audioLeadIn = parseInt(this.beatmap.map_data.general.AudioLeadIn);

@@ -5,13 +5,13 @@ if(typeof window.FileReader === "undefined"){
     dragDropLabel.innerHTML = "Shit won't work on this browser :("
 }
 else {
-    dragDropZone.ondragover = function () {
+    document.body.ondragover = function () {
         return false;
     };
-    dragDropZone.ondragend = function () {
+    document.body.ondragend = function () {
         return false;
     };
-    dragDropZone.ondrop = function (e) {
+    document.body.ondrop = function (e) {
         e.preventDefault();
 
         var file = e.dataTransfer.files[0];

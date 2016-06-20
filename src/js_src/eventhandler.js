@@ -36,6 +36,10 @@ var event_handler = {
         }
     },
     emit: function (eventName, data) {
+        if(DEBUG && eventName != event_handler.EVENTS.RENDER){
+            console.log("EVENT: " + eventName);
+            console.log(data);
+        }
         if (this.__events[eventName]) {
             this.__events[eventName].forEach(function (obj) {
                 if (obj.parent) {
@@ -48,3 +52,36 @@ var event_handler = {
         }
     }
 };
+
+
+event_handler.on(event_handler.EVENTS.BEATMAP_LOADED, function (data) {
+    new PNotify({
+        title: 'Beatmap Loaded',
+        text: data + "\nhas been successfully processed",
+        type: 'success'
+    });
+});
+
+event_handler.on(event_handler.EVENTS.BEATMAP_LOADING_FAILED, function (data) {
+    new PNotify({
+        title: 'Beatmap Loading Failed',
+        text: "Failed to load beatmap: " + data,
+        type: 'error'
+    });
+});
+
+event_handler.on(event_handler.EVENTS.BEATMAP_LOADING_FAILED, function (data) {
+    new PNotify({
+        title: 'Beatmap Loading Failed',
+        text: "Failed to load beatmap: " + data,
+        type: 'error'
+    });
+});
+
+event_handler.on(event_handler.EVENTS.BEATMAP_NOTFOUND, function (data) {
+    new PNotify({
+        title: 'Beatmap not found',
+        text: "Beatmap not found for replay, \n beatmap md5sum:\n" + data,
+        type: 'error'
+    });
+});

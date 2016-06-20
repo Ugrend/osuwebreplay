@@ -111,7 +111,7 @@ osu.skins = {
  */
 function resetLabel(){
     setTimeout(function () {
-        dragDropLabel.innerHTML = "Drag osr file here!";
+        dragDropLabel.innerHTML = "Drag osr/osz file here!";
     }, 3000)
 }
 
@@ -277,6 +277,10 @@ var event_handler = {
         }
     },
     emit: function (eventName, data) {
+        if(DEBUG && eventName != event_handler.EVENTS.RENDER){
+            console.log("EVENT: " + eventName);
+            console.log(data);
+        }
         if (this.__events[eventName]) {
             this.__events[eventName].forEach(function (obj) {
                 if (obj.parent) {
@@ -290,6 +294,38 @@ var event_handler = {
     }
 };
 
+
+event_handler.on(event_handler.EVENTS.BEATMAP_LOADED, function (data) {
+    new PNotify({
+        title: 'Beatmap Loaded',
+        text: data + "\nhas been successfully processed",
+        type: 'success'
+    });
+});
+
+event_handler.on(event_handler.EVENTS.BEATMAP_LOADING_FAILED, function (data) {
+    new PNotify({
+        title: 'Beatmap Loading Failed',
+        text: "Failed to load beatmap: " + data,
+        type: 'error'
+    });
+});
+
+event_handler.on(event_handler.EVENTS.BEATMAP_LOADING_FAILED, function (data) {
+    new PNotify({
+        title: 'Beatmap Loading Failed',
+        text: "Failed to load beatmap: " + data,
+        type: 'error'
+    });
+});
+
+event_handler.on(event_handler.EVENTS.BEATMAP_NOTFOUND, function (data) {
+    new PNotify({
+        title: 'Beatmap not found',
+        text: "Beatmap not found for replay, \n beatmap md5sum:\n" + data,
+        type: 'error'
+    });
+});
 /**
  * Created by Ugrend on 6/06/2016.
  */
@@ -393,6 +429,7 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
 
         }
 
+
         return beatmap_config;
     };
 
@@ -420,6 +457,9 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
                     )
                 }
                 beatmap.parsed = parse_osu_map_data(beatmap.data);
+                for(var k in beatmap.parsed.metadata){
+                    beatmap[k.toLocaleLowerCase()] = beatmap.parsed.metadata[k];
+                }
                 database.insert_data(database.TABLES.BEATMAPS, beatmap.md5sum, beatmap, function () {
                     beatmaps_loaded++;
                     beatmap_loaded();
@@ -561,13 +601,13 @@ if(typeof window.FileReader === "undefined"){
     dragDropLabel.innerHTML = "Shit won't work on this browser :("
 }
 else {
-    dragDropZone.ondragover = function () {
+    document.body.ondragover = function () {
         return false;
     };
-    dragDropZone.ondragend = function () {
+    document.body.ondragend = function () {
         return false;
     };
-    dragDropZone.ondrop = function (e) {
+    document.body.ondrop = function (e) {
         e.preventDefault();
 
         var file = e.dataTransfer.files[0];
@@ -632,22 +672,33 @@ var database = {
 
     init: function () {
         var self = this;
-        var openRequest = indexedDB.open("osu", 1);
-        openRequest.onupgradeneeded = function (e) {
+        var createDatabase = indexedDB.open("osu", 1);
+        createDatabase.onupgradeneeded = function (e) {
             var thisDB = e.target.result;
             for(var k in database.TABLES){
                 if (!thisDB.objectStoreNames.contains(database.TABLES[k])) {
-                    thisDB.createObjectStore(database.TABLES[k]);
+                    var table = thisDB.createObjectStore(database.TABLES[k]);
+                    if(database.TABLES[k] == database.TABLES.BEATMAPS){
+                        table.createIndex("beatmapsetid", "beatmapsetid", {unique: false});
+                        table.createIndex("title", "title", {unique: false});
+                        table.createIndex("titleunicode", "titleunicode", {unique: false});
+                        table.createIndex("artist", "artist", {unique: false});
+                        table.createIndex("artistunicode", "artistunicode", {unique: false});
+                        table.createIndex("creator", "creator", {unique: false});
+                        table.createIndex("tags", "tags", {unique: false});
+                    }
                 }
             }
         };
-        openRequest.onsuccess = function (e) {
+        createDatabase.onsuccess = function (e) {
             self.__db = e.target.result;
             self.__started = true;
         };
-        openRequest.onerror = function (e) {
+        createDatabase.onerror = function (e) {
             console.log(e);
         };
+
+
 
         this.indexeddb_available = true;
 
@@ -977,6 +1028,7 @@ osu.beatmaps = {
         }
     },
     __load_bm_from_db: function (result) {
+
         if(result && result.data){
             this.__beatmap = result.data;
             this.map_data = this.__beatmap.parsed;
@@ -986,6 +1038,8 @@ osu.beatmaps = {
             database.get_data(database.TABLES.ASSETS, file_to_get, this.__load_assets_from_db.bind(this), function (e) {
                 event_handler.emit(event_handler.EVENTS.DB_ERROR, e.event.error);
             } );
+        }else{
+            event_handler.emit(event_handler.EVENTS.BEATMAP_NOTFOUND, result.md5sum);
         }
     },
     __load_assets_from_db: function (result) {
@@ -1269,6 +1323,17 @@ osu.score = {
 /**
  * Created by Ugrend on 9/06/2016.
  */
+
+/**
+ * Created by Ugrend on 20/06/2016.
+ */
+var osu = osu || {};
+osu.ui = osu.ui || {};
+osu.ui.interface = osu.ui.interface || {};
+osu.ui.interface.mainscreen = {
+
+
+};
 
 /**
  * Created by Ugrend on 5/06/2016.
@@ -1641,11 +1706,6 @@ osu.ui.interface.osugame = {
 
                 }
 
-
-            }
-            if (slider > 0) {
-                var x = this.calculate_x(parseInt(this.beatmap.map_data.hit_objects[i][0]));
-                var y = this.calculate_y(parseInt(this.beatmap.map_data.hit_objects[i][1]));
 
             }
 

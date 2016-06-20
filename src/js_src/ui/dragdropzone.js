@@ -3,7 +3,7 @@
  */
 function resetLabel(){
     setTimeout(function () {
-        dragDropLabel.innerHTML = "Drag osr file here!";
+        dragDropLabel.innerHTML = "Drag osr/osz file here!";
     }, 3000)
 }
 

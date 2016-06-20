@@ -39,6 +39,7 @@ osu.beatmaps = {
         }
     },
     __load_bm_from_db: function (result) {
+
         if(result && result.data){
             this.__beatmap = result.data;
             this.map_data = this.__beatmap.parsed;
@@ -48,6 +49,8 @@ osu.beatmaps = {
             database.get_data(database.TABLES.ASSETS, file_to_get, this.__load_assets_from_db.bind(this), function (e) {
                 event_handler.emit(event_handler.EVENTS.DB_ERROR, e.event.error);
             } );
+        }else{
+            event_handler.emit(event_handler.EVENTS.BEATMAP_NOTFOUND, result.md5sum);
         }
     },
     __load_assets_from_db: function (result) {
