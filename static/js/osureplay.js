@@ -1432,6 +1432,7 @@ osu.ui.interface.osugame = {
     warning_arrow_times: [],
     break_times: [],
     replay_played_by_text: "",
+    hit_objects: [],
 
 
     getRenderWidth: function () {
@@ -1523,7 +1524,7 @@ osu.ui.interface.osugame = {
         this.keypress_area.addChild(this.keypress_4_Text);
 
         this.master_container.addChild(this.keypress_area);
-        this.hit_objects = [];
+
 
 
     },
@@ -1750,7 +1751,7 @@ osu.ui.interface.osugame = {
                 if(slider){
                     this.hit_objects.push({
                         t: t,
-                        object: new osu.objects.sliders.Slider(this,this.hit_object_container, is_hidden, x, y, this.approachTime, t, circleSize, osu.skins.COMBO_COLOURS[comboColour], comboNum,this.beatmap.map_data.hit_objects[i].splice(5))
+                        object: new osu.objects.sliders.Slider(this,this.hit_object_container, is_hidden, x, y, this.approachTime, t, circleSize, osu.skins.COMBO_COLOURS[comboColour], comboNum,this.beatmap.map_data.hit_objects[i].slice(5))
                     });
 
 
