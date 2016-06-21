@@ -86,6 +86,12 @@ var database = {
              onerror("db not started");
         }
     },
+    get_count: function (table, onsuccess) {
+        var countReq = this.__db.transaction([table], "readonly").objectStore(table).count()
+        countReq.onsuccess = function () {
+            onsuccess(countReq.result);
+        }
+    },
 
     delete_database: function () {
       if(DEBUG) {

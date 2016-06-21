@@ -93,7 +93,7 @@ var ReplayParser = function(replay_data, callback){
         tScore: RP.getInteger(),
         tCombo: RP.getShort(),
         fullClear: RP.getByte(),
-        mods: RP.getInteger(),
+        mods: osu.mods.getMods(RP.getInteger()),
         lifeBar: RP.getString(),
         time_played: RP.getLong(),
         replayByteLength: RP.getInteger()

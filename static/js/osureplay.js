@@ -765,6 +765,12 @@ var database = {
              onerror("db not started");
         }
     },
+    get_count: function (table, onsuccess) {
+        var countReq = this.__db.transaction([table], "readonly").objectStore(table).count()
+        countReq.onsuccess = function () {
+            onsuccess(countReq.result);
+        }
+    },
 
     delete_database: function () {
       if(DEBUG) {
@@ -894,7 +900,7 @@ var ReplayParser = function(replay_data, callback){
         tScore: RP.getInteger(),
         tCombo: RP.getShort(),
         fullClear: RP.getByte(),
-        mods: RP.getInteger(),
+        mods: osu.mods.getMods(RP.getInteger()),
         lifeBar: RP.getString(),
         time_played: RP.getLong(),
         replayByteLength: RP.getInteger()
@@ -1404,6 +1410,27 @@ osu.ui = osu.ui || {};
 osu.ui.interface = osu.ui.interface || {};
 osu.ui.interface.mainscreen = {
 
+    beatmap_count: 0,
+    replay_count: 0,
+
+
+    init: function () {
+        var self = this;
+        database.get_count(database.TABLES.BEATMAPS, function (count) {
+            self.beatmap_count = count;
+            self.show_selection();
+        });
+        database.get_count(database.TABLES.REPLAYS, function (count) {
+            self.replay_count = count;
+            self.show_selection();
+        })
+
+    },
+    show_selection: function () {
+        if(this.beatmap_count > 0 && this.replay_count > 0){
+
+        }
+    }
 
 };
 
