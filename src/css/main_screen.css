@@ -1,17 +1,52 @@
 /* main_screen.css */
 
 .replay_area {
-    background: rgb(0,0,0);
-    background: rgba(0,0,0,0.5);
+
     color: white;
-    padding: 5px;
-    left: 35px;
-    height: 80vh;
+    float: right;
+    height: 60vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    left: 15px;
 }
+.replay_avatar{
+    float: none;
+    padding-left: 15px;
+    height: auto;
+}
+
+.song_selection_area{
+    height: 90vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+.remove_padding{
+    padding-left: 0px !important;
+}
+
+.map_details {
+    min-height: 50px;
+    background: rgb(0,0,0);
+    background: rgba(0,0,0,0.8);
+    border-radius: 4px;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .05);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, .05);
+    vertical-align: top;
+    color: white;
+}
+
+
+.map_name{
+    color: white;
+    font-size: 24px;
+}
+
 
 .replay_preview{
     padding: 3px;
     border: 2px solid black;
+    background: rgb(0,0,0);
+    background: rgba(0,0,0,0.5);
 }
 
 .song_preview_unselected{
@@ -22,7 +57,7 @@
 }
 .song_preview_unselected > img{
     height: 100px;
-    width: 177px;
+    width: auto;
 }
 .song_preview_unselected *{
     opacity: 0.7;
@@ -36,7 +71,7 @@
 }
 .song_preview_selected > img{
     height: 130px;
-    width: 230px;
+    width: auto;
 }
 
 .song_details {
@@ -51,7 +86,8 @@
 }
 
 .search{
-    padding-left: 25px;
+    background: rgb(0,0,0);
+    background: rgba(0,0,0,0.8);
 }
 .replay_data{
     width: 100% !important;
@@ -72,6 +108,9 @@
     float: right;
     padding-right: 50px
 }
+.replay_accuracy{
+    float: right;
+}
 .row{
     padding-bottom: 1px;
 }
@@ -80,9 +119,11 @@
 }
 
 body {
-    background: url("../../data/fail-background.png") no-repeat;
+    background: url("../../data/selected_song_bg.jpg") no-repeat;
     background-size: 100% 100%;
 }
 html {
-    height: 100%
+    height: 100%;
+    overflow-x: hidden;
+
 }
