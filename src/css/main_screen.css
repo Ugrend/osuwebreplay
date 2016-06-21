@@ -16,7 +16,7 @@
 }
 
 .song_selection_area{
-    height: 90vh;
+    height: 85vh;
     overflow-y: auto;
     overflow-x: hidden;
 }
@@ -54,6 +54,16 @@
     background: rgb(70, 66, 68);
     background: rgba(70, 66, 68,0.8);
     border-bottom: 1px solid;
+}
+.song_preview_mouseover{
+    padding: 3px;
+    background: rgb(251, 141, 64);
+    background: rgba(251, 141, 64,0.8);
+    border-bottom: 1px solid;
+}
+.song_preview_mouseover > img{
+    height: 100px;
+    width: auto;
 }
 .song_preview_unselected > img{
     height: 100px;
@@ -141,15 +151,15 @@ body {
 }
 #body {
     padding:10px;
-    padding-bottom:70px;
+    padding-bottom:80px;
 }
 #footer {
     position:absolute;
     bottom:0;
     width:100%;
-    height:70px;
-    color: black;
+    height:80px;
+    color: #9f9f9f;
     vertical-align: bottom;
-
+    background: rgba(0,0,0,0.7);
 
 }

@@ -17,7 +17,7 @@
                 東方Project(UNDEAD CORPORATION) - Everything will freeze [Time Freeze]
             </div>
             <div class="col-xs-4">
-                <input type="text" class="form-control">
+                <input type="text" class="form-control" placeholder="Search for beatmap here!">
             </div>
         </div>
 
@@ -30,7 +30,9 @@
                 <div>Circles: 1212 Sliders: 378 Spinners 0</div>
                 <div>CS:4 AR:10 OD:9.4 HP:6 Stars:7.65</div>
             </div>
-            <div class="col-xs-8"><input type="text" class="form-control"></div>
+            <div class="col-xs-8">
+                <input type="text" class="form-control" placeholder="Filter Players!">
+            </div>
 
             <div class="replay_area col-xs-8">
                 <div class="row">
@@ -464,8 +466,8 @@
                 </div>
             </div>
 
-            <div class="col-xs-offset-5 col-xs-7">
-                <div class="row song_preview_unselected">
+            <div class="col-xs-offset-4 col-xs-8">
+                <div class="row song_preview_mouseover">
                     <img src="data/song-bg_5.jpg">
                 </div>
             </div>
@@ -527,10 +529,38 @@
 
     </div>
     <div id="footer">
-        <div class="col-lg-offset-5 col-xs-1">
-            <span><h2>Options</h2></span>
+        <div class="col-xs-3">
+            <label for="background_dim">Background Dim</label>
+            <input type="range" id="background_dim" value="90">
         </div>
 
+        <div class="col-lg-offset-1 col-xs-2 text-right">
+            <div><label for="master_volume">Master Volume</label></div>
+            <div><label for="music_volume">Music Volume</label></div>
+            <div><label for="sound_volume">Sound Volume</label></div>
+        </div>
+
+
+        <div class="col-xs-1 remove_padding">
+            <input type="range" class=""  id="master_volume" value="80">
+            <input type="range" id="music_volume" value="90">
+            <input type="range" id="sound_volume" value="50">
+        </div>
+        <div class="col-xs-offset-2 col-xs-1 remove_padding">
+            <label for="use_beatmap_skin">Use beatmap Skins</label>
+            <input id="use_beatmap_skin" type="checkbox">
+
+            <label for="use_beatmap_hitsounds">Use beatmap hitsounds</label>
+            <input id="use_beatmap_hitsounds" type="checkbox">
+        </div>
+
+        <div class="col-xs-2 remove_padding">
+            <label for="skin_select">Select Skin</label>
+            <select id="skin_select" class="form-control">
+                <option>Default</option>
+
+            </select>
+        </div>
 
     </div>
 </div>
