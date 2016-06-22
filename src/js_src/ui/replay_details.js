@@ -9,7 +9,7 @@ Just adding this for testing will prob remove
  */
 
 function loadBeatMap(){
-    osu.beatmaps.load(replay.bmMd5Hash, showReplayData, function () {
+    osu.beatmaps.beatmap_loader.load(replay.bmMd5Hash, showReplayData, function () {
     });
 }
 
@@ -28,6 +28,5 @@ function showReplayData(beatmap){
     osu.ui.interface.scorescreen.maxCombo = replay.tCombo;
     osu.ui.interface.scorescreen.grade = replay.grade;
     osu.ui.interface.scorescreen.accuracy = replay.accuracy;
-    hideDropZone();
     osu.ui.interface.scorescreen.renderScoreScreen();
 }

@@ -23,6 +23,7 @@ else {
                         var replay_data = event.target.result;
                         ReplayParser(replay_data, function (replay_data) {
                             replay = replay_data;
+                            loadBeatMap();
                         });
             }else{
                 event_handler.emit(event_handler.EVENTS.UNKNOWN_FILE_ERROR);
