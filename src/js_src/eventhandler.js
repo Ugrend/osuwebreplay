@@ -14,7 +14,9 @@ var event_handler = {
         BEATMAP_NOTFOUND: 7,
         DB_ERROR: 8,
         ASSET_NOT_FOUND:9,
-        RENDER:10
+        RENDER:10,
+        UNKNOWN_FILE_ERROR:11,
+        INVALID_FILE: 12,
     }),
 
     __events: {},

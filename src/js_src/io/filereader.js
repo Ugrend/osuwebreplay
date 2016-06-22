@@ -21,16 +21,11 @@ else {
 
             if(event.target.readyState === 2){
                         var replay_data = event.target.result;
-
                         ReplayParser(replay_data, function (replay_data) {
                             replay = replay_data;
-                            loadBeatMap();
                         });
-
-
             }else{
-                dragDropLabel.innerHTML = "Well ummm, yeh i dont know what to do but something went wrong";
-                resetLabel();
+                event_handler.emit(event_handler.EVENTS.UNKNOWN_FILE_ERROR);
             }
 
         };
@@ -50,8 +45,7 @@ else {
             }else if(file.name.split(".").pop() !== "osk"){
                 //skin
             }else{
-                dragDropLabel.innerHTML = "i dont know what that is";
-                resetLabel();
+                event_handler.emit(event_handler.EVENTS.INVALID_FILE);
             }
 
         return false;

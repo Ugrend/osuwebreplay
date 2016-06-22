@@ -18,11 +18,12 @@ var database = {
         REPLAYS: "replays",
         SKINS: "skins",
         ASSETS: "assets",
+        OPTIONS: "options"
 
     }),
 
 
-    init: function () {
+    init: function (onsucess) {
         var self = this;
         var createDatabase = indexedDB.open("osu", 1);
         createDatabase.onupgradeneeded = function (e) {
@@ -50,6 +51,8 @@ var database = {
         createDatabase.onsuccess = function (e) {
             self.__db = e.target.result;
             self.__started = true;
+            this.indexeddb_available = true;
+            onsucess();
         };
         createDatabase.onerror = function (e) {
             console.log(e);
@@ -57,7 +60,7 @@ var database = {
 
 
 
-        this.indexeddb_available = true;
+
 
     },
 
@@ -120,9 +123,3 @@ var database = {
 
 };
 
-if (!window.indexedDB) {
-    console.log("no index db = no storage ")
-}
-else {
-    database.init();
-}

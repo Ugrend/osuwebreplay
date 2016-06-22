@@ -24,7 +24,7 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
     var parse_osu_map_data = function (data) {
         var beatmap_config = {
             version: "",
-            name:"",
+            name: "",
             general: {},
             metadata: {},
             difficulty: {},
@@ -114,25 +114,60 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
         }
     };
 
+    var create_thumbnail = function (img_data) {
+        var MAX_WIDTH = 232;
+        var MAX_HEIGHT = 130;
+        var canvas = document.createElement("canvas");
+        var img = document.createElement("img");
+        img.src = img_data;
+        var width = img.width;
+        var height = img.height;
+        if (width > height) {
+            if (width > MAX_WIDTH) {
+                height *= MAX_WIDTH / width;
+                width = MAX_WIDTH;
+            }
+        } else {
+            if (height > MAX_HEIGHT) {
+                width *= MAX_HEIGHT / height;
+                height = MAX_HEIGHT;
+            }
+        }
+        canvas.width = width;
+        canvas.height = height;
+        var ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, width, height);
+        return canvas.toDataURL("image/jpeg");
+    };
+
     var processing_complete = function () {
         if (extracted == zip_length) {
 
             beatmaps = beatMap.maps.length;
             for (var i = 0; i < beatMap.maps.length; i++) {
                 var beatmap = beatMap.maps[i];
+
+                beatmap.parsed = parse_osu_map_data(beatmap.data);
+                for (var k in beatmap.parsed.metadata) {
+                    beatmap[k.toLocaleLowerCase()] = beatmap.parsed.metadata[k];
+                }
                 beatmap.files = [];
+                var background_file_name = beatmap.parsed.events[0][2].replace(/"/g, '');
+                var thumbnail = "";
                 for (var x = 0; x < beatMap.assets.length; x++) {
                     beatmap.files.push(
                         {
                             md5sum: beatMap.assets[x].md5sum,
                             filename: beatMap.assets[x].filename
                         }
-                    )
+                    );
+                    if (beatMap.assets[x].filename == background_file_name) {
+                        thumbnail = create_thumbnail(beatMap.assets[x].data);
+                    }
                 }
-                beatmap.parsed = parse_osu_map_data(beatmap.data);
-                for(var k in beatmap.parsed.metadata){
-                    beatmap[k.toLocaleLowerCase()] = beatmap.parsed.metadata[k];
-                }
+                var md5sum = md5(thumbnail);
+                beatmap.thumbnail = md5sum;
+                database.insert_data(database.TABLES.ASSETS, md5sum, thumbnail, function () {}, function () {});//TODO actually callback properly
                 database.insert_data(database.TABLES.BEATMAPS, beatmap.md5sum, beatmap, function () {
                     beatmaps_loaded++;
                     beatmap_loaded();
@@ -146,6 +181,7 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
 
         }
     };
+
 
     zip.createReader(new zip.BlobReader(beatmap_zip_file), function (reader) {
 

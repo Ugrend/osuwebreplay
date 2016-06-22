@@ -109,20 +109,6 @@ osu.skins = {
 
 };
 /**
- * dragdropzone.js
- * Created by Ugrend on 6/2/2016.
- */
-function resetLabel(){
-    setTimeout(function () {
-        dragDropLabel.innerHTML = "Drag osr/osz file here!";
-    }, 3000)
-}
-
-function hideDropZone(){
-    dragDropZone.style.display = 'none';
-
-}
-/**
  * replay_details.js
  * Created by Ugrend on 6/2/2016.
  */
@@ -260,7 +246,9 @@ var event_handler = {
         BEATMAP_NOTFOUND: 7,
         DB_ERROR: 8,
         ASSET_NOT_FOUND:9,
-        RENDER:10
+        RENDER:10,
+        UNKNOWN_FILE_ERROR:11,
+        INVALID_FILE: 12,
     }),
 
     __events: {},
@@ -375,7 +363,7 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
     var parse_osu_map_data = function (data) {
         var beatmap_config = {
             version: "",
-            name:"",
+            name: "",
             general: {},
             metadata: {},
             difficulty: {},
@@ -465,25 +453,60 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
         }
     };
 
+    var create_thumbnail = function (img_data) {
+        var MAX_WIDTH = 232;
+        var MAX_HEIGHT = 130;
+        var canvas = document.createElement("canvas");
+        var img = document.createElement("img");
+        img.src = img_data;
+        var width = img.width;
+        var height = img.height;
+        if (width > height) {
+            if (width > MAX_WIDTH) {
+                height *= MAX_WIDTH / width;
+                width = MAX_WIDTH;
+            }
+        } else {
+            if (height > MAX_HEIGHT) {
+                width *= MAX_HEIGHT / height;
+                height = MAX_HEIGHT;
+            }
+        }
+        canvas.width = width;
+        canvas.height = height;
+        var ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, width, height);
+        return canvas.toDataURL("image/jpeg");
+    };
+
     var processing_complete = function () {
         if (extracted == zip_length) {
 
             beatmaps = beatMap.maps.length;
             for (var i = 0; i < beatMap.maps.length; i++) {
                 var beatmap = beatMap.maps[i];
+
+                beatmap.parsed = parse_osu_map_data(beatmap.data);
+                for (var k in beatmap.parsed.metadata) {
+                    beatmap[k.toLocaleLowerCase()] = beatmap.parsed.metadata[k];
+                }
                 beatmap.files = [];
+                var background_file_name = beatmap.parsed.events[0][2].replace(/"/g, '');
+                var thumbnail = "";
                 for (var x = 0; x < beatMap.assets.length; x++) {
                     beatmap.files.push(
                         {
                             md5sum: beatMap.assets[x].md5sum,
                             filename: beatMap.assets[x].filename
                         }
-                    )
+                    );
+                    if (beatMap.assets[x].filename == background_file_name) {
+                        thumbnail = create_thumbnail(beatMap.assets[x].data);
+                    }
                 }
-                beatmap.parsed = parse_osu_map_data(beatmap.data);
-                for(var k in beatmap.parsed.metadata){
-                    beatmap[k.toLocaleLowerCase()] = beatmap.parsed.metadata[k];
-                }
+                var md5sum = md5(thumbnail);
+                beatmap.thumbnail = md5sum;
+                database.insert_data(database.TABLES.ASSETS, md5sum, thumbnail, function () {}, function () {});//TODO actually callback properly
                 database.insert_data(database.TABLES.BEATMAPS, beatmap.md5sum, beatmap, function () {
                     beatmaps_loaded++;
                     beatmap_loaded();
@@ -497,6 +520,7 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
 
         }
     };
+
 
     zip.createReader(new zip.BlobReader(beatmap_zip_file), function (reader) {
 
@@ -641,16 +665,11 @@ else {
 
             if(event.target.readyState === 2){
                         var replay_data = event.target.result;
-
                         ReplayParser(replay_data, function (replay_data) {
                             replay = replay_data;
-                            loadBeatMap();
                         });
-
-
             }else{
-                dragDropLabel.innerHTML = "Well ummm, yeh i dont know what to do but something went wrong";
-                resetLabel();
+                event_handler.emit(event_handler.EVENTS.UNKNOWN_FILE_ERROR);
             }
 
         };
@@ -670,8 +689,7 @@ else {
             }else if(file.name.split(".").pop() !== "osk"){
                 //skin
             }else{
-                dragDropLabel.innerHTML = "i dont know what that is";
-                resetLabel();
+                event_handler.emit(event_handler.EVENTS.INVALID_FILE);
             }
 
         return false;
@@ -697,11 +715,12 @@ var database = {
         REPLAYS: "replays",
         SKINS: "skins",
         ASSETS: "assets",
+        OPTIONS: "options"
 
     }),
 
 
-    init: function () {
+    init: function (onsucess) {
         var self = this;
         var createDatabase = indexedDB.open("osu", 1);
         createDatabase.onupgradeneeded = function (e) {
@@ -729,6 +748,8 @@ var database = {
         createDatabase.onsuccess = function (e) {
             self.__db = e.target.result;
             self.__started = true;
+            this.indexeddb_available = true;
+            onsucess();
         };
         createDatabase.onerror = function (e) {
             console.log(e);
@@ -736,7 +757,7 @@ var database = {
 
 
 
-        this.indexeddb_available = true;
+
 
     },
 
@@ -799,12 +820,7 @@ var database = {
 
 };
 
-if (!window.indexedDB) {
-    console.log("no index db = no storage ")
-}
-else {
-    database.init();
-}
+
 /**
  * replayreader.js
  * Created by Ugrend on 2/06/2016.
@@ -1410,9 +1426,9 @@ osu.ui = osu.ui || {};
 osu.ui.interface = osu.ui.interface || {};
 osu.ui.interface.mainscreen = {
 
-    beatmap_count: 0,
-    replay_count: 0,
-
+    beatmap_count: -1,
+    replay_count: -1,
+    displaying_main_screen: false,
 
     init: function () {
         var self = this;
@@ -1423,12 +1439,27 @@ osu.ui.interface.mainscreen = {
         database.get_count(database.TABLES.REPLAYS, function (count) {
             self.replay_count = count;
             self.show_selection();
-        })
+        });
+        event_handler.on(event_handler.EVENTS.BEATMAP_LOADED,this.on_load_file.bind(this));
+        event_handler.on(event_handler.EVENTS.REPLAY_LOADED, this.on_load_file.bind(this));
 
     },
     show_selection: function () {
         if(this.beatmap_count > 0 && this.replay_count > 0){
+            document.getElementById("loading").className = "hidden";
+            document.getElementById("no_beatmaps_replays").className = "hidden";
+            document.getElementById("container").className = "";
+            this.displaying_main_screen = true;
+        }
+        if(this.beatmap_count == 0 || this.replay_count == 0){
+            document.getElementById("loading").className = "hidden";
+            document.getElementById("no_beatmaps_replays").className = "";
+        }
+    },
 
+    on_load_file: function () {
+        if(!this.displaying_main_screen){
+            this.init();
         }
     }
 
@@ -2713,3 +2744,17 @@ osu.objects.sliders = {
  * spinner.js
  * Created by Ugrend on 11/06/2016.
  */
+
+/**
+ * launcher.js
+ * Created by Ugrend on 22/06/2016.
+ */
+
+if (!window.indexedDB) {
+    console.log("no index db = no storage ")
+}
+else {
+    database.init(function () {
+        osu.ui.interface.mainscreen.init();
+    });
+}
