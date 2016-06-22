@@ -35,7 +35,7 @@
     overflow-x: hidden;
 }
 .remove_padding{
-    padding: 0px !important;
+    padding-left: 0px !important;
 }
 
 .map_details {
@@ -50,7 +50,7 @@
 }
 
 
-.map_name{
+#map_name{
     color: white;
     font-size: 24px;
 }

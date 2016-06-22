@@ -8,56 +8,87 @@
 </head>
 <body>
 
+
+<script id="replay_select_template" type="text/template">
+    {{#replays}}
+    <div class="row">
+        <div class="replay_preview">
+            <div class="row ">
+                <div class="replay_data">
+                    <span><img class="replay_avatar" height="64" width="64" src="{{avatar_img}}"></span>
+                    <span><img src="{{grade_img}}"></span>
+                            <span class="replay_details">
+                                <span class="replay_player_name">{{player_name}}</span>
+                                <br/>
+                                <span class="replay_score">Score: {{score}} ({{max_combo}}X)</span>
+                            </span>
+
+                        <span class="replay_mods">{{#mods}}.{{/mods}}<br/>
+                            <span class="replay_accuracy">{{accuracy}}%</span>
+                        </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+    {{/replays}}
+</script>
+
+<script id="beatmap_select_template" type="text/template">
+    {{#beatmaps}}
+    <div class="col-xs-offset-5 col-xs-7">
+        <div class="row song_preview_unselected">
+            <img src="{{background}}">
+            <span class="song_details">
+                <span class="song_name">{{song_title}}</span>
+                <br>
+                <span class="song_author">{{artist}} // {{mapped_by}}</span>
+                <br>
+                <span class="song_version">{{difficulty}}</span>
+                <br>
+                <span class="song_stars">
+                    {{#stars}}
+                        <img height="{{h}}" width="{{w}}" src="{{star_img}}">
+                    {{/stars}}
+                </span>
+            </span>
+        </div>
+    </div>
+    {{/beatmaps}}
+
+</script>
+
+
 <div id="container">
     <div id="content">
 
         <div class="row search">
 
-            <div class="col-xs-8 map_name">
-                東方Project(UNDEAD CORPORATION) - Everything will freeze [Time Freeze]
+            <div class="col-xs-8" id="map_name">
+                DEFAULT_SONG_NAME
             </div>
             <div class="col-xs-4">
-                <input type="text" class="form-control" placeholder="Search for beatmap here!">
+                <input id="filter_maps_search" type="text" class="form-control" placeholder="Search for beatmap here!">
             </div>
         </div>
-
 
 
         <div class="col-xs-5 remove_padding">
             <div class="map_details">
-                <div class="mapped_by">Mapped by Ekoro</div>
-                <div>Length: 03:13 BPM: 240 Objects: 1590</div>
-                <div>Circles: 1212 Sliders: 378 Spinners 0</div>
-                <div>CS:4 AR:10 OD:9.4 HP:6 Stars:7.65</div>
+                <div id="mapped_by">Mapped by DATBOI</div>
+                <div id="map_length_and_objects">Length: 13:37 BPM: 240 Objects: 2000</div>
+                <div id="map_object_type_counts">Circles: 2000 Sliders: 378 Spinners 5</div>
+                <div id="map_difficulty">CS:10 AR:10 OD:10 HP:10 Stars:12</div>
             </div>
             <div class="col-xs-8">
-                <input type="text" class="form-control" placeholder="Filter Players!">
+                <input id="filter_players_search" type="text" class="form-control" placeholder="Filter Players!">
             </div>
 
-            <div class="replay_area col-xs-8">
-                <div class="row">
-                    <div class="replay_preview">
-                        <div class="row ">
-                            <div class="replay_data">
-                                <span><img class="replay_avatar" height="64" width="64" src="data/avatar.png"></span>
-                                <span><img src="data/ranking-X-small.png"></span>
-                            <span class="replay_details">
-                                <span class="replay_player_name">Ugrend</span>
-                                <br/>
-                                <span class="replay_score">Score: 998,953 (1860X)</span>
-                            </span>
+            <div id="replay_select_area" class="replay_area col-xs-8">
 
-                        <span class="replay_mods">DT,PF, FL, NF, DO, SO<br/>
-                            <span class="replay_accuracy">100.00%</span>
-                        </span>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
                 <div class="row">
                     <div class="replay_preview">
                         <div class="row ">
@@ -432,7 +463,7 @@
         </div>
 
 
-        <div class="song_selection_area ">
+        <div class="song_selection_area" id="song_selection_area">
             <div class="col-xs-offset-5 col-xs-7">
                 <div class="row song_preview_unselected">
                     <img src="data/song-bg_1.jpg">
@@ -524,9 +555,6 @@
         </div>
 
 
-
-
-
     </div>
     <div id="footer">
         <div class="col-xs-3">
@@ -542,11 +570,11 @@
 
 
         <div class="col-xs-1 remove_padding">
-            <input type="range" class=""  id="master_volume" value="80">
+            <input type="range" class="" id="master_volume" value="80">
             <input type="range" id="music_volume" value="90">
             <input type="range" id="sound_volume" value="50">
         </div>
-        <div class="col-xs-offset-2 col-xs-1 remove_padding">
+        <div class="col-xs-offset-1 col-xs-2 ">
             <label for="use_beatmap_skin">Use beatmap Skins</label>
             <input id="use_beatmap_skin" type="checkbox">
 
@@ -565,7 +593,13 @@
     </div>
 </div>
 
-
+<script type="text/javascript" src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/2.2.1/mustache.min.js"></script>
+<script src="static/libs/js/pnotify.js"></script>
+<script src="static/libs/js/lzma.js"></script>
+<script src="static/js/osureplay.js"></script>
 
 
 </body>
