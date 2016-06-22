@@ -29,7 +29,7 @@
     height: auto;
 }
 
-.song_selection_area{
+#song_selection_area{
     height: 85vh;
     overflow-y: auto;
     overflow-x: hidden;
