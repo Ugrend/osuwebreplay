@@ -71,7 +71,7 @@ event_handler.on(event_handler.EVENTS.BEATMAP_LOADING, function (data) {
         var options = {
             type: "success",
             title: "Beatmap Loaded",
-            text: data_loaded + "\n has been successfully processed",
+            text: data_loaded.filename + "\n has been successfully processed",
             hide: "true"
         };
         loading.update(options);

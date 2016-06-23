@@ -302,7 +302,7 @@ event_handler.on(event_handler.EVENTS.BEATMAP_LOADING, function (data) {
         var options = {
             type: "success",
             title: "Beatmap Loaded",
-            text: data_loaded + "\n has been successfully processed",
+            text: data_loaded.filename + "\n has been successfully processed",
             hide: "true"
         };
         loading.update(options);
@@ -349,6 +349,7 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
         maps: [],
         assets: []
     };
+    var md5sums = [];
     event_handler.emit(event_handler.EVENTS.BEATMAP_LOADING, beatmap_zip_file.name);
     var zip_length = 0;
     var extracted = 0;
@@ -448,7 +449,9 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
 
     var beatmap_loaded = function () {
         if (beatmaps_loaded == beatmaps) {
-            event_handler.emit(event_handler.EVENTS.BEATMAP_LOADED, beatmap_zip_file.name);
+
+
+            event_handler.emit(event_handler.EVENTS.BEATMAP_LOADED, {md5sums: md5sums, filename: beatmap_zip_file.name});
             callback(beatMap);
         }
     };
@@ -509,10 +512,11 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
                     }
 
                 }
-                var md5sum = md5(thumbnail);
-                beatmap.thumbnail = md5sum;
+                var thumbnail_md5sum = md5(thumbnail);
+                beatmap.thumbnail = thumbnail_md5sum;
                 beatmap.stars = osu.beatmaps.DifficultyCalculator.calculate_stars(beatmap);
-                database.insert_data(database.TABLES.ASSETS, md5sum, thumbnail, function () {}, function () {});//TODO actually callback properly
+                md5sums.push(beatmap.md5sum);
+                database.insert_data(database.TABLES.ASSETS, thumbnail_md5sum, thumbnail, function () {}, function () {});//TODO actually callback properly
                 database.insert_data(database.TABLES.BEATMAPS, beatmap.md5sum, beatmap, function () {
                     beatmaps_loaded++;
                     beatmap_loaded();
@@ -1862,6 +1866,7 @@ osu.ui.interface.mainscreen = {
     key_count: 0,
     processed_count: 0,
     displaying_main_screen: false,
+    beatmap_keys: [],
     beatmaps: [],
 
     init: function () {
@@ -1884,6 +1889,7 @@ osu.ui.interface.mainscreen = {
             database.get_all_keys(database.TABLES.BEATMAPS, function (keys) {
                 self.key_count = keys.length; //even though this should be same as beatmap count just to be safe we will check again
                 for(var i = 0; i < keys.length ; i++){
+                    self.beatmap_keys.push(keys[i]);
                     var beatmap = new osu.beatmaps.BeatmapPreview(keys[i], function () {
                         self.processed_count++;
                         self.songs_processed();
@@ -1899,12 +1905,16 @@ osu.ui.interface.mainscreen = {
     },
     songs_processed: function () {
         if(this.key_count == this.processed_count){
-            document.getElementById("loading").className = "hidden";
-            document.getElementById("no_beatmaps_replays").className = "hidden";
-            document.getElementById("container").className = "";
-            this.displaying_main_screen = true;
+            this.show_main_screen();
         }
     },
+    show_main_screen: function () {
+        document.getElementById("loading").className = "hidden";
+        document.getElementById("no_beatmaps_replays").className = "hidden";
+        document.getElementById("container").className = "";
+        this.displaying_main_screen = true;
+    },
+
 
 
     set_background: function (background_data) {
@@ -1915,9 +1925,11 @@ osu.ui.interface.mainscreen = {
         document.body.style.background = "";
     },
 
-    on_load_file: function () {
+    on_load_file: function (data) {
         if(!this.displaying_main_screen){
             this.init();
+        }else{
+            //add beatmap to existing list
         }
     }
 

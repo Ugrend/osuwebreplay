@@ -10,6 +10,7 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
         maps: [],
         assets: []
     };
+    var md5sums = [];
     event_handler.emit(event_handler.EVENTS.BEATMAP_LOADING, beatmap_zip_file.name);
     var zip_length = 0;
     var extracted = 0;
@@ -109,7 +110,9 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
 
     var beatmap_loaded = function () {
         if (beatmaps_loaded == beatmaps) {
-            event_handler.emit(event_handler.EVENTS.BEATMAP_LOADED, beatmap_zip_file.name);
+
+
+            event_handler.emit(event_handler.EVENTS.BEATMAP_LOADED, {md5sums: md5sums, filename: beatmap_zip_file.name});
             callback(beatMap);
         }
     };
@@ -170,10 +173,11 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
                     }
 
                 }
-                var md5sum = md5(thumbnail);
-                beatmap.thumbnail = md5sum;
+                var thumbnail_md5sum = md5(thumbnail);
+                beatmap.thumbnail = thumbnail_md5sum;
                 beatmap.stars = osu.beatmaps.DifficultyCalculator.calculate_stars(beatmap);
-                database.insert_data(database.TABLES.ASSETS, md5sum, thumbnail, function () {}, function () {});//TODO actually callback properly
+                md5sums.push(beatmap.md5sum);
+                database.insert_data(database.TABLES.ASSETS, thumbnail_md5sum, thumbnail, function () {}, function () {});//TODO actually callback properly
                 database.insert_data(database.TABLES.BEATMAPS, beatmap.md5sum, beatmap, function () {
                     beatmaps_loaded++;
                     beatmap_loaded();

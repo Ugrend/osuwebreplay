@@ -12,6 +12,7 @@ osu.ui.interface.mainscreen = {
     key_count: 0,
     processed_count: 0,
     displaying_main_screen: false,
+    beatmap_keys: [],
     beatmaps: [],
 
     init: function () {
@@ -34,6 +35,7 @@ osu.ui.interface.mainscreen = {
             database.get_all_keys(database.TABLES.BEATMAPS, function (keys) {
                 self.key_count = keys.length; //even though this should be same as beatmap count just to be safe we will check again
                 for(var i = 0; i < keys.length ; i++){
+                    self.beatmap_keys.push(keys[i]);
                     var beatmap = new osu.beatmaps.BeatmapPreview(keys[i], function () {
                         self.processed_count++;
                         self.songs_processed();
@@ -49,12 +51,16 @@ osu.ui.interface.mainscreen = {
     },
     songs_processed: function () {
         if(this.key_count == this.processed_count){
-            document.getElementById("loading").className = "hidden";
-            document.getElementById("no_beatmaps_replays").className = "hidden";
-            document.getElementById("container").className = "";
-            this.displaying_main_screen = true;
+            this.show_main_screen();
         }
     },
+    show_main_screen: function () {
+        document.getElementById("loading").className = "hidden";
+        document.getElementById("no_beatmaps_replays").className = "hidden";
+        document.getElementById("container").className = "";
+        this.displaying_main_screen = true;
+    },
+
 
 
     set_background: function (background_data) {
@@ -65,9 +71,11 @@ osu.ui.interface.mainscreen = {
         document.body.style.background = "";
     },
 
-    on_load_file: function () {
+    on_load_file: function (data) {
         if(!this.displaying_main_screen){
             this.init();
+        }else{
+            //add beatmap to existing list
         }
     }
 
