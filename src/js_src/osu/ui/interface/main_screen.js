@@ -75,7 +75,7 @@ osu.ui.interface.mainscreen = {
     },
     display_new_song: function (md5sum) {
         if(this.displaying_main_screen){
-            
+
 
         }
     },
@@ -96,9 +96,7 @@ osu.ui.interface.mainscreen = {
         else {
             for(var i = 0; i < data.md5sums.length; i++){
                 if(this.beatmap_keys.indexOf(data.md5sums[i]) == -1){
-
-
-
+                    this.load_song(data.md5sums[i])
                 }
             };
 
