@@ -38,6 +38,13 @@ osu.ui.interface.mainscreen = {
         }
     },
 
+    set_background: function (background_data) {
+        document.body.style.background = "url("+background_data+") no-repeat";
+    },
+    remove_background: function () {
+        document.body.style.background = "";
+    },
+
     on_load_file: function () {
         if(!this.displaying_main_screen){
             this.init();

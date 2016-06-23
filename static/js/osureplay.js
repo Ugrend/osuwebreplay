@@ -1081,23 +1081,37 @@ osu.beatmaps.BeatmapPreview = class BeatmapPreview {
         this.titleunicode = "";
         this.version = "";
         this.song = "";
-        this.song_data = "";
         this.preview_song_time = 0;
         this.background = "";
-        this.background_data = "";
+
+        //difficulty
+        this.approachRate = "";
+        this.circleSize = "";
+        this.overallDifficulty = "";
+        this.stars = ""
+        this.bpm = 0;
+        this.objects = 0;
+        this.circles = 0;
+        this.sliders = 0;
+        this.spinners = 0;
+        this.length = ""
+
+
+
     }
 
     play_song() {
-        var self = this;
         database.get_data(database.TABLES.ASSETS, this.song, function (r) {
-            self.song_data = r.data;
             osu.audio.music.preview_time = this.preview_song_time / 1000;
-            osu.audio.music.init(self.song_data);
+            osu.audio.music.init(r.data);
         });
     }
 
-    stop_song() {
-        this.song_data = "";//clear out song from memory
+    load_background(){
+
+        database.get_data(database.TABLES.ASSETS, this.background, function (r) {
+            osu.ui.mainscreen.load_background(r.data);
+        });
     }
 
 
@@ -1811,6 +1825,13 @@ osu.ui.interface.mainscreen = {
             document.getElementById("loading").className = "hidden";
             document.getElementById("no_beatmaps_replays").className = "";
         }
+    },
+
+    set_background: function (background_data) {
+        document.body.style.background = "url("+background_data+") no-repeat";
+    },
+    remove_background: function () {
+        document.body.style.background = "";
     },
 
     on_load_file: function () {
