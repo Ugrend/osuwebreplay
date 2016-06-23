@@ -1866,8 +1866,10 @@ osu.ui.interface.mainscreen = {
     key_count: 0,
     processed_count: 0,
     displaying_main_screen: false,
+    loaded: false,
     beatmap_keys: [],
     beatmaps: [],
+    current_selection: false,
 
     init: function () {
         var self = this;
@@ -1880,7 +1882,7 @@ osu.ui.interface.mainscreen = {
             self.show_selection();
         });
         event_handler.on(event_handler.EVENTS.BEATMAP_LOADED,this.on_load_file.bind(this));
-        event_handler.on(event_handler.EVENTS.REPLAY_LOADED, this.on_load_file.bind(this));
+        //event_handler.on(event_handler.EVENTS.REPLAY_LOADED, this.on_load_file.bind(this)); // we may not care about a new replay
 
     },
     show_selection: function () {
@@ -1912,6 +1914,7 @@ osu.ui.interface.mainscreen = {
         document.getElementById("loading").className = "hidden";
         document.getElementById("no_beatmaps_replays").className = "hidden";
         document.getElementById("container").className = "";
+        this.loaded = true;
         this.displaying_main_screen = true;
     },
 
@@ -1924,12 +1927,35 @@ osu.ui.interface.mainscreen = {
     remove_background: function () {
         document.body.style.background = "";
     },
+    display_new_song: function (md5sum) {
+        if(this.displaying_main_screen){
+            
+
+        }
+    },
+
+    load_song: function (md5sum) {
+        var self = this;
+        var beatmap = new osu.beatmaps.BeatmapPreview(md5sum, function () {
+            self.display_new_song(md5sum);
+        });
+        this.beatmaps.push(beatmap);
+        this.beatmap_keys.push(md5sum);
+    },
 
     on_load_file: function (data) {
-        if(!this.displaying_main_screen){
+        if(!this.loaded){
             this.init();
-        }else{
-            //add beatmap to existing list
+        }
+        else {
+            for(var i = 0; i < data.md5sums.length; i++){
+                if(this.beatmap_keys.indexOf(data.md5sums[i]) == -1){
+
+
+
+                }
+            };
+
         }
     }
 
