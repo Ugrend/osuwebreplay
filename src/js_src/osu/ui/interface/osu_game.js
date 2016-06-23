@@ -334,13 +334,12 @@ osu.ui.interface.osugame = {
 
         for (i = 0; i < this.beatmap.map_data.hit_objects.length; i++) {
             var hitObjectInt = parseInt(this.beatmap.map_data.hit_objects[i][3]);
-            var circle = hitObjectInt & osu.objects.hitobjects.TYPES.CIRCLE;
-            var slider = hitObjectInt & osu.objects.hitobjects.TYPES.SLIDER;
-            var new_combo = hitObjectInt & osu.objects.hitobjects.TYPES.NEW_COMBO;
-            var spinner = hitObjectInt & osu.objects.hitobjects.TYPES.SPINNER;
+            var hitObject = osu.objects.hitobjects.parse_type(hitObjectInt);
 
 
-            if (comboNum == 0 || new_combo > 0) {
+
+
+            if (comboNum == 0 || hitObject.new_combo) {
                 comboNum = 1;
                 if (comboColour == osu.skins.COMBO_COLOURS.length - 1) {
                     comboColour = 0;
@@ -351,19 +350,21 @@ osu.ui.interface.osugame = {
             } else {
                 comboNum++;
             }
+            var is_circle = hitObject.type == osu.objects.hitobjects.TYPES.CIRCLE;
+            var is_slider = hitObject.type == osu.objects.hitobjects.TYPES.SLIDER;
+            var is_spinner = hitObject.type == osu.objects.hitobjects.TYPES.CIRCLE;
 
-
-            if (circle || slider) {
+            if (is_circle|| is_slider) {
                 var x = this.calculate_x(parseInt(this.beatmap.map_data.hit_objects[i][0]));
                 var y = this.calculate_y(parseInt(this.beatmap.map_data.hit_objects[i][1]));
                 var t = parseInt(this.beatmap.map_data.hit_objects[i][2]);
-                if (circle) {
+                if (is_circle) {
                     this.hit_objects.push({
                         t: t,
                         object: new Circle(this.hit_object_container, is_hidden, x, y, this.approachTime, t, circleSize, osu.skins.COMBO_COLOURS[comboColour], comboNum)
                     });
                 }
-                if(slider){
+                if(is_slider){
                     this.hit_objects.push({
                         t: t,
                         object: new osu.objects.sliders.Slider(this,this.hit_object_container, is_hidden, x, y, this.approachTime, t, circleSize, osu.skins.COMBO_COLOURS[comboColour], comboNum,this.beatmap.map_data.hit_objects[i].slice(5))

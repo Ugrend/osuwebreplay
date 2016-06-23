@@ -119,7 +119,7 @@ Just adding this for testing will prob remove
  */
 
 function loadBeatMap(){
-    osu.beatmaps.beatmap_loader.load(replay.bmMd5Hash, showReplayData, function () {
+    osu.beatmaps.BeatmapLoader.load(replay.bmMd5Hash, showReplayData, function () {
     });
 }
 
@@ -1061,171 +1061,202 @@ osu.audio.sound = {
 
 
 var osu = osu || {};
-osu.beatmaps = {
-    BeatmapPreview: class BeatmapPreview{
-        constructor(md5sum){
-            this.loaded = false;
-            this.artist = "";
-            this.artistunicode  = "";
-            this.beatmapid = "";
-            this.beatmapsetid = "";
-            this.creator = "";
-            this.md5sum = md5sum;
-            this.source = "";
-            this.tags = "";
-            this.thumbnail = "";
-            this.title = "";
-            this.titleunicode = "";
-            this.version = "";
-            this.song = "";
-            this.song_data = "";
-            this.preview_song_time = 0;
-            this.background = "";
-            this.background_data = "";
-        }
-
-        play_song(){
-            var self = this;
-            database.get_data(database.TABLES.ASSETS,this.song, function (r) {
-                self.song_data = r.data;
-                osu.audio.music.preview_time = this.preview_song_time / 1000;
-                osu.audio.music.init(self.song_data);
-            });
-        }
-        stop_song(){
-            this.song_data = "";//clear out song from memory
-        }
+osu.beatmaps = osu.beatmaps || {};
 
 
-
-
-
-    },
-
-
-
- beatmap_loader : {
-    beatmap_found: false,
-    map_name: "",
-    required_files: [],
-    background: "",
-    map_data: "",
-    assets: [],
-    song: "",
-    __beatmap: "",
-    __files_needed: [],
-    md5sum: "",
-
-    load: function (md5sum, onsuccess, onerror) {
-        //clear out old data
-        this.beatmap_found = false;
-        this.map_name = false;
-        this.required_files = [];
-        this.assets = [];
-        this.song = "";
-        this.__beatmap = "";
-        this.__files_needed = [];
-        this.background = "";
-
+osu.beatmaps.BeatmapPreview = class BeatmapPreview {
+    constructor(md5sum) {
+        this.loaded = false;
+        this.artist = "";
+        this.artistunicode = "";
+        this.beatmapid = "";
+        this.beatmapsetid = "";
+        this.creator = "";
         this.md5sum = md5sum;
-        this.onsuccess = onsuccess;
-        this.onerror = onerror;
-        // check if last loaded beatmap has our data first (incase indexeddb is unavailable/etc)
-        if (beatmap) {
-            for (var i = 0; i < beatmap.maps.length; i++) {
-                if (beatmap.maps[i].md5sum == md5sum) {
-                    beatmap.locked = true; //lock the data to prevent droping another beatmap
-                    this.map_data = beatmap.maps[i].parsed;
-                    this.required_files = beatmap.maps[i].files;
-                    this.assets = beatmap.assets;
-                    this.beatmap_found = true;
-                    break;
+        this.source = "";
+        this.tags = "";
+        this.thumbnail = "";
+        this.title = "";
+        this.titleunicode = "";
+        this.version = "";
+        this.song = "";
+        this.song_data = "";
+        this.preview_song_time = 0;
+        this.background = "";
+        this.background_data = "";
+    }
+
+    play_song() {
+        var self = this;
+        database.get_data(database.TABLES.ASSETS, this.song, function (r) {
+            self.song_data = r.data;
+            osu.audio.music.preview_time = this.preview_song_time / 1000;
+            osu.audio.music.init(self.song_data);
+        });
+    }
+
+    stop_song() {
+        this.song_data = "";//clear out song from memory
+    }
+
+
+};
+
+osu.beatmaps.BeatmapLoader = {
+        beatmap_found: false,
+        map_name: "",
+        required_files: [],
+        background: "",
+        map_data: "",
+        assets: [],
+        song: "",
+        __beatmap: "",
+        __files_needed: [],
+        md5sum: "",
+
+        load: function (md5sum, onsuccess, onerror) {
+            //clear out old data
+            this.beatmap_found = false;
+            this.map_name = false;
+            this.required_files = [];
+            this.assets = [];
+            this.song = "";
+            this.__beatmap = "";
+            this.__files_needed = [];
+            this.background = "";
+
+            this.md5sum = md5sum;
+            this.onsuccess = onsuccess;
+            this.onerror = onerror;
+            // check if last loaded beatmap has our data first (incase indexeddb is unavailable/etc)
+            if (beatmap) {
+                for (var i = 0; i < beatmap.maps.length; i++) {
+                    if (beatmap.maps[i].md5sum == md5sum) {
+                        beatmap.locked = true; //lock the data to prevent droping another beatmap
+                        this.map_data = beatmap.maps[i].parsed;
+                        this.required_files = beatmap.maps[i].files;
+                        this.assets = beatmap.assets;
+                        this.beatmap_found = true;
+                        break;
+                    }
                 }
-            }
-            if (this.beatmap_found) {
-                this.__beatmap_loaded();
-            }
-            else {
+                if (this.beatmap_found) {
+                    this.__beatmap_loaded();
+                }
+                else {
+                    this.__look_in_db();
+                }
+            } else {
                 this.__look_in_db();
             }
-        } else {
-            this.__look_in_db();
-        }
-    },
+        },
 
-    __look_in_db: function () {
-        database.get_data(database.TABLES.BEATMAPS, this.md5sum, this.__load_bm_from_db.bind(this), function (e) {
-            event_handler.emit(event_handler.EVENTS.DB_ERROR, e.event.error);
-        });
-    },
-    __load_bm_from_db: function (result) {
-
-        if (result && result.data) {
-            this.__beatmap = result.data;
-            this.map_data = this.__beatmap.parsed;
-            this.required_files = this.__beatmap.files;
-            this.__files_needed = this.__beatmap.files.slice(0);
-            var file_to_get = this.__files_needed.pop().md5sum;
-            database.get_data(database.TABLES.ASSETS, file_to_get, this.__load_assets_from_db.bind(this), function (e) {
+        __look_in_db: function () {
+            database.get_data(database.TABLES.BEATMAPS, this.md5sum, this.__load_bm_from_db.bind(this), function (e) {
                 event_handler.emit(event_handler.EVENTS.DB_ERROR, e.event.error);
             });
-        } else {
-            event_handler.emit(event_handler.EVENTS.BEATMAP_NOTFOUND, result.md5sum);
-        }
-    },
-    __load_assets_from_db: function (result) {
-        if (result && result.data) {
-            this.assets.push(result);
-        } else {
-            event_handler.emit(event_handler.EVENTS.ASSET_NOT_FOUND, result.md5sum)
-        }
-        if (this.__files_needed.length) {
-            var file_to_get = this.__files_needed.pop().md5sum;
-            database.get_data(database.TABLES.ASSETS, file_to_get, this.__load_assets_from_db.bind(this), function (e) {
-                event_handler.emit(event_handler.EVENTS.DB_ERROR, e.event.error);
-            });
-        } else {
-            this.beatmap_found = true;
-            this.__beatmap_loaded();
-        }
+        },
+        __load_bm_from_db: function (result) {
 
-    }
-    ,
-
-    __beatmap_loaded: function () {
-        if (this.beatmap_found) {
-            this.__process_beatmap();
-            this.onsuccess(this);
-        } else {
-            event_handler.emit(event_handler.EVENTS.BEATMAP_NOTFOUND, this.md5sum);
-            this.onerror("beatmap not found: " + this.md5sum);
+            if (result && result.data) {
+                this.__beatmap = result.data;
+                this.map_data = this.__beatmap.parsed;
+                this.required_files = this.__beatmap.files;
+                this.__files_needed = this.__beatmap.files.slice(0);
+                var file_to_get = this.__files_needed.pop().md5sum;
+                database.get_data(database.TABLES.ASSETS, file_to_get, this.__load_assets_from_db.bind(this), function (e) {
+                    event_handler.emit(event_handler.EVENTS.DB_ERROR, e.event.error);
+                });
+            } else {
+                event_handler.emit(event_handler.EVENTS.BEATMAP_NOTFOUND, result.md5sum);
+            }
+        },
+        __load_assets_from_db: function (result) {
+            if (result && result.data) {
+                this.assets.push(result);
+            } else {
+                event_handler.emit(event_handler.EVENTS.ASSET_NOT_FOUND, result.md5sum)
+            }
+            if (this.__files_needed.length) {
+                var file_to_get = this.__files_needed.pop().md5sum;
+                database.get_data(database.TABLES.ASSETS, file_to_get, this.__load_assets_from_db.bind(this), function (e) {
+                    event_handler.emit(event_handler.EVENTS.DB_ERROR, e.event.error);
+                });
+            } else {
+                this.beatmap_found = true;
+                this.__beatmap_loaded();
+            }
 
         }
-    },
+        ,
 
-    __process_beatmap: function () {
-        this.song = this.__get_asset_from_md5(this.__lookup_file_md5(this.map_data.general.AudioFilename));
-        this.background = this.__get_asset_from_md5(this.__lookup_file_md5(this.map_data.events[0][2].replace(/"/g, '')));
-        this.map_name = this.map_data.metadata.Artist + " - " + this.map_data.metadata.Title + " [" + this.map_data.metadata.Version + "]";
-        this.author = this.map_data.metadata.Creator;
-    },
-    __lookup_file_md5: function (filename) {
-        for (var i = 0; i < this.required_files.length; i++) {
-            if (this.required_files[i].filename == filename) {
-                return this.required_files[i].md5sum;
+        __beatmap_loaded: function () {
+            if (this.beatmap_found) {
+                this.__process_beatmap();
+                this.onsuccess(this);
+            } else {
+                event_handler.emit(event_handler.EVENTS.BEATMAP_NOTFOUND, this.md5sum);
+                this.onerror("beatmap not found: " + this.md5sum);
+
+            }
+        },
+
+        __process_beatmap: function () {
+            this.song = this.__get_asset_from_md5(this.__lookup_file_md5(this.map_data.general.AudioFilename));
+            this.background = this.__get_asset_from_md5(this.__lookup_file_md5(this.map_data.events[0][2].replace(/"/g, '')));
+            this.map_name = this.map_data.metadata.Artist + " - " + this.map_data.metadata.Title + " [" + this.map_data.metadata.Version + "]";
+            this.author = this.map_data.metadata.Creator;
+        },
+        __lookup_file_md5: function (filename) {
+            for (var i = 0; i < this.required_files.length; i++) {
+                if (this.required_files[i].filename == filename) {
+                    return this.required_files[i].md5sum;
+                }
+            }
+        },
+        __get_asset_from_md5: function (md5) {
+            for (var i = 0; i < this.assets.length; i++) {
+                if (this.assets[i].md5sum == md5) {
+                    return this.assets[i].data;
+                }
             }
         }
-    },
-    __get_asset_from_md5: function (md5) {
-        for (var i = 0; i < this.assets.length; i++) {
-            if (this.assets[i].md5sum == md5) {
-                return this.assets[i].data;
-            }
-        }
+};
+
+/**
+ * difficuly_calculator.js
+ * Created by Ugrend on 23/06/2016.
+ *
+ * Referenced from https://github.com/Tom94/AiModtpDifficultyCalculator
+ */
+
+var osu = osu || {};
+osu.beatmaps = osu.beatmaps || {};
+
+osu.beatmaps.DifficultyCalculator = {
+    __DIFFICULTY_TYPES:{DIFFICULTY_SPEED:0, DIFFICULTY_AIM:1},
+
+
+    __STAR_SCALING_FACTOR: 0.045,
+    __EXTREME_SCALING_FACTOR: 0.5,
+    __PLAY_WIDTH: 512,
+    __STRAIN_STEP: 400,
+    __DELAY_WEIGHT: 0.9,
+    __BEATMAP: null,
+    __HIT_OBJECTS: [],
+    STAR_RATING: -1,
+
+
+    calculate_stars: function (beatmap) {
+        this.__BEATMAP = beatmap;
+        this.STAR_RATING = -1;
+        var circleSize = (this.__PLAY_WIDTH / 16.0) * (1.0 - 0.7 * (beatmap.parsed.difficulty.CircleSize - 5.0) / 5.0);
+
+
+
     }
 
 
-}
 
 
 
@@ -1355,6 +1386,291 @@ osu.mods = Object.freeze({
     }
 });
 
+
+/**
+ * circle.js
+ * Created by Ugrend on 11/06/2016.
+ */
+
+    //TODO: THIS WILL MOVE ONCE SKIN SECTION IS DONE
+var hit_circle_texture = PIXI.Texture.fromImage(osu.skins.hitcircle);
+var hit_circle_overlay = PIXI.Texture.fromImage(osu.skins.hitcicleoverlay);
+var approach_circle_texture = PIXI.Texture.fromImage(osu.skins.approachcircle);
+var num_0 = PIXI.Texture.fromImage(osu.skins.default_1);
+var num_1 = PIXI.Texture.fromImage(osu.skins.default_1);
+var num_2 = PIXI.Texture.fromImage(osu.skins.default_2);
+var num_3 = PIXI.Texture.fromImage(osu.skins.default_3);
+var num_4 = PIXI.Texture.fromImage(osu.skins.default_4);
+var num_5 = PIXI.Texture.fromImage(osu.skins.default_5);
+var num_6 = PIXI.Texture.fromImage(osu.skins.default_6);
+var num_7 = PIXI.Texture.fromImage(osu.skins.default_7);
+var num_8 = PIXI.Texture.fromImage(osu.skins.default_8);
+var num_9 = PIXI.Texture.fromImage(osu.skins.default_9);
+
+
+class Circle{
+    constructor(container,is_hidden, x, y, approach_rate, hit_time,diameter, colour, combo) {
+
+
+
+        this.container = container;
+        this.x = x;
+        this.y = y;
+        this.is_hidden = is_hidden;
+        this.diameter = diameter;
+        this.colour = colour;
+        this.circleContainer = new PIXI.Container();
+        this.circleSprite =  new PIXI.Sprite(hit_circle_texture);
+        this.circleSprite.tint = this.colour;
+        this.circleSprite.anchor.set(0.5);
+        this.circleSprite.height = diameter;
+        this.circleSprite.width = diameter;
+        this.approach_rate = approach_rate;
+        this.hit_time = hit_time;
+        if(!is_hidden) {
+            this.approchCircleSprite = new PIXI.Sprite(approach_circle_texture);
+            this.approchCircleSprite.tint = colour;
+            this.approchCircleSprite.anchor.set(0.5);
+            this.approchCircleSprite.width = this.diameter * 3;
+            this.approchCircleSprite.height = this.diameter * 3;
+            this.circleContainer.addChild(this.approchCircleSprite);
+        }
+
+
+        this.circleOverlaySprite =  new PIXI.Sprite(hit_circle_overlay);
+        this.circleOverlaySprite.height = diameter;
+        this.circleOverlaySprite.width = diameter;
+        this.circleOverlaySprite.anchor.set(0.5);
+        this.circleContainer.addChild(this.circleSprite);
+        this.circleContainer.addChild(this.circleOverlaySprite);
+
+
+        var comboString = combo.toString();
+        this.comboNumSprites = [];
+        for(var i = 0; i< comboString.length ; i++){
+            switch(comboString.charAt(i)){
+                case "0":
+                    this.comboNumSprites.push(new PIXI.Sprite(num_0));
+                    break;
+                case "1":
+                    this.comboNumSprites.push(new PIXI.Sprite(num_1));
+                    break;
+                case "2":
+                    this.comboNumSprites.push(new PIXI.Sprite(num_2));
+                    break;
+                case "3":
+                    this.comboNumSprites.push(new PIXI.Sprite(num_3));
+                    break;
+                case "4":
+                    this.comboNumSprites.push(new PIXI.Sprite(num_4));
+                    break;
+                case "5":
+                    this.comboNumSprites.push(new PIXI.Sprite(num_5));
+                    break;
+                case "6":
+                    this.comboNumSprites.push(new PIXI.Sprite(num_6));
+                    break;
+                case "7":
+                    this.comboNumSprites.push(new PIXI.Sprite(num_7));
+                    break;
+                case "8":
+                    this.comboNumSprites.push(new PIXI.Sprite(num_8));
+                    break;
+                case "9":
+                    this.comboNumSprites.push(new PIXI.Sprite(num_9));
+                    break;
+            }
+
+        }
+
+        if(this.comboNumSprites.length > 1){
+            this.comboSprite1 = this.comboNumSprites[0];
+            this.comboSprite2 = this.comboNumSprites[1];
+            this.comboSprite1.x -= this.diameter/10;
+            this.comboSprite2.x += this.diameter/10;
+            this.comboSprite1.anchor.set(0.5);
+            this.comboSprite2.anchor.set(0.5);
+            this.circleContainer.addChild(this.comboSprite1);
+            this.circleContainer.addChild(this.comboSprite2);
+        }else{
+            this.comboSprite1 = this.comboNumSprites[0];
+            this.comboSprite1.anchor.set(0.5);
+            this.circleContainer.addChild(this.comboSprite1);
+        }
+
+        this.last_draw_time = 0;
+        this.circleContainer.x = x;
+        this.circleContainer.y = y;
+        this.drawn = false;
+        this.destroyed = false;
+
+    }
+
+
+    draw(cur_time){
+
+        if(this.destroyed){
+            return false;
+        }
+
+        if(!this.destroyed && cur_time > this.hit_time + 110 ){
+            this.destroy();
+            this.destroyed = true;
+        }
+
+
+        if(!this.destroyed && cur_time < this.hit_time + this.approach_rate){
+            if(!this.is_hidden){
+                //dont need to calculate this so often
+                if(Date.now() - this.last_draw_time > 35) {
+                    var time_diff = this.hit_time - cur_time;
+                    var scale = 1 + (time_diff / this.approach_rate) * 3;
+                    if (scale < 1) scale = 1;
+                    this.approchCircleSprite.width = this.diameter * scale;
+                    this.approchCircleSprite.height = this.diameter * scale;
+                    this.last_draw_time = Date.now();
+                }
+            }
+            if(!this.drawn){
+                this.container.addChildAt(this.circleContainer,0);
+                this.drawn = true;
+            }
+        }
+        return true;
+    }
+
+    hit(time){
+
+    }
+
+    destroy(){
+        this.container.removeChild(this.circleContainer);
+
+    }
+
+}
+
+
+/**
+ * hitobjects.js
+ * Created by Ugrend on 17/06/2016.
+ */
+
+osu = osu || {};
+osu.objects = osu.objects || {};
+osu.objects.hitobjects = {
+    TYPES: {
+        CIRCLE: 1,
+        SLIDER: 2,
+        NEW_COMBO: 4,
+        SPINNER: 8,
+    },
+
+    parse_type: function (hitObjectInt) {
+        var newCombo = false;
+        if((hitObjectInt & this.TYPES.NEW_COMBO)){
+            newCombo = true;
+        }
+        if((hitObjectInt & osu.objects.hitobjects.TYPES.CIRCLE)){
+            return {type: this.TYPES.CIRCLE,new_combo: newCombo}
+        }
+        if((hitObjectInt & osu.objects.hitobjects.TYPES.SLIDER)){
+            return {type: this.TYPES.SLIDER,new_combo: newCombo}
+        }
+        if((hitObjectInt & osu.objects.hitobjects.TYPES.SPINNER)){
+            return {type: this.TYPES.SPINNER,new_combo: newCombo}
+        }
+    },
+    parse_line: function (line_array, game) {
+            var type = this.parse_type(parseInt(line_array[3]));
+            var x = line_array[0];
+            var y = line_array[1];
+            if(game){
+                x = game.calculate_x(x);
+                y = game.calculate_y(y);
+            }
+            var timer = line_array[2];
+
+
+
+
+    }
+
+};
+/**
+ * slider.js
+ * Created by Ugrend on 11/06/2016.
+ */
+osu = osu || {};
+osu.objects = osu.objects || {};
+osu.objects.sliders = {
+    Slider: class Slider{
+        constructor(game,container,is_hidden, x, y, approach_rate, hit_time,diameter, colour, combo, slider_data) {
+            this.startCircle = new Circle(container, is_hidden,x,y,approach_rate,hit_time,diameter,colour,combo);
+            this.hit_time = hit_time;
+            this.sliderGraphics = new PIXI.Graphics();
+            this.sliderGraphics.beginFill(colour,0.5);
+            this.sliderGraphics.lineStyle(diameter,colour,0.5);
+            var slider_points = slider_data[0].split("|");
+            var slider_type = slider_points[0];
+            if(slider_type == osu.objects.sliders.TYPES.LINEAR){
+                var draw_to_point = slider_points[1].split(':');
+                var final_x = game.calculate_x(draw_to_point[0]);
+                var final_y = game.calculate_y(draw_to_point[1]);
+                this.sliderGraphics.moveTo(x, y);
+                this.sliderGraphics.bezierCurveTo(final_x,final_y,final_x,final_y,final_x,final_y);
+            }
+            this.container = container;
+            this.drawn = false;
+            this.graphics_container = new PIXI.Container();
+            this.graphics_container.addChild(this.sliderGraphics);
+
+            this.destroyed = false;
+        }
+
+        draw(cur_time){
+
+            var draw_cicle = this.startCircle.draw(cur_time);
+            if(this.destroyed && !draw_cicle){
+                return false;
+            }
+            if(!draw_cicle){
+                //animate slider ?
+            }
+            if(!this.drawn){
+                this.container.addChildAt(this.graphics_container,0);
+                this.drawn = true;
+            }
+            if(!this.destroyed && cur_time > this.hit_time + 300){
+                this.destroy();
+            }
+            return true;
+
+        }
+        destroy(){
+            this.destroyed = true;
+            this.container.removeChild(this.graphics_container);
+
+        }
+
+
+    },
+
+    TYPES: Object.freeze({
+        BEZIER: "B",
+        LINEAR: "L",
+    })
+
+
+
+};
+
+
+
+/**
+ * spinner.js
+ * Created by Ugrend on 11/06/2016.
+ */
 
 /**
  * score.js
@@ -1842,13 +2158,12 @@ osu.ui.interface.osugame = {
 
         for (i = 0; i < this.beatmap.map_data.hit_objects.length; i++) {
             var hitObjectInt = parseInt(this.beatmap.map_data.hit_objects[i][3]);
-            var circle = hitObjectInt & osu.objects.hitobjects.TYPES.CIRCLE;
-            var slider = hitObjectInt & osu.objects.hitobjects.TYPES.SLIDER;
-            var new_combo = hitObjectInt & osu.objects.hitobjects.TYPES.NEW_COMBO;
-            var spinner = hitObjectInt & osu.objects.hitobjects.TYPES.SPINNER;
+            var hitObject = osu.objects.hitobjects.parse_type(hitObjectInt);
 
 
-            if (comboNum == 0 || new_combo > 0) {
+
+
+            if (comboNum == 0 || hitObject.new_combo) {
                 comboNum = 1;
                 if (comboColour == osu.skins.COMBO_COLOURS.length - 1) {
                     comboColour = 0;
@@ -1859,19 +2174,21 @@ osu.ui.interface.osugame = {
             } else {
                 comboNum++;
             }
+            var is_circle = hitObject.type == osu.objects.hitobjects.TYPES.CIRCLE;
+            var is_slider = hitObject.type == osu.objects.hitobjects.TYPES.SLIDER;
+            var is_spinner = hitObject.type == osu.objects.hitobjects.TYPES.CIRCLE;
 
-
-            if (circle || slider) {
+            if (is_circle|| is_slider) {
                 var x = this.calculate_x(parseInt(this.beatmap.map_data.hit_objects[i][0]));
                 var y = this.calculate_y(parseInt(this.beatmap.map_data.hit_objects[i][1]));
                 var t = parseInt(this.beatmap.map_data.hit_objects[i][2]);
-                if (circle) {
+                if (is_circle) {
                     this.hit_objects.push({
                         t: t,
                         object: new Circle(this.hit_object_container, is_hidden, x, y, this.approachTime, t, circleSize, osu.skins.COMBO_COLOURS[comboColour], comboNum)
                     });
                 }
-                if(slider){
+                if(is_slider){
                     this.hit_objects.push({
                         t: t,
                         object: new osu.objects.sliders.Slider(this,this.hit_object_container, is_hidden, x, y, this.approachTime, t, circleSize, osu.skins.COMBO_COLOURS[comboColour], comboNum,this.beatmap.map_data.hit_objects[i].slice(5))
@@ -2530,262 +2847,6 @@ osu.ui.interface.scorescreen = {
     }
 
 };
-/**
- * circle.js
- * Created by Ugrend on 11/06/2016.
- */
-
-    //TODO: THIS WILL MOVE ONCE SKIN SECTION IS DONE
-var hit_circle_texture = PIXI.Texture.fromImage(osu.skins.hitcircle);
-var hit_circle_overlay = PIXI.Texture.fromImage(osu.skins.hitcicleoverlay);
-var approach_circle_texture = PIXI.Texture.fromImage(osu.skins.approachcircle);
-var num_0 = PIXI.Texture.fromImage(osu.skins.default_1);
-var num_1 = PIXI.Texture.fromImage(osu.skins.default_1);
-var num_2 = PIXI.Texture.fromImage(osu.skins.default_2);
-var num_3 = PIXI.Texture.fromImage(osu.skins.default_3);
-var num_4 = PIXI.Texture.fromImage(osu.skins.default_4);
-var num_5 = PIXI.Texture.fromImage(osu.skins.default_5);
-var num_6 = PIXI.Texture.fromImage(osu.skins.default_6);
-var num_7 = PIXI.Texture.fromImage(osu.skins.default_7);
-var num_8 = PIXI.Texture.fromImage(osu.skins.default_8);
-var num_9 = PIXI.Texture.fromImage(osu.skins.default_9);
-
-
-class Circle{
-    constructor(container,is_hidden, x, y, approach_rate, hit_time,diameter, colour, combo) {
-
-
-
-        this.container = container;
-        this.x = x;
-        this.y = y;
-        this.is_hidden = is_hidden;
-        this.diameter = diameter;
-        this.colour = colour;
-        this.circleContainer = new PIXI.Container();
-        this.circleSprite =  new PIXI.Sprite(hit_circle_texture);
-        this.circleSprite.tint = this.colour;
-        this.circleSprite.anchor.set(0.5);
-        this.circleSprite.height = diameter;
-        this.circleSprite.width = diameter;
-        this.approach_rate = approach_rate;
-        this.hit_time = hit_time;
-        if(!is_hidden) {
-            this.approchCircleSprite = new PIXI.Sprite(approach_circle_texture);
-            this.approchCircleSprite.tint = colour;
-            this.approchCircleSprite.anchor.set(0.5);
-            this.approchCircleSprite.width = this.diameter * 3;
-            this.approchCircleSprite.height = this.diameter * 3;
-            this.circleContainer.addChild(this.approchCircleSprite);
-        }
-
-
-        this.circleOverlaySprite =  new PIXI.Sprite(hit_circle_overlay);
-        this.circleOverlaySprite.height = diameter;
-        this.circleOverlaySprite.width = diameter;
-        this.circleOverlaySprite.anchor.set(0.5);
-        this.circleContainer.addChild(this.circleSprite);
-        this.circleContainer.addChild(this.circleOverlaySprite);
-
-
-        var comboString = combo.toString();
-        this.comboNumSprites = [];
-        for(var i = 0; i< comboString.length ; i++){
-            switch(comboString.charAt(i)){
-                case "0":
-                    this.comboNumSprites.push(new PIXI.Sprite(num_0));
-                    break;
-                case "1":
-                    this.comboNumSprites.push(new PIXI.Sprite(num_1));
-                    break;
-                case "2":
-                    this.comboNumSprites.push(new PIXI.Sprite(num_2));
-                    break;
-                case "3":
-                    this.comboNumSprites.push(new PIXI.Sprite(num_3));
-                    break;
-                case "4":
-                    this.comboNumSprites.push(new PIXI.Sprite(num_4));
-                    break;
-                case "5":
-                    this.comboNumSprites.push(new PIXI.Sprite(num_5));
-                    break;
-                case "6":
-                    this.comboNumSprites.push(new PIXI.Sprite(num_6));
-                    break;
-                case "7":
-                    this.comboNumSprites.push(new PIXI.Sprite(num_7));
-                    break;
-                case "8":
-                    this.comboNumSprites.push(new PIXI.Sprite(num_8));
-                    break;
-                case "9":
-                    this.comboNumSprites.push(new PIXI.Sprite(num_9));
-                    break;
-            }
-
-        }
-
-        if(this.comboNumSprites.length > 1){
-            this.comboSprite1 = this.comboNumSprites[0];
-            this.comboSprite2 = this.comboNumSprites[1];
-            this.comboSprite1.x -= this.diameter/10;
-            this.comboSprite2.x += this.diameter/10;
-            this.comboSprite1.anchor.set(0.5);
-            this.comboSprite2.anchor.set(0.5);
-            this.circleContainer.addChild(this.comboSprite1);
-            this.circleContainer.addChild(this.comboSprite2);
-        }else{
-            this.comboSprite1 = this.comboNumSprites[0];
-            this.comboSprite1.anchor.set(0.5);
-            this.circleContainer.addChild(this.comboSprite1);
-        }
-
-        this.last_draw_time = 0;
-        this.circleContainer.x = x;
-        this.circleContainer.y = y;
-        this.drawn = false;
-        this.destroyed = false;
-
-    }
-
-
-    draw(cur_time){
-
-        if(this.destroyed){
-            return false;
-        }
-
-        if(!this.destroyed && cur_time > this.hit_time + 110 ){
-            this.destroy();
-            this.destroyed = true;
-        }
-
-
-        if(!this.destroyed && cur_time < this.hit_time + this.approach_rate){
-            if(!this.is_hidden){
-                //dont need to calculate this so often
-                if(Date.now() - this.last_draw_time > 35) {
-                    var time_diff = this.hit_time - cur_time;
-                    var scale = 1 + (time_diff / this.approach_rate) * 3;
-                    if (scale < 1) scale = 1;
-                    this.approchCircleSprite.width = this.diameter * scale;
-                    this.approchCircleSprite.height = this.diameter * scale;
-                    this.last_draw_time = Date.now();
-                }
-            }
-            if(!this.drawn){
-                this.container.addChildAt(this.circleContainer,0);
-                this.drawn = true;
-            }
-        }
-        return true;
-    }
-
-    hit(time){
-
-    }
-
-    destroy(){
-        this.container.removeChild(this.circleContainer);
-
-    }
-
-}
-
-
-/**
- * hitobjects.js
- * Created by Ugrend on 17/06/2016.
- */
-
-osu = osu || {};
-osu.objects = osu.objects || {};
-osu.objects.hitobjects = {
-    TYPES: {
-        CIRCLE: 1,
-        SLIDER: 2,
-        NEW_COMBO: 4,
-        SPINNER: 8,
-    }
-
-
-}
-/**
- * slider.js
- * Created by Ugrend on 11/06/2016.
- */
-osu = osu || {};
-osu.objects = osu.objects || {};
-osu.objects.sliders = {
-    Slider: class Slider{
-        constructor(game,container,is_hidden, x, y, approach_rate, hit_time,diameter, colour, combo, slider_data) {
-            this.startCircle = new Circle(container, is_hidden,x,y,approach_rate,hit_time,diameter,colour,combo);
-            this.hit_time = hit_time;
-            this.sliderGraphics = new PIXI.Graphics();
-            this.sliderGraphics.beginFill(colour,0.5);
-            this.sliderGraphics.lineStyle(diameter,colour,0.5);
-            var slider_points = slider_data[0].split("|");
-            var slider_type = slider_points[0];
-            if(slider_type == osu.objects.sliders.TYPES.LINEAR){
-                var draw_to_point = slider_points[1].split(':');
-                var final_x = game.calculate_x(draw_to_point[0]);
-                var final_y = game.calculate_y(draw_to_point[1]);
-                this.sliderGraphics.moveTo(x, y);
-                this.sliderGraphics.bezierCurveTo(final_x,final_y,final_x,final_y,final_x,final_y);
-            }
-            this.container = container;
-            this.drawn = false;
-            this.graphics_container = new PIXI.Container();
-            this.graphics_container.addChild(this.sliderGraphics);
-
-            this.destroyed = false;
-        }
-
-        draw(cur_time){
-
-            var draw_cicle = this.startCircle.draw(cur_time);
-            if(this.destroyed && !draw_cicle){
-                return false;
-            }
-            if(!draw_cicle){
-                //animate slider ?
-            }
-            if(!this.drawn){
-                this.container.addChildAt(this.graphics_container,0);
-                this.drawn = true;
-            }
-            if(!this.destroyed && cur_time > this.hit_time + 300){
-                this.destroy();
-            }
-            return true;
-
-        }
-        destroy(){
-            this.destroyed = true;
-            this.container.removeChild(this.graphics_container);
-
-        }
-
-
-    },
-
-    TYPES: Object.freeze({
-        BEZIER: "B",
-        LINEAR: "L",
-    })
-
-
-
-};
-
-
-
-/**
- * spinner.js
- * Created by Ugrend on 11/06/2016.
- */
-
 /**
  * launcher.js
  * Created by Ugrend on 22/06/2016.

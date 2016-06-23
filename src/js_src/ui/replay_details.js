@@ -9,7 +9,7 @@ Just adding this for testing will prob remove
  */
 
 function loadBeatMap(){
-    osu.beatmaps.beatmap_loader.load(replay.bmMd5Hash, showReplayData, function () {
+    osu.beatmaps.BeatmapLoader.load(replay.bmMd5Hash, showReplayData, function () {
     });
 }
 
