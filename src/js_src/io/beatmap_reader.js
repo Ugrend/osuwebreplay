@@ -167,6 +167,7 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
                 }
                 var md5sum = md5(thumbnail);
                 beatmap.thumbnail = md5sum;
+                beatmap.stars = osu.beatmaps.DifficultyCalculator.calculate_stars(beatmap);
                 database.insert_data(database.TABLES.ASSETS, md5sum, thumbnail, function () {}, function () {});//TODO actually callback properly
                 database.insert_data(database.TABLES.BEATMAPS, beatmap.md5sum, beatmap, function () {
                     beatmaps_loaded++;

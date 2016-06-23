@@ -505,6 +505,7 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
                 }
                 var md5sum = md5(thumbnail);
                 beatmap.thumbnail = md5sum;
+                beatmap.stars = osu.beatmaps.DifficultyCalculator.calculate_stars(beatmap);
                 database.insert_data(database.TABLES.ASSETS, md5sum, thumbnail, function () {}, function () {});//TODO actually callback properly
                 database.insert_data(database.TABLES.BEATMAPS, beatmap.md5sum, beatmap, function () {
                     beatmaps_loaded++;
@@ -1251,9 +1252,7 @@ osu.beatmaps.DifficultyCalculator = {
         this.__BEATMAP = beatmap;
         this.STAR_RATING = -1;
         var circleSize = (this.__PLAY_WIDTH / 16.0) * (1.0 - 0.7 * (beatmap.parsed.difficulty.CircleSize - 5.0) / 5.0);
-
-
-
+        return 5;
     }
 
 

@@ -26,9 +26,7 @@ osu.beatmaps.DifficultyCalculator = {
         this.__BEATMAP = beatmap;
         this.STAR_RATING = -1;
         var circleSize = (this.__PLAY_WIDTH / 16.0) * (1.0 - 0.7 * (beatmap.parsed.difficulty.CircleSize - 5.0) / 5.0);
-
-
-
+        return 5;
     }
 
 
