@@ -95,6 +95,29 @@ var database = {
             onsuccess(countReq.result);
         }
     },
+    delete_data: function (table,key, onsuccess) {
+        var request = this.__db.transaction([table], "readwrite").objectStore(table).delete(key);
+        request.onsuccess = onsuccess;
+    },
+
+    get_all_keys: function (table,callback) {
+        var request = this.__db.transaction([table], "readonly").objectStore(table);
+        var result = [];
+        request.openCursor().onsuccess = function (event) {
+
+
+            var cursor = event.target.result;
+            if(cursor){
+                result.push(cursor.key);
+                cursor.continue();
+            }else{
+                callback(result);
+            }
+
+
+        }
+    },
+
 
     delete_database: function () {
       if(DEBUG) {

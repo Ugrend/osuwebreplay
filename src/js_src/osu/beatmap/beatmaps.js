@@ -10,7 +10,8 @@ osu.beatmaps = osu.beatmaps || {};
 
 
 osu.beatmaps.BeatmapPreview = class BeatmapPreview {
-    constructor(md5sum) {
+    constructor(md5sum, callback) {
+        callback = callback || function (self) {};
         this.loaded = false;
         this.artist = "";
         this.artistunicode = "";
@@ -20,7 +21,7 @@ osu.beatmaps.BeatmapPreview = class BeatmapPreview {
         this.md5sum = md5sum;
         this.source = "";
         this.tags = "";
-        this.thumbnail = "";
+        this.thumbnail_data = "";
         this.title = "";
         this.titleunicode = "";
         this.version = "";
@@ -32,29 +33,60 @@ osu.beatmaps.BeatmapPreview = class BeatmapPreview {
         this.approachRate = "";
         this.circleSize = "";
         this.overallDifficulty = "";
-        this.stars = ""
+        this.HPDrain = "";
+        this.stars = "";
         this.bpm = 0;
         this.objects = 0;
         this.circles = 0;
         this.sliders = 0;
         this.spinners = 0;
-        this.length = ""
+        this.length = "";
 
+        var self = this;
+        database.get_data(database.TABLES.BEATMAPS,md5sum, function (r) {
+            var beatmap = r.data;
+            self.artist = beatmap.artist || "";
+            self.artistunicode = beatmap.artistunicode || "";
+            self.beatmapid = beatmap.beatmapid || "";
+            self.beatmapsetid = beatmap.beatmapsetid || "";
+            self.creator = beatmap.creator || "";
+            self.source = beatmap.source || "";
+            self.tags = beatmap.tags || "";
+            self.title = beatmap.title || "";
+            self.titleunicode = beatmap.titleunicode || "";
+            self.version = beatmap.version || "";
+            self.song = beatmap.song || "";
+            self.preview_song_time = parseInt(beatmap.parsed.general.PreviewTime) || 0;
+            self.background = beatmap.background || "";
+            self.approachRate = beatmap.parsed.difficulty.ApproachRate || 0;
+            self.circleSize = beatmap.parsed.difficulty.CircleSize || 0;
+            self.overallDifficulty = beatmap.parsed.difficulty.OverallDifficulty || 0;
+            self.HPDrain = beatmap.parsed.difficulty.HPDrainRate || 0;
 
+            database.get_data(database.TABLES.ASSETS,beatmap.thumbnail, function (result) {
+                self.thumbnail_data = result.data;
+                self.loaded = true;
+                callback(this);
+            });
+        })
 
     }
 
+
     play_song() {
+        var preview_time = this.preview_song_time;
         database.get_data(database.TABLES.ASSETS, this.song, function (r) {
-            osu.audio.music.preview_time = this.preview_song_time / 1000;
+            osu.audio.music.preview_time = preview_time / 1000;
+            osu.audio.music.preview_screen = true;
             osu.audio.music.init(r.data);
+            osu.audio.music.start();
         });
     }
 
     load_background(){
 
         database.get_data(database.TABLES.ASSETS, this.background, function (r) {
-            osu.ui.mainscreen.load_background(r.data);
+            osu.ui.interface.mainscreen.set_background(r.data);
         });
     }
 

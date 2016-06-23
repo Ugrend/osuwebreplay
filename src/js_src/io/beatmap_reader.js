@@ -162,8 +162,13 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
                         }
                     );
                     if (beatMap.assets[x].filename == background_file_name) {
+                        beatmap.background = beatMap.assets[x].md5sum;
                         thumbnail = create_thumbnail(beatMap.assets[x].data);
                     }
+                    if(beatMap.assets[x].filename == beatmap.parsed.general.AudioFilename){
+                        beatmap.song = beatMap.assets[x].md5sum;
+                    }
+
                 }
                 var md5sum = md5(thumbnail);
                 beatmap.thumbnail = md5sum;

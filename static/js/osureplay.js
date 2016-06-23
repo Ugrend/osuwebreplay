@@ -248,6 +248,7 @@ var event_handler = {
         RENDER:10,
         UNKNOWN_FILE_ERROR:11,
         INVALID_FILE: 12,
+        BEATMAP_SELECTED: 13
     }),
 
     __events: {},
@@ -500,8 +501,13 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
                         }
                     );
                     if (beatMap.assets[x].filename == background_file_name) {
+                        beatmap.background = beatMap.assets[x].md5sum;
                         thumbnail = create_thumbnail(beatMap.assets[x].data);
                     }
+                    if(beatMap.assets[x].filename == beatmap.parsed.general.AudioFilename){
+                        beatmap.song = beatMap.assets[x].md5sum;
+                    }
+
                 }
                 var md5sum = md5(thumbnail);
                 beatmap.thumbnail = md5sum;
@@ -793,6 +799,29 @@ var database = {
             onsuccess(countReq.result);
         }
     },
+    delete_data: function (table,key, onsuccess) {
+        var request = this.__db.transaction([table], "readwrite").objectStore(table).delete(key);
+        request.onsuccess = onsuccess;
+    },
+
+    get_all_keys: function (table,callback) {
+        var request = this.__db.transaction([table], "readonly").objectStore(table);
+        var result = [];
+        request.openCursor().onsuccess = function (event) {
+
+
+            var cursor = event.target.result;
+            if(cursor){
+                result.push(cursor.key);
+                cursor.continue();
+            }else{
+                callback(result);
+            }
+
+
+        }
+    },
+
 
     delete_database: function () {
       if(DEBUG) {
@@ -1066,7 +1095,8 @@ osu.beatmaps = osu.beatmaps || {};
 
 
 osu.beatmaps.BeatmapPreview = class BeatmapPreview {
-    constructor(md5sum) {
+    constructor(md5sum, callback) {
+        callback = callback || function (self) {};
         this.loaded = false;
         this.artist = "";
         this.artistunicode = "";
@@ -1076,7 +1106,7 @@ osu.beatmaps.BeatmapPreview = class BeatmapPreview {
         this.md5sum = md5sum;
         this.source = "";
         this.tags = "";
-        this.thumbnail = "";
+        this.thumbnail_data = "";
         this.title = "";
         this.titleunicode = "";
         this.version = "";
@@ -1088,29 +1118,60 @@ osu.beatmaps.BeatmapPreview = class BeatmapPreview {
         this.approachRate = "";
         this.circleSize = "";
         this.overallDifficulty = "";
-        this.stars = ""
+        this.HPDrain = "";
+        this.stars = "";
         this.bpm = 0;
         this.objects = 0;
         this.circles = 0;
         this.sliders = 0;
         this.spinners = 0;
-        this.length = ""
+        this.length = "";
 
+        var self = this;
+        database.get_data(database.TABLES.BEATMAPS,md5sum, function (r) {
+            var beatmap = r.data;
+            self.artist = beatmap.artist || "";
+            self.artistunicode = beatmap.artistunicode || "";
+            self.beatmapid = beatmap.beatmapid || "";
+            self.beatmapsetid = beatmap.beatmapsetid || "";
+            self.creator = beatmap.creator || "";
+            self.source = beatmap.source || "";
+            self.tags = beatmap.tags || "";
+            self.title = beatmap.title || "";
+            self.titleunicode = beatmap.titleunicode || "";
+            self.version = beatmap.version || "";
+            self.song = beatmap.song || "";
+            self.preview_song_time = parseInt(beatmap.parsed.general.PreviewTime) || 0;
+            self.background = beatmap.background || "";
+            self.approachRate = beatmap.parsed.difficulty.ApproachRate || 0;
+            self.circleSize = beatmap.parsed.difficulty.CircleSize || 0;
+            self.overallDifficulty = beatmap.parsed.difficulty.OverallDifficulty || 0;
+            self.HPDrain = beatmap.parsed.difficulty.HPDrainRate || 0;
 
+            database.get_data(database.TABLES.ASSETS,beatmap.thumbnail, function (result) {
+                self.thumbnail_data = result.data;
+                self.loaded = true;
+                callback(this);
+            });
+        })
 
     }
 
+
     play_song() {
+        var preview_time = this.preview_song_time;
         database.get_data(database.TABLES.ASSETS, this.song, function (r) {
-            osu.audio.music.preview_time = this.preview_song_time / 1000;
+            osu.audio.music.preview_time = preview_time / 1000;
+            osu.audio.music.preview_screen = true;
             osu.audio.music.init(r.data);
+            osu.audio.music.start();
         });
     }
 
     load_background(){
 
         database.get_data(database.TABLES.ASSETS, this.background, function (r) {
-            osu.ui.mainscreen.load_background(r.data);
+            osu.ui.interface.mainscreen.set_background(r.data);
         });
     }
 
@@ -1798,7 +1859,10 @@ osu.ui.interface.mainscreen = {
 
     beatmap_count: -1,
     replay_count: -1,
+    key_count: 0,
+    processed_count: 0,
     displaying_main_screen: false,
+    beatmaps: [],
 
     init: function () {
         var self = this;
@@ -1816,19 +1880,36 @@ osu.ui.interface.mainscreen = {
     },
     show_selection: function () {
         if(this.beatmap_count > 0 && this.replay_count > 0){
-            document.getElementById("loading").className = "hidden";
-            document.getElementById("no_beatmaps_replays").className = "hidden";
-            document.getElementById("container").className = "";
-            this.displaying_main_screen = true;
+            var self = this;
+            database.get_all_keys(database.TABLES.BEATMAPS, function (keys) {
+                self.key_count = keys.length; //even though this should be same as beatmap count just to be safe we will check again
+                for(var i = 0; i < keys.length ; i++){
+                    var beatmap = new osu.beatmaps.BeatmapPreview(keys[i], function () {
+                        self.processed_count++;
+                        self.songs_processed();
+                    });
+                    self.beatmaps.push(beatmap);
+                }
+            });
         }
         if(this.beatmap_count == 0 || this.replay_count == 0){
             document.getElementById("loading").className = "hidden";
             document.getElementById("no_beatmaps_replays").className = "";
         }
     },
+    songs_processed: function () {
+        if(this.key_count == this.processed_count){
+            document.getElementById("loading").className = "hidden";
+            document.getElementById("no_beatmaps_replays").className = "hidden";
+            document.getElementById("container").className = "";
+            this.displaying_main_screen = true;
+        }
+    },
+
 
     set_background: function (background_data) {
-        document.body.style.background = "url("+background_data+") no-repeat";
+        document.body.style.background = "url("+background_data+") no-repeat center fixed";
+        document.body.style.backgroundSize = "100% 100%";
     },
     remove_background: function () {
         document.body.style.background = "";
