@@ -46,9 +46,9 @@
         <div class="row song_preview_row song_preview_unselected" >
             <img src="{{thumbnail_data}}">
             <span class="song_details">
-                <span class="song_name">{{#titleunicode}}{{titleunicode}}{{/titleunicode}}{{^titleunicode}}{{title}}{{/titleunicode}}</span>
+                <span class="song_name">{{#titleunicode}}{{titleunicode}} ( {{title}} ) {{/titleunicode}}{{^titleunicode}}{{title}}{{/titleunicode}}</span>
                 <br>
-                <span class="song_author">{{#artistunicode}}{{artistunicode}}{{/artistunicode}}{{^artistunicode}}{{artist}}{{/artistunicode}} // {{creator}}</span>
+                <span class="song_author">{{#artistunicode}}{{artistunicode}} ( {{artist}} ){{/artistunicode}}{{^artistunicode}}{{artist}}{{/artistunicode}} // {{creator}}</span>
                 <br>
                 <span class="song_version">{{version}}</span>
                 <br>

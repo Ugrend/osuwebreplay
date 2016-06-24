@@ -46,6 +46,8 @@ osu.beatmaps.BeatmapPreview = class BeatmapPreview {
         database.get_data(database.TABLES.BEATMAPS,md5sum, function (r) {
             var beatmap = r.data;
             self.artist = beatmap.artist || "";
+            //if unicode is same as normal just ignore it so we dont print twice
+            self.artistunicode = (beatmap.artistunicode == beatmap.artist ? false : beatmap.artistunicode);
             self.artistunicode = beatmap.artistunicode || null;
             self.beatmapid = beatmap.beatmapid || "";
             self.beatmapsetid = beatmap.beatmapsetid || "";
@@ -53,7 +55,7 @@ osu.beatmaps.BeatmapPreview = class BeatmapPreview {
             self.source = beatmap.source || "";
             self.tags = beatmap.tags || "";
             self.title = beatmap.title || "";
-            self.titleunicode = beatmap.titleunicode || null;
+            self.titleunicode = (beatmap.titleunicode == beatmap.title ? false : beatmap.titleunicode);
             self.version = beatmap.version || "";
             self.song = beatmap.song || "";
             self.preview_song_time = parseInt(beatmap.parsed.general.PreviewTime) || 0;
