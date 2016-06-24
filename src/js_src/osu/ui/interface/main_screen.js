@@ -16,8 +16,18 @@ osu.ui.interface.mainscreen = {
     beatmap_keys: [],
     beatmaps: [],
     current_selection: false,
+    beatmap_selection_template: "",
+    replay_selection_template: "",
+    beatmap_section: null,
+    replay_section: null,
+
 
     init: function () {
+        this.beatmap_selection_template = document.getElementById("beatmap_select_template").innerHTML;
+        this.replay_selection_template = document.getElementById("replay_select_template").innerHTML;
+        this.beatmap_section = document.getElementById("song_selection_area");
+        this.replay_section = document.getElementById("replay_select_area");
+
         var self = this;
         database.get_count(database.TABLES.BEATMAPS, function (count) {
             self.beatmap_count = count;
