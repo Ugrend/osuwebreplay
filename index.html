@@ -42,15 +42,15 @@
 
 <script id="beatmap_select_template" type="text/template">
     {{#beatmaps}}
-    <div class="col-xs-offset-5 col-xs-7">
-        <div class="row song_preview_unselected">
-            <img src="{{background}}">
+    <div class="col-xs-offset-5 col-xs-7 beatmap_preview" id="{{md5sum}}">
+        <div class="row song_preview_row song_preview_unselected" >
+            <img src="{{thumbnail_data}}">
             <span class="song_details">
-                <span class="song_name">{{song_title}}</span>
+                <span class="song_name">{{#titleunicode}}{{titleunicode}}{{/titleunicode}}{{^titleunicode}}{{title}}{{/titleunicode}}</span>
                 <br>
-                <span class="song_author">{{artist}} // {{mapped_by}}</span>
+                <span class="song_author">{{#artistunicode}}{{artistunicode}}{{/artistunicode}}{{^artistunicode}}{{artist}}{{/artistunicode}} // {{creator}}</span>
                 <br>
-                <span class="song_version">{{difficulty}}</span>
+                <span class="song_version">{{version}}</span>
                 <br>
                 <span class="song_stars">
                     {{#stars}}

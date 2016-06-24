@@ -11,7 +11,7 @@ osu.beatmaps = osu.beatmaps || {};
 
 osu.beatmaps.BeatmapPreview = class BeatmapPreview {
     constructor(md5sum, callback) {
-        callback = callback || function (self) {};
+        callback = callback || function () {};
         this.loaded = false;
         this.artist = "";
         this.artistunicode = "";
@@ -46,14 +46,14 @@ osu.beatmaps.BeatmapPreview = class BeatmapPreview {
         database.get_data(database.TABLES.BEATMAPS,md5sum, function (r) {
             var beatmap = r.data;
             self.artist = beatmap.artist || "";
-            self.artistunicode = beatmap.artistunicode || "";
+            self.artistunicode = beatmap.artistunicode || null;
             self.beatmapid = beatmap.beatmapid || "";
             self.beatmapsetid = beatmap.beatmapsetid || "";
             self.creator = beatmap.creator || "";
             self.source = beatmap.source || "";
             self.tags = beatmap.tags || "";
             self.title = beatmap.title || "";
-            self.titleunicode = beatmap.titleunicode || "";
+            self.titleunicode = beatmap.titleunicode || null;
             self.version = beatmap.version || "";
             self.song = beatmap.song || "";
             self.preview_song_time = parseInt(beatmap.parsed.general.PreviewTime) || 0;
