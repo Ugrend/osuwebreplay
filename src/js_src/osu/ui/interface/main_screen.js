@@ -20,15 +20,14 @@ osu.ui.interface.mainscreen = {
     replay_selection_template: "",
     beatmap_section_html: null,
     replay_section_html: null,
+    cached_dom: false,
     events_bound: false,
     replays: [],
 
 
+
     init: function () {
-        this.beatmap_selection_template = document.getElementById("beatmap_select_template").innerHTML;
-        this.replay_selection_template = document.getElementById("replay_select_template").innerHTML;
-        this.beatmap_section_html = $("#song_selection_area");
-        this.replay_section_html = $("#replay_select_area");
+        this.cacheDom();
         this.bind_events();
         var self = this;
         database.get_count(database.TABLES.BEATMAPS, function (count) {
@@ -41,6 +40,21 @@ osu.ui.interface.mainscreen = {
         });
         event_handler.on(event_handler.EVENTS.BEATMAP_LOADED,this.on_load_file.bind(this));
         //event_handler.on(event_handler.EVENTS.REPLAY_LOADED, this.on_load_file.bind(this)); // we may not care about a new replay
+
+    },
+    cacheDom: function () {
+        if(!this.cached_dom){
+            this.beatmap_selection_template = document.getElementById("beatmap_select_template").innerHTML;
+            this.replay_selection_template = document.getElementById("replay_select_template").innerHTML;
+            this.beatmap_section_html = $("#song_selection_area");
+            this.replay_section_html = $("#replay_select_area");
+            this.mapped_by = document.getElementById("mapped_by");
+            this.map_length_and_objects = document.getElementById("map_length_and_objects");
+            this.map_object_type_counts = document.getElementById("map_object_type_counts");
+            this.map_difficulty = document.getElementById("map_difficulty");
+            this.map_name = document.getElementById("map_name");
+            this.cached_dom = true;
+        }
 
     },
 
@@ -88,7 +102,10 @@ osu.ui.interface.mainscreen = {
     },
 
     select_beatmap(md5sum){
-        this.replay_section_html.html("");
+        this.replay_section_html.html(""); //clear current replay select
+
+
+
 
         var beatmap = null;
         for(var i = 0; i < this.beatmaps.length ; i++){
@@ -97,6 +114,25 @@ osu.ui.interface.mainscreen = {
                 break;
             }
         }
+
+        this.map_name.innerHTML = Mustache.render("{{source}} "+
+            "({{#artistunicode}}{{artistunicode}}{{/artistunicode}}{{^artistunicode}}{{artist}}{{/artistunicode}}) - "+
+            "{{#titleunicode}}{{titleunicode}}{{/titleunicode}}{{^titleunicode}}{{title}}{{/titleunicode}}  [{{version}}]",beatmap);
+        this.mapped_by.innerHTML = "Mapped by " + beatmap.creator;
+        this.map_length_and_objects.innerHTML =
+            "Length: " + beatmap.length +
+            " BPM: " + beatmap.bpm +
+            " Objects: " + beatmap.objects;
+        this.map_object_type_counts.innerHTML =
+            "Circles: " +  beatmap.circles  +
+            " Sliders: "+  beatmap.sliders  +
+            " Spinners " + beatmap.spinners ;
+        this.map_difficulty.innerHTML =
+            "CS: " + beatmap.circleSize +
+            " AR: " + beatmap.approachRate +
+            " OD: " + beatmap.overallDifficulty +
+            " HP: " + beatmap.HPDrain +
+            " Stars: " + beatmap.stars;
         beatmap.play_song();
         beatmap.load_background();
         var self = this;

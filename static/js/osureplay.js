@@ -1905,15 +1905,14 @@ osu.ui.interface.mainscreen = {
     replay_selection_template: "",
     beatmap_section_html: null,
     replay_section_html: null,
+    cached_dom: false,
     events_bound: false,
     replays: [],
 
 
+
     init: function () {
-        this.beatmap_selection_template = document.getElementById("beatmap_select_template").innerHTML;
-        this.replay_selection_template = document.getElementById("replay_select_template").innerHTML;
-        this.beatmap_section_html = $("#song_selection_area");
-        this.replay_section_html = $("#replay_select_area");
+        this.cacheDom();
         this.bind_events();
         var self = this;
         database.get_count(database.TABLES.BEATMAPS, function (count) {
@@ -1926,6 +1925,21 @@ osu.ui.interface.mainscreen = {
         });
         event_handler.on(event_handler.EVENTS.BEATMAP_LOADED,this.on_load_file.bind(this));
         //event_handler.on(event_handler.EVENTS.REPLAY_LOADED, this.on_load_file.bind(this)); // we may not care about a new replay
+
+    },
+    cacheDom: function () {
+        if(!this.cached_dom){
+            this.beatmap_selection_template = document.getElementById("beatmap_select_template").innerHTML;
+            this.replay_selection_template = document.getElementById("replay_select_template").innerHTML;
+            this.beatmap_section_html = $("#song_selection_area");
+            this.replay_section_html = $("#replay_select_area");
+            this.mapped_by = document.getElementById("mapped_by");
+            this.map_length_and_objects = document.getElementById("map_length_and_objects");
+            this.map_object_type_counts = document.getElementById("map_object_type_counts");
+            this.map_difficulty = document.getElementById("map_difficulty");
+            this.map_name = document.getElementById("map_name");
+            this.cached_dom = true;
+        }
 
     },
 
@@ -1973,7 +1987,10 @@ osu.ui.interface.mainscreen = {
     },
 
     select_beatmap(md5sum){
-        this.replay_section_html.html("");
+        this.replay_section_html.html(""); //clear current replay select
+
+
+
 
         var beatmap = null;
         for(var i = 0; i < this.beatmaps.length ; i++){
@@ -1982,6 +1999,25 @@ osu.ui.interface.mainscreen = {
                 break;
             }
         }
+
+        this.map_name.innerHTML = Mustache.render("{{source}} "+
+            "({{#artistunicode}}{{artistunicode}}{{/artistunicode}}{{^artistunicode}}{{artist}}{{/artistunicode}}) - "+
+            "{{#titleunicode}}{{titleunicode}}{{/titleunicode}}{{^titleunicode}}{{title}}{{/titleunicode}}  [{{version}}]",beatmap);
+        this.mapped_by.innerHTML = "Mapped by " + beatmap.creator;
+        this.map_length_and_objects.innerHTML =
+            "Length: " + beatmap.length +
+            " BPM: " + beatmap.bpm +
+            " Objects: " + beatmap.objects;
+        this.map_object_type_counts.innerHTML =
+            "Circles: " +  beatmap.circles  +
+            " Sliders: "+  beatmap.sliders  +
+            " Spinners " + beatmap.spinners ;
+        this.map_difficulty.innerHTML =
+            "CS: " + beatmap.circleSize +
+            " AR: " + beatmap.approachRate +
+            " OD: " + beatmap.overallDifficulty +
+            " HP: " + beatmap.HPDrain +
+            " Stars: " + beatmap.stars;
         beatmap.play_song();
         beatmap.load_background();
         var self = this;
@@ -2501,7 +2537,9 @@ osu.ui.interface.osugame = {
             }
 
         }
+
         this.audioLeadIn = parseInt(this.beatmap.map_data.general.AudioLeadIn);
+
 
 
         //calculate x,y prior as processing slowly casues it to get out of sync
@@ -2571,6 +2609,21 @@ osu.ui.interface.osugame = {
                 }
 
             }
+        }else{
+            /*TODO: SEEMS IF 3rd object in replaty array if negative you need to 'take' that time away from the replay or DELAY the start of the song by that much (BUT NOT ALL THE TIME)
+             *       However I am not sure if the song already has a audioleadin does it also get taken away or not :S
+             *       All replays do seem to have a negative in this position
+             *       everything will freeze in sync = Positive X,y negative time has audio leadin
+             *       Cold Green Eyes = has skip sequence in sync negative time, positve x,y,
+             *       kabaneri = no audio leadin no skip, positive x,y negative time , OUT OF SYNC by the time set in here (349 MS)
+             *
+             *       Maybe if no audio leadin, no skip , no etc theres a min intro time of 349ms?
+             *          Need to do more testing
+             */
+            if(this.audioLeadIn == 0){
+                this.audioLeadIn = 349;
+            }
+
         }
 
         event_handler.on(event_handler.EVENTS.RENDER, this.move_replay_text.bind(this), "replay_text")
@@ -2710,9 +2763,11 @@ osu.ui.interface.osugame = {
 
             if (next_movment[0] < 0 || next_movment[2] < 0) {
                 /*
-
+                TODO: SEEMS IF 3rd object in array if negative you need to 'take' that time away from the replay or DELAY the start of the song by that much
                  It seems if Y coord is negative it indicates how much time to skip ahead
                  I have had a map replay where it will go
+
+
 
                  8383T , -500Y
 

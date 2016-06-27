@@ -377,7 +377,9 @@ osu.ui.interface.osugame = {
             }
 
         }
+
         this.audioLeadIn = parseInt(this.beatmap.map_data.general.AudioLeadIn);
+
 
 
         //calculate x,y prior as processing slowly casues it to get out of sync
@@ -447,6 +449,21 @@ osu.ui.interface.osugame = {
                 }
 
             }
+        }else{
+            /*TODO: SEEMS IF 3rd object in replaty array if negative you need to 'take' that time away from the replay or DELAY the start of the song by that much (BUT NOT ALL THE TIME)
+             *       However I am not sure if the song already has a audioleadin does it also get taken away or not :S
+             *       All replays do seem to have a negative in this position
+             *       everything will freeze in sync = Positive X,y negative time has audio leadin
+             *       Cold Green Eyes = has skip sequence in sync negative time, positve x,y,
+             *       kabaneri = no audio leadin no skip, positive x,y negative time , OUT OF SYNC by the time set in here (349 MS)
+             *
+             *       Maybe if no audio leadin, no skip , no etc theres a min intro time of 349ms?
+             *          Need to do more testing
+             */
+            if(this.audioLeadIn == 0){
+                this.audioLeadIn = 349;
+            }
+
         }
 
         event_handler.on(event_handler.EVENTS.RENDER, this.move_replay_text.bind(this), "replay_text")
@@ -586,9 +603,11 @@ osu.ui.interface.osugame = {
 
             if (next_movment[0] < 0 || next_movment[2] < 0) {
                 /*
-
+                TODO: SEEMS IF 3rd object in array if negative you need to 'take' that time away from the replay or DELAY the start of the song by that much
                  It seems if Y coord is negative it indicates how much time to skip ahead
                  I have had a map replay where it will go
+
+
 
                  8383T , -500Y
 
