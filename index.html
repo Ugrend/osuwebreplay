@@ -19,14 +19,14 @@
             <div class="row ">
                 <div class="replay_data">
                     <span><img class="replay_avatar" height="64" width="64" src="{{avatar_img}}"></span>
-                    <span><img src="{{grade_img}}"></span>
+                    <span><img src="{{grade_img}}"></span><!--TODO: getImage -->
                             <span class="replay_details">
-                                <span class="replay_player_name">{{player_name}}</span>
+                                <span class="replay_player_name">{{playerName}}</span>
                                 <br/>
-                                <span class="replay_score">Score: {{score}} ({{max_combo}}X)</span>
+                                <span class="replay_score">Score: {{tScore}} ({{tCombo}}X)</span>
                             </span>
 
-                        <span class="replay_mods">{{#mods}}.{{/mods}}<br/>
+                        <span class="replay_mods">{{#mods}}{{code}}{{/mods}}<br/>
                             <span class="replay_accuracy">{{accuracy}}%</span>
                         </span>
 

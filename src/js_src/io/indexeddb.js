@@ -22,6 +22,14 @@ var database = {
 
     }),
 
+    INDEXES: Object.freeze({
+        REPLAYS: {
+            BEATMAP_ID: 'beatmap_id',
+            PLAYER: 'player'
+        }
+
+    }),
+
 
     init: function (onsucess) {
         var self = this;
@@ -116,6 +124,27 @@ var database = {
 
 
         }
+    },
+    get_data_from_index(table, index, param, onsuccess, onerror){
+        var result = [];
+        var key = IDBKeyRange.only(param);
+        var query = this.__db.transaction([table], "readonly").objectStore(table).index(index).openCursor(key)
+            .onsuccess= function (e) {
+            var cursor = e.target.result;
+            if(cursor){
+                result.push(cursor.value);
+                cursor.continue();
+            }else{
+                onsuccess(result);
+            }
+
+        };
+
+
+
+        query.onsuccess = function (e) {
+            onsuccess(e.target.result);
+        };
     },
 
 

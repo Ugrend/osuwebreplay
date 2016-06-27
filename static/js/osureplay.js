@@ -730,6 +730,14 @@ var database = {
 
     }),
 
+    INDEXES: Object.freeze({
+        REPLAYS: {
+            BEATMAP_ID: 'beatmap_id',
+            PLAYER: 'player'
+        }
+
+    }),
+
 
     init: function (onsucess) {
         var self = this;
@@ -824,6 +832,27 @@ var database = {
 
 
         }
+    },
+    get_data_from_index(table, index, param, onsuccess, onerror){
+        var result = [];
+        var key = IDBKeyRange.only(param);
+        var query = this.__db.transaction([table], "readonly").objectStore(table).index(index).openCursor(key)
+            .onsuccess= function (e) {
+            var cursor = e.target.result;
+            if(cursor){
+                result.push(cursor.value);
+                cursor.continue();
+            }else{
+                onsuccess(result);
+            }
+
+        };
+
+
+
+        query.onsuccess = function (e) {
+            onsuccess(e.target.result);
+        };
     },
 
 
@@ -1877,6 +1906,7 @@ osu.ui.interface.mainscreen = {
     beatmap_section_html: null,
     replay_section_html: null,
     events_bound: false,
+    replays: [],
 
 
     init: function () {
@@ -1931,6 +1961,7 @@ osu.ui.interface.mainscreen = {
     },
 
     select_beatmap(md5sum){
+        this.replay_section_html.innerHTML = ""; //clear current replays;
         var beatmap = null;
         for(var i = 0; i < this.beatmaps.length ; i++){
             if(this.beatmaps[i].md5sum == md5sum){
@@ -1940,8 +1971,35 @@ osu.ui.interface.mainscreen = {
         }
         beatmap.play_song();
         beatmap.load_background();
+        var self = this;
+        database.get_data_from_index(database.TABLES.REPLAYS,database.INDEXES.REPLAYS.BEATMAP_ID,beatmap.md5sum, function (replays) {
+            self.replays = replays;
+            replays.sort(function (a,b) {
+                if (a.tScore > b.tScore)
+                    return -1;
+                if (a.tScore < b.tScore)
+                    return 1;
+                //if same score (rare but would happen on easier maps) sort by date played
+                var aDate = new Date(a.time_played);
+                var bDate = new Date(b.time_played);
+                if(aDate > bDate){
+                    return -1;
+                }
+                if(aDate < bDate){
+                    return 1;
+                }
+                return 0;
+            });
+            self.render_replay(self.replays);
+
+        })
 
     },
+    render_replay(replays){
+        var content = Mustache.render(this.replay_selection_template, {replays:replays});
+        this.replay_section_html.append(content);
+    },
+    
     on_beatmap_mouse_enter: function () {
 
     },
