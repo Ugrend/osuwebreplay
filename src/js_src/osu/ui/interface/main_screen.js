@@ -88,7 +88,8 @@ osu.ui.interface.mainscreen = {
     },
 
     select_beatmap(md5sum){
-        this.replay_section_html.innerHTML = ""; //clear current replays;
+        this.replay_section_html.html("");
+
         var beatmap = null;
         for(var i = 0; i < this.beatmaps.length ; i++){
             if(this.beatmaps[i].md5sum == md5sum){
