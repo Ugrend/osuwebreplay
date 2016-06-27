@@ -9,12 +9,12 @@ Just adding this for testing will prob remove
  */
 
 function loadBeatMap(){
-    osu.beatmaps.BeatmapLoader.load(replay.bmMd5Hash, showReplayData, function () {
-    });
+    osu.beatmaps.BeatmapLoader.load(replay.bmMd5Hash, showReplayData);
 }
 
 
 function showReplayData(beatmap){
+    document.getElementById("render_zone").className = "";
     osu.ui.interface.mainscreen.hide_main_screen();
 
     osu.ui.interface.scorescreen.beatmap = beatmap;
