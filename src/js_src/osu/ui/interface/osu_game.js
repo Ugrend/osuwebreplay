@@ -459,6 +459,7 @@ osu.ui.interface.osugame = {
              *
              *       Maybe if no audio leadin, no skip , no etc theres a min intro time of 349ms?
              *          Need to do more testing
+             *          after breaks there might be a negative timer / some replays feel like they lose sync slightly after a  break
              */
             if(this.audioLeadIn == 0){
                 this.audioLeadIn = 349;
