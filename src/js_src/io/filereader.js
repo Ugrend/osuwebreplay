@@ -22,7 +22,7 @@ else {
             if(event.target.readyState === 2){
                         var replay_data = event.target.result;
                         ReplayParser(replay_data, function (replay_data) {
-                            replay = replay_data;
+                            replay = replay_data; //TODO: not be essentially global
                             loadBeatMap();
                         });
             }else{

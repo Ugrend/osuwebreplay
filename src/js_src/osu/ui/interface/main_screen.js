@@ -48,24 +48,36 @@ osu.ui.interface.mainscreen = {
         //init script can be called multiple times if no maps/replays exist
         if(!this.events_bound){
             var self = this;
+            //yuck
             $(this.beatmap_section_html).on("click",".beatmap_preview", function (event) {
                 var parent = $(event.delegateTarget);
+                //make everything unselected
                 parent.find(".song_preview_row").removeClass('song_preview_unselected').removeClass('song_preview_mouseover').removeClass('song_preview_selected').addClass('song_preview_unselected');
+                //resize everything back to unselected size
                 parent.find(".beatmap_preview").removeClass("col-xs-9").removeClass("col-xs-8").removeClass("col-xs-7")
                     .removeClass('col-xs-offset-5').removeClass('col-xs-offset-4').removeClass('col-xs-offset-3')
                     .addClass('col-xs-offset-5').addClass('col-xs-7');
                 var clickedObject = $(this);
                 var md5sum = clickedObject.attr("id");
+
+                //change the clicked object
                 clickedObject.removeClass("col-xs-9").removeClass("col-xs-8").removeClass("col-xs-7")
                     .removeClass('col-xs-offset-5').removeClass('col-xs-offset-4').removeClass('col-xs-offset-3')
                     .addClass('col-xs-offset-3').addClass('col-xs-9');
-                console.log(event);
                 clickedObject.find('.song_preview_row').removeClass('song_preview_unselected').addClass('song_preview_selected');
                 self.select_beatmap(md5sum);
-
-
             });
 
+            $(this.replay_section_html).on("click",".replay_preview", function (event) {
+                var id = $(this).attr('id');
+                for(var i = 0; i < self.replays.length ; i ++){
+                    if(self.replays[i].rMd5Hash == id){
+                        replay = self.replays[i];
+                        break;
+                    }
+                }
+                loadBeatMap();
+            })
 
 
         }
