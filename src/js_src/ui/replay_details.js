@@ -15,6 +15,8 @@ function loadBeatMap(){
 
 
 function showReplayData(beatmap){
+    osu.ui.interface.mainscreen.hide_main_screen();
+
     osu.ui.interface.scorescreen.beatmap = beatmap;
     osu.ui.interface.scorescreen.played_by = replay.playerName;
     osu.ui.interface.scorescreen.date_played = replay.time_played;

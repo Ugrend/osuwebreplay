@@ -125,6 +125,8 @@ function loadBeatMap(){
 
 
 function showReplayData(beatmap){
+    osu.ui.interface.mainscreen.hide_main_screen();
+
     osu.ui.interface.scorescreen.beatmap = beatmap;
     osu.ui.interface.scorescreen.played_by = replay.playerName;
     osu.ui.interface.scorescreen.date_played = replay.time_played;
@@ -2105,11 +2107,14 @@ osu.ui.interface.mainscreen = {
         document.getElementById("loading").className = "hidden";
         document.getElementById("no_beatmaps_replays").className = "hidden";
         document.getElementById("container").className = "";
+        document.getElementById("render_zone").className = "hidden";
         this.loaded = true;
         this.displaying_main_screen = true;
     },
-
-
+    hide_main_screen: function () {
+        document.getElementById("container").className = "hidden";
+        this.remove_background();
+    },
 
     set_background: function (background_data) {
         document.body.style.background = "url("+background_data+") no-repeat center fixed";
@@ -2619,6 +2624,7 @@ osu.ui.interface.osugame = {
              *
              *       Maybe if no audio leadin, no skip , no etc theres a min intro time of 349ms?
              *          Need to do more testing
+             *          after breaks there might be a negative timer / some replays feel like they lose sync slightly after a  break
              */
             if(this.audioLeadIn == 0){
                 this.audioLeadIn = 349;

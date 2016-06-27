@@ -220,11 +220,14 @@ osu.ui.interface.mainscreen = {
         document.getElementById("loading").className = "hidden";
         document.getElementById("no_beatmaps_replays").className = "hidden";
         document.getElementById("container").className = "";
+        document.getElementById("render_zone").className = "hidden";
         this.loaded = true;
         this.displaying_main_screen = true;
     },
-
-
+    hide_main_screen: function () {
+        document.getElementById("container").className = "hidden";
+        this.remove_background();
+    },
 
     set_background: function (background_data) {
         document.body.style.background = "url("+background_data+") no-repeat center fixed";
