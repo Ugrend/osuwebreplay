@@ -1,17 +1,3 @@
-#dragdrop {
-    border: 5px dashed #5e5e5e;
-    width: 90%;
-    height: 90vh;
-    margin: 20px auto;
-    font-size: 50px;
-
-}
-
-#dragdrop>p {
-    position: relative;
-    top: 50%;
-    text-align: center;
-}
 /* main_screen.css */
 
 .replay_area {
