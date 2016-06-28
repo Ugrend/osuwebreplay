@@ -1954,23 +1954,11 @@ osu.ui.interface.mainscreen = {
             //yuck
 
             //On beatmap select click highlight the clicked item, and unhighlight any other items
-            $(this.beatmap_section_html).on("click",".beatmap_preview", function (event) {
-                var parent = $(event.delegateTarget);
-                //make everything unselected
-                parent.find(".song_preview_row").removeClass('song_preview_unselected').removeClass('song_preview_mouseover').removeClass('song_preview_selected').addClass('song_preview_unselected');
-                //resize everything back to unselected size
-                parent.find(".beatmap_preview").removeClass("col-xs-9").removeClass("col-xs-8").removeClass("col-xs-7")
-                    .removeClass('col-xs-offset-5').removeClass('col-xs-offset-4').removeClass('col-xs-offset-3')
-                    .addClass('col-xs-offset-5').addClass('col-xs-7');
+            this.beatmap_section_html.on("click",".beatmap_preview", function (event) {
                 var clickedObject = $(this);
                 var md5sum = clickedObject.attr("id");
-
-                //change the clicked object
-                clickedObject.removeClass("col-xs-9").removeClass("col-xs-8").removeClass("col-xs-7")
-                    .removeClass('col-xs-offset-5').removeClass('col-xs-offset-4').removeClass('col-xs-offset-3')
-                    .addClass('col-xs-offset-3').addClass('col-xs-9');
-                clickedObject.find('.song_preview_row').removeClass('song_preview_unselected').addClass('song_preview_selected');
-                self.select_beatmap(md5sum);
+                self.highlight_beatmap(clickedObject);
+                self.select_beatmap(md5sum, false);
             });
 
             //on replay click open replay
@@ -2004,8 +1992,22 @@ osu.ui.interface.mainscreen = {
 
 
     },
+    highlight_beatmap($beatmapHtml){
+        this.beatmap_section_html.find(".song_preview_row").removeClass('song_preview_unselected').removeClass('song_preview_mouseover').removeClass('song_preview_selected').addClass('song_preview_unselected');
+        //resize everything back to unselected size
+        this.beatmap_section_html.find(".beatmap_preview").removeClass("col-xs-9").removeClass("col-xs-8").removeClass("col-xs-7")
+            .removeClass('col-xs-offset-5').removeClass('col-xs-offset-4').removeClass('col-xs-offset-3')
+            .addClass('col-xs-offset-5').addClass('col-xs-7');
+        $beatmapHtml.removeClass("col-xs-9").removeClass("col-xs-8").removeClass("col-xs-7")
+            .removeClass('col-xs-offset-5').removeClass('col-xs-offset-4').removeClass('col-xs-offset-3')
+            .addClass('col-xs-offset-3').addClass('col-xs-9');
+        $beatmapHtml.find('.song_preview_row').removeClass('song_preview_unselected').addClass('song_preview_selected');
+        $beatmapHtml[0].scrollIntoViewIfNeeded();
 
-    select_beatmap(md5sum){
+    },
+
+
+    select_beatmap(md5sum,highlight_map){
         this.replay_section_html.html(""); //clear current replay select
 
 
@@ -2063,7 +2065,9 @@ osu.ui.interface.mainscreen = {
 
         });
         this.current_selection = beatmap;
-
+        if(highlight_map){
+                this.highlight_beatmap($("#"+md5sum));
+        }
     },
     render_replay(replays){
         var content = Mustache.render(this.replay_selection_template, {replays:replays});
@@ -2133,7 +2137,7 @@ osu.ui.interface.mainscreen = {
         if(!this.current_selection){
             console.log(this.current_selection);
             //select random beatmap
-            this.select_beatmap(this.beatmaps[Math.floor(Math.random()*this.beatmaps.length)].md5sum);
+            this.select_beatmap(this.beatmaps[Math.floor(Math.random()*this.beatmaps.length)].md5sum, true);
         }else{
             this.current_selection.load_background();
         }
