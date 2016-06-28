@@ -226,7 +226,8 @@ osu.ui.interface.mainscreen = {
         this.loaded = true;
         this.displaying_main_screen = true;
         if(!this.current_selection){
-            this.select_beatmap(this.beatmaps[Math.floor(Math.random()*this.beatmaps.length)].md5sum)
+            //select random beatmap
+            this.select_beatmap(this.beatmaps[Math.floor(Math.random()*this.beatmaps.length)].md5sum);
         }
     },
     hide_main_screen: function () {
