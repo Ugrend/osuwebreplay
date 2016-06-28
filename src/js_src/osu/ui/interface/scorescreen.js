@@ -300,10 +300,27 @@ osu.ui.interface.scorescreen = {
         replay_Sprite.anchor.set(0.5);
         replay_Sprite.interactive = true;
         replay_Sprite.on("mouseup", this.start_replay.bind(this));
+
+
+        var backpng = PIXI.Texture.fromImage(osu.skins.menu_back);
+        var back_Sprite = new PIXI.Sprite(backpng);
+        back_Sprite.position.x = this.getRenderWidth() *.1;
+        back_Sprite.position.y = this.getRenderHeight() *.9;
+        back_Sprite.interactive = true;
+        back_Sprite.width = this.getRenderWidth() *.2;
+        back_Sprite.height = this.getRenderHeight() *.2;
+        back_Sprite.anchor.set(0.5);
+        back_Sprite.on("mouseup", this.exit.bind(this));
+
         this.master_container.addChild(gradeSprite);
         this.master_container.addChild(replay_Sprite);
+        this.master_container.addChild(back_Sprite);
 
     },
+    exit: function () {
+        osu.ui.interface.mainscreen.show_main_screen();
+    },
+
     start_replay: function(){
         osu.audio.music.stop();
         osu.audio.music.preview_screen = false;

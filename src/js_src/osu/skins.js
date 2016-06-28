@@ -40,7 +40,8 @@ osu.skins = {
 
 
     //Interface
-    pause_replay: "data/Pause-replay.png",
+    pause_replay: "data/pause-replay.png",
+    menu_back: "data/menu-back.png",
 
     cursor: "data/cursor.png",
     cursortrail: "data/cursortrail.png",

@@ -52,7 +52,8 @@ osu.skins = {
 
 
     //Interface
-    pause_replay: "data/Pause-replay.png",
+    pause_replay: "data/pause-replay.png",
+    menu_back: "data/menu-back.png",
 
     cursor: "data/cursor.png",
     cursortrail: "data/cursortrail.png",
@@ -2001,7 +2002,6 @@ osu.ui.interface.mainscreen = {
                 break;
             }
         }
-        this.current_selection = md5sum;
 
         this.map_name.innerHTML = Mustache.render("{{source}} "+
             "({{#artistunicode}}{{artistunicode}}{{/artistunicode}}{{^artistunicode}}{{artist}}{{/artistunicode}}) - "+
@@ -2043,9 +2043,10 @@ osu.ui.interface.mainscreen = {
                 return 0;
             });
             self.render_replay(self.replays);
-            this.current_selection = md5sum;
 
-        })
+
+        });
+        this.current_selection = beatmap;
 
     },
     render_replay(replays){
@@ -2112,8 +2113,13 @@ osu.ui.interface.mainscreen = {
         document.getElementById("render_zone").className = "hidden";
         this.loaded = true;
         this.displaying_main_screen = true;
+        console.log(this.current_selection);
         if(!this.current_selection){
-            this.select_beatmap(this.beatmaps[Math.floor(Math.random()*this.beatmaps.length)].md5sum)
+            console.log(this.current_selection);
+            //select random beatmap
+            this.select_beatmap(this.beatmaps[Math.floor(Math.random()*this.beatmaps.length)].md5sum);
+        }else{
+            this.current_selection.load_background();
         }
     },
     hide_main_screen: function () {
@@ -3165,10 +3171,27 @@ osu.ui.interface.scorescreen = {
         replay_Sprite.anchor.set(0.5);
         replay_Sprite.interactive = true;
         replay_Sprite.on("mouseup", this.start_replay.bind(this));
+
+
+        var backpng = PIXI.Texture.fromImage(osu.skins.menu_back);
+        var back_Sprite = new PIXI.Sprite(backpng);
+        back_Sprite.position.x = this.getRenderWidth() *.1;
+        back_Sprite.position.y = this.getRenderHeight() *.9;
+        back_Sprite.interactive = true;
+        back_Sprite.width = this.getRenderWidth() *.2;
+        back_Sprite.height = this.getRenderHeight() *.2;
+        back_Sprite.anchor.set(0.5);
+        back_Sprite.on("mouseup", this.exit.bind(this));
+
         this.master_container.addChild(gradeSprite);
         this.master_container.addChild(replay_Sprite);
+        this.master_container.addChild(back_Sprite);
 
     },
+    exit: function () {
+        osu.ui.interface.mainscreen.show_main_screen();
+    },
+
     start_replay: function(){
         osu.audio.music.stop();
         osu.audio.music.preview_screen = false;
