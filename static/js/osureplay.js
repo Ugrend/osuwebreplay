@@ -251,7 +251,8 @@ var event_handler = {
         RENDER:10,
         UNKNOWN_FILE_ERROR:11,
         INVALID_FILE: 12,
-        BEATMAP_SELECTED: 13
+        BEATMAP_SELECTED: 13,
+        STOP_REPLAY: 14,
     }),
 
     __events: {},
@@ -1951,6 +1952,8 @@ osu.ui.interface.mainscreen = {
         if(!this.events_bound){
             var self = this;
             //yuck
+
+            //On beatmap select click highlight the clicked item, and unhighlight any other items
             $(this.beatmap_section_html).on("click",".beatmap_preview", function (event) {
                 var parent = $(event.delegateTarget);
                 //make everything unselected
@@ -1970,6 +1973,7 @@ osu.ui.interface.mainscreen = {
                 self.select_beatmap(md5sum);
             });
 
+            //on replay click open replay
             $(this.replay_section_html).on("click",".replay_preview", function (event) {
                 var id = $(this).attr('id');
                 for(var i = 0; i < self.replays.length ; i ++){
@@ -1979,9 +1983,21 @@ osu.ui.interface.mainscreen = {
                     }
                 }
                 loadBeatMap();
-            })
+            });
 
+            //Escape out of replay back to main screen
+            document.onkeyup = function (e) {
+                e = e || window.event;
+                //27 is Escape
+                if(e.keyCode == 27){
+                    if(self.loaded && !self.displaying_main_screen){
+                        //if a replay is playing we can stop it
+                        event_handler.emit(event_handler.EVENTS.STOP_REPLAY);
+                        self.show_main_screen();
+                    }
+                }
 
+            }
         }
 
         this.events_bound = true;
@@ -2124,6 +2140,7 @@ osu.ui.interface.mainscreen = {
     },
     hide_main_screen: function () {
         document.getElementById("container").className = "hidden";
+        this.displaying_main_screen = false;
         this.remove_background();
     },
 

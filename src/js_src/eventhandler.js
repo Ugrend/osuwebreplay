@@ -17,7 +17,8 @@ var event_handler = {
         RENDER:10,
         UNKNOWN_FILE_ERROR:11,
         INVALID_FILE: 12,
-        BEATMAP_SELECTED: 13
+        BEATMAP_SELECTED: 13,
+        STOP_REPLAY: 14,
     }),
 
     __events: {},
