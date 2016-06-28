@@ -356,7 +356,7 @@ osu.ui.interface.scorescreen = {
         osu.ui.renderer.clearStage();
         osu.ui.renderer.addChild(this.master_container);
 
-        osu.audio.music.init(this.beatmap.song);
+        osu.audio.music.init(this.beatmap.song, this.beatmap.song_md5sum);
         osu.audio.music.preview_screen = true;
         osu.audio.music.preview_time = this.beatmap.map_data.general.PreviewTime / 1000;
         osu.audio.music.start();

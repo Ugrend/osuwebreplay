@@ -9,12 +9,20 @@ osu.audio.music =  {
     preview_screen: false,
     preview_time: 0,
     __audio: new Audio(),
+    md5sum: "",
+    playing: false,
 
-    init: function (src) {
-        this.__audio.pause();
-        this.__audio.src = src;
+    init: function (src, md5sum) {
+        //only start again
+        if(md5sum != this.md5sum){
+            this.md5sum = md5sum;
+            this.__audio.pause();
+            this.__audio.src = src;
+            this.__audio.volume = 0.2;
+            this.playing = false;
+        }
         this.__audio.onended = this.repeat.bind(this);
-        this.__audio.volume = 0.2;
+
     },
 
     stop: function () {
@@ -24,8 +32,12 @@ osu.audio.music =  {
 
     start: function(){
         if(this.preview_screen){
-            this.__audio.currentTime = this.preview_time;
-            this.__audio.play();
+            if(!this.playing){
+                this.__audio.currentTime = this.preview_time;
+                this.__audio.play();
+                this.playing = true;
+            }
+
         }
         else{
             this.__audio.currentTime = 0;
@@ -43,6 +55,7 @@ osu.audio.music =  {
 
     repeat: function () {
         if(this.preview_screen){
+            this.playing = false;
             this.start();
         }
 

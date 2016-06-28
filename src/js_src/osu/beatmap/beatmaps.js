@@ -80,7 +80,7 @@ osu.beatmaps.BeatmapPreview = class BeatmapPreview {
         database.get_data(database.TABLES.ASSETS, this.song, function (r) {
             osu.audio.music.preview_time = preview_time / 1000;
             osu.audio.music.preview_screen = true;
-            osu.audio.music.init(r.data);
+            osu.audio.music.init(r.data,r.md5sum);
             osu.audio.music.start();
         });
     }
@@ -114,6 +114,7 @@ osu.beatmaps.BeatmapLoader = {
             this.required_files = [];
             this.assets = [];
             this.song = "";
+            this.song_md5sum = "";
             this.__beatmap = "";
             this.__files_needed = [];
             this.background = "";
@@ -195,7 +196,8 @@ osu.beatmaps.BeatmapLoader = {
         },
 
         __process_beatmap: function () {
-            this.song = this.__get_asset_from_md5(this.__lookup_file_md5(this.map_data.general.AudioFilename));
+            this.song_md5sum =this.__lookup_file_md5(this.map_data.general.AudioFilename)
+            this.song = this.__get_asset_from_md5(this.song_md5sum);
             this.background = this.__get_asset_from_md5(this.__lookup_file_md5(this.map_data.events[0][2].replace(/"/g, '')));
             this.map_name = this.map_data.metadata.Artist + " - " + this.map_data.metadata.Title + " [" + this.map_data.metadata.Version + "]";
             this.author = this.map_data.metadata.Creator;

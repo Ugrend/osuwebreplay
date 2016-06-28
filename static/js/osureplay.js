@@ -1049,12 +1049,20 @@ osu.audio.music =  {
     preview_screen: false,
     preview_time: 0,
     __audio: new Audio(),
+    md5sum: "",
+    playing: false,
 
-    init: function (src) {
-        this.__audio.pause();
-        this.__audio.src = src;
+    init: function (src, md5sum) {
+        //only start again
+        if(md5sum != this.md5sum){
+            this.md5sum = md5sum;
+            this.__audio.pause();
+            this.__audio.src = src;
+            this.__audio.volume = 0.2;
+            this.playing = false;
+        }
         this.__audio.onended = this.repeat.bind(this);
-        this.__audio.volume = 0.2;
+
     },
 
     stop: function () {
@@ -1064,8 +1072,12 @@ osu.audio.music =  {
 
     start: function(){
         if(this.preview_screen){
-            this.__audio.currentTime = this.preview_time;
-            this.__audio.play();
+            if(!this.playing){
+                this.__audio.currentTime = this.preview_time;
+                this.__audio.play();
+                this.playing = true;
+            }
+
         }
         else{
             this.__audio.currentTime = 0;
@@ -1083,6 +1095,7 @@ osu.audio.music =  {
 
     repeat: function () {
         if(this.preview_screen){
+            this.playing = false;
             this.start();
         }
 
@@ -1202,7 +1215,7 @@ osu.beatmaps.BeatmapPreview = class BeatmapPreview {
         database.get_data(database.TABLES.ASSETS, this.song, function (r) {
             osu.audio.music.preview_time = preview_time / 1000;
             osu.audio.music.preview_screen = true;
-            osu.audio.music.init(r.data);
+            osu.audio.music.init(r.data,r.md5sum);
             osu.audio.music.start();
         });
     }
@@ -1236,6 +1249,7 @@ osu.beatmaps.BeatmapLoader = {
             this.required_files = [];
             this.assets = [];
             this.song = "";
+            this.song_md5sum = "";
             this.__beatmap = "";
             this.__files_needed = [];
             this.background = "";
@@ -1317,7 +1331,8 @@ osu.beatmaps.BeatmapLoader = {
         },
 
         __process_beatmap: function () {
-            this.song = this.__get_asset_from_md5(this.__lookup_file_md5(this.map_data.general.AudioFilename));
+            this.song_md5sum =this.__lookup_file_md5(this.map_data.general.AudioFilename)
+            this.song = this.__get_asset_from_md5(this.song_md5sum);
             this.background = this.__get_asset_from_md5(this.__lookup_file_md5(this.map_data.events[0][2].replace(/"/g, '')));
             this.map_name = this.map_data.metadata.Artist + " - " + this.map_data.metadata.Title + " [" + this.map_data.metadata.Version + "]";
             this.author = this.map_data.metadata.Creator;
@@ -3248,7 +3263,7 @@ osu.ui.interface.scorescreen = {
         osu.ui.renderer.clearStage();
         osu.ui.renderer.addChild(this.master_container);
 
-        osu.audio.music.init(this.beatmap.song);
+        osu.audio.music.init(this.beatmap.song, this.beatmap.song_md5sum);
         osu.audio.music.preview_screen = true;
         osu.audio.music.preview_time = this.beatmap.map_data.general.PreviewTime / 1000;
         osu.audio.music.start();
