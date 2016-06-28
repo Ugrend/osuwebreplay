@@ -2001,6 +2001,7 @@ osu.ui.interface.mainscreen = {
                 break;
             }
         }
+        this.current_selection = md5sum;
 
         this.map_name.innerHTML = Mustache.render("{{source}} "+
             "({{#artistunicode}}{{artistunicode}}{{/artistunicode}}{{^artistunicode}}{{artist}}{{/artistunicode}}) - "+
@@ -2042,6 +2043,7 @@ osu.ui.interface.mainscreen = {
                 return 0;
             });
             self.render_replay(self.replays);
+            this.current_selection = md5sum;
 
         })
 
@@ -2110,6 +2112,9 @@ osu.ui.interface.mainscreen = {
         document.getElementById("render_zone").className = "hidden";
         this.loaded = true;
         this.displaying_main_screen = true;
+        if(!this.current_selection){
+            this.select_beatmap(this.beatmaps[Math.floor(Math.random()*this.beatmaps.length)].md5sum)
+        }
     },
     hide_main_screen: function () {
         document.getElementById("container").className = "hidden";
