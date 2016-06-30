@@ -1061,6 +1061,7 @@ osu.audio.music =  {
             this.__audio.volume = 0.2;
             this.playing = false;
         }
+        this.set_playback_speed(1);//reset playback speed if was playing DT/HT
         this.__audio.onended = this.repeat.bind(this);
 
     },
@@ -1091,6 +1092,10 @@ osu.audio.music =  {
 
     play: function(){
         this.__audio.play()
+    },
+    set_playback_speed: function (rate) {
+        this.__audio.playbackRate = rate;
+
     },
 
     repeat: function () {
@@ -2516,14 +2521,19 @@ osu.ui.interface.osugame = {
         this.hit_objects = [];
         this.oldest_object_position = 0;
         this.warning_arrow_times = [];
-        var is_hidden = false;
-        var is_hardrock = false;
-        var is_easy = false;
+        this.is_hidden = false;
+        this.is_hardrock = false;
+        this.is_easy = false;
+        this.is_halftime = false;
+        this.is_doubletime = false;
         for (var i = 0; i < this.mods.length; i++) {
             var mod = this.mods[i].code;
-            if (mod == "HD") is_hidden = true;
-            if (mod == "HR") is_hardrock = true;
-            if (mod == "EZ") is_easy = true;
+            if (mod == "HD") this.is_hidden = true;
+            if (mod == "HR") this.is_hardrock = true;
+            if (mod == "EZ") this.is_easy = true;
+            if (mod == "DT" || mod == "NT") this.is_doubletime = true;
+            if (mod == "HT") this.is_halftime = true;
+
         }
 
         for (i = 0; i < this.beatmap.map_data.events.length; i++) {
@@ -2536,16 +2546,16 @@ osu.ui.interface.osugame = {
         var comboNum = 0;
         var comboColour = 0;
         var approachRate = parseInt(this.beatmap.map_data.difficulty.ApproachRate);
-        if(is_hardrock){
+        if(this.is_hardrock){
             approachRate = approachRate * 1.4;
             if(approachRate > 10) approachRate = 10;
         }
-        if(is_easy) approachRate = approachRate/2;
+        if(this.is_easy) approachRate = approachRate/2;
 
 
         var difficultyCircleSize = parseInt(this.beatmap.map_data.difficulty.CircleSize);
-        if(is_hardrock && difficultyCircleSize <7) difficultyCircleSize +=1;
-        if(is_easy && difficultyCircleSize > 1) difficultyCircleSize -=1; //TODO: work out if that's correct
+        if(this.is_hardrock && difficultyCircleSize <7) difficultyCircleSize +=1;
+        if(this.is_easy && difficultyCircleSize > 1) difficultyCircleSize -=1; //TODO: work out if that's correct
         var circleSize = (this.getRenderWidth() / 640) * (108.848 - (difficultyCircleSize * 8.9646));
 
         this.approachTime = 0;
@@ -2554,6 +2564,7 @@ osu.ui.interface.osugame = {
         } else {
             this.approachTime = (1200 - ((approachRate - 5) * 150));
         }
+        if(this.is_doubletime) this.approachTime =  this.approachTime - (this.approachTime * .33);
 
         for (i = 0; i < this.beatmap.map_data.hit_objects.length; i++) {
             var hitObjectInt = parseInt(this.beatmap.map_data.hit_objects[i][3]);
@@ -2580,19 +2591,19 @@ osu.ui.interface.osugame = {
             if (is_circle|| is_slider) {
                 var x = this.calculate_x(parseInt(this.beatmap.map_data.hit_objects[i][0]));
                 var y = parseInt(this.beatmap.map_data.hit_objects[i][1]);
-                if(is_hardrock) y = 384 - y;
+                if(this.is_hardrock) y = 384 - y;
                 y = this.calculate_y(y);
                 var t = parseInt(this.beatmap.map_data.hit_objects[i][2]);
                 if (is_circle) {
                     this.hit_objects.push({
                         t: t,
-                        object: new Circle(this.hit_object_container, is_hidden, x, y, this.approachTime, t, circleSize, osu.skins.COMBO_COLOURS[comboColour], comboNum)
+                        object: new Circle(this.hit_object_container, this.is_hidden, x, y, this.approachTime, t, circleSize, osu.skins.COMBO_COLOURS[comboColour], comboNum)
                     });
                 }
                 if(is_slider){
                     this.hit_objects.push({
                         t: t,
-                        object: new osu.objects.sliders.Slider(this,this.hit_object_container, is_hidden, x, y, this.approachTime, t, circleSize, osu.skins.COMBO_COLOURS[comboColour], comboNum,this.beatmap.map_data.hit_objects[i].slice(5))
+                        object: new osu.objects.sliders.Slider(this,this.hit_object_container, this.is_hidden, x, y, this.approachTime, t, circleSize, osu.skins.COMBO_COLOURS[comboColour], comboNum,this.beatmap.map_data.hit_objects[i].slice(5))
                     });
 
 
@@ -2781,6 +2792,7 @@ osu.ui.interface.osugame = {
     game_loop: function () {
         //TODO: check if i need to do something with replays also
         if (!this.has_started && this.audioLeadIn == 0) {
+            if(this.is_doubletime) osu.audio.music.set_playback_speed(1.5);
             osu.audio.music.start();
             this.date_started = Date.now();
             this.has_started = true;

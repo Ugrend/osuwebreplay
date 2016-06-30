@@ -21,6 +21,7 @@ osu.audio.music =  {
             this.__audio.volume = 0.2;
             this.playing = false;
         }
+        this.set_playback_speed(1);//reset playback speed if was playing DT/HT
         this.__audio.onended = this.repeat.bind(this);
 
     },
@@ -51,6 +52,10 @@ osu.audio.music =  {
 
     play: function(){
         this.__audio.play()
+    },
+    set_playback_speed: function (rate) {
+        this.__audio.playbackRate = rate;
+
     },
 
     repeat: function () {
