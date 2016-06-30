@@ -305,12 +305,13 @@ osu.ui.interface.osugame = {
         this.oldest_object_position = 0;
         this.warning_arrow_times = [];
         var is_hidden = false;
+        var is_hardrock = false;
+        var is_easy = false;
         for (var i = 0; i < this.mods.length; i++) {
-            if (this.mods[i].code = "HD") {
-                is_hidden = true;
-                break;
-            }
-
+            var mod = this.mods[i].code;
+            if (mod == "HD") is_hidden = true;
+            if (mod == "HR") is_hardrock = true;
+            if (mod == "EZ") is_easy = true;
         }
 
         for (i = 0; i < this.beatmap.map_data.events.length; i++) {
@@ -323,7 +324,17 @@ osu.ui.interface.osugame = {
         var comboNum = 0;
         var comboColour = 0;
         var approachRate = parseInt(this.beatmap.map_data.difficulty.ApproachRate);
-        var circleSize = (this.getRenderWidth() / 640) * (108.848 - (parseInt(this.beatmap.map_data.difficulty.CircleSize) * 8.9646));
+        if(is_hardrock){
+            approachRate = approachRate * 1.4;
+            if(approachRate > 10) approachRate = 10;
+        }
+        if(is_easy) approachRate = approachRate/2;
+
+
+        var difficultyCircleSize = parseInt(this.beatmap.map_data.difficulty.CircleSize);
+        if(is_hardrock && difficultyCircleSize <7) difficultyCircleSize +=1;
+        if(is_easy && difficultyCircleSize > 1) difficultyCircleSize -=1; //TODO: work out if that's correct
+        var circleSize = (this.getRenderWidth() / 640) * (108.848 - (difficultyCircleSize * 8.9646));
 
         this.approachTime = 0;
         if (approachRate < 5) {
@@ -356,7 +367,9 @@ osu.ui.interface.osugame = {
 
             if (is_circle|| is_slider) {
                 var x = this.calculate_x(parseInt(this.beatmap.map_data.hit_objects[i][0]));
-                var y = this.calculate_y(parseInt(this.beatmap.map_data.hit_objects[i][1]));
+                var y = parseInt(this.beatmap.map_data.hit_objects[i][1]);
+                if(is_hardrock) y = 384 - y;
+                y = this.calculate_y(y);
                 var t = parseInt(this.beatmap.map_data.hit_objects[i][2]);
                 if (is_circle) {
                     this.hit_objects.push({

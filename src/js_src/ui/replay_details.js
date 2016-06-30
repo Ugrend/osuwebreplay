@@ -16,7 +16,7 @@ function loadBeatMap(){
 function showReplayData(beatmap){
     document.getElementById("render_zone").className = "";
     osu.ui.interface.mainscreen.hide_main_screen();
-
+    osu.ui.interface.scorescreen.mods = replay.mods;
     osu.ui.interface.scorescreen.beatmap = beatmap;
     osu.ui.interface.scorescreen.played_by = replay.playerName;
     osu.ui.interface.scorescreen.date_played = replay.time_played;

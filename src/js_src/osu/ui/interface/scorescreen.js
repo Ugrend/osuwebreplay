@@ -326,6 +326,7 @@ osu.ui.interface.scorescreen = {
         osu.audio.music.preview_screen = false;
         osu.ui.interface.osugame.replay_data = replay.replayData;
         osu.ui.interface.osugame.beatmap = this.beatmap;
+        osu.ui.interface.osugame.mods = this.mods;
         osu.ui.interface.osugame.replay_played_by_text = "REPLAY MODE - Watching " + replay.playerName + " play " + this.beatmap.map_name;
         osu.ui.interface.osugame.initGame();
         osu.ui.interface.osugame.game_loop();
