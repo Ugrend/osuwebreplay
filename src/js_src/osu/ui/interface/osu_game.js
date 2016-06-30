@@ -322,8 +322,15 @@ osu.ui.interface.osugame = {
         for (i = 0; i < this.beatmap.map_data.events.length; i++) {
             //2 looks to be breaks
             if (this.beatmap.map_data.events[i][0] == "2") {
-                this.break_times.push(parseInt(this.beatmap.map_data.events[i][1]));
-                this.warning_arrow_times.push(parseInt(this.beatmap.map_data.events[i][2]) - 2300);
+                var startTime = parseInt(this.beatmap.map_data.events[i][1]);
+                var endTime = parseInt(this.beatmap.map_data.events[i][2]) - 2300
+                if(this.is_doubletime){
+                    startTime = startTime *.667;
+                    endTime = endTime *.667;
+                }
+
+                this.break_times.push(startTime);
+                this.warning_arrow_times.push(endTime);
             }
         }
         var comboNum = 0;
@@ -377,6 +384,7 @@ osu.ui.interface.osugame = {
                 if(this.is_hardrock) y = 384 - y;
                 y = this.calculate_y(y);
                 var t = parseInt(this.beatmap.map_data.hit_objects[i][2]);
+                if(this.is_doubletime) t = t*.667;
                 if (is_circle) {
                     this.hit_objects.push({
                         t: t,
@@ -409,6 +417,10 @@ osu.ui.interface.osugame = {
                 if (this.replay_data[i].length == 4) {
                     this.replay_data[i][1] = this.calculate_x(this.replay_data[i][1]);
                     this.replay_data[i][2] = this.calculate_y(this.replay_data[i][2]);
+                    if(this.is_doubletime){
+                        //seems replay data also needs to be speed up
+                        this.replay_data[i][0] = this.replay_data[i][0] *.667
+                    }
                 }
             }
             replay.been_rendered = true;
