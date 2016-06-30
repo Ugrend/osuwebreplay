@@ -17,7 +17,11 @@ osu.objects.sliders = {
             if(slider_type == osu.objects.sliders.TYPES.LINEAR){
                 var draw_to_point = slider_points[1].split(':');
                 var final_x = game.calculate_x(draw_to_point[0]);
-                var final_y = game.calculate_y(draw_to_point[1]);
+
+                var final_y = draw_to_point[1];
+                if(game.is_hardrock) final_y = 384 - final_y;
+                var final_y = game.calculate_y(final_y);
+
                 this.sliderGraphics.moveTo(x, y);
                 this.sliderGraphics.bezierCurveTo(final_x,final_y,final_x,final_y,final_x,final_y);
             }

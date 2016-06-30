@@ -406,7 +406,7 @@ osu.ui.interface.osugame = {
         }
 
         this.audioLeadIn = parseInt(this.beatmap.map_data.general.AudioLeadIn);
-
+        if(this.is_doubletime) this.audioLeadIn = this.audioLeadIn *.667
 
 
         //calculate x,y prior as processing slowly casues it to get out of sync
@@ -493,11 +493,18 @@ osu.ui.interface.osugame = {
              *
              *       FREEDOMDIVE , no audio leadin, no skip , no etc, setting intro time of 349ms CAUSED OUT OF SYNC by 349MS
              *       NEED TO LOAD NEGATIVE FROM REPLAY NOT FORCE 349ms
-             *         
+             *
+             *         Replay data must have something with break data in it soemwhere, everything will freeze- time freeze seems to get slightly out of sync after a break
+             *         however insane difficulty with DT, on the break the replay gets WAY WAY out of sync and ends up being way way way ahead of the song
+             *         Watching side by side with real game, the beatmap itself seems in sync, its the replay that breaks
+             *
+             *         Skips are completly broken with DT
+             *
              */
             if(this.replay_data[2][0] < 0){
                 if(this.audioLeadIn == 0){
                     this.audioLeadIn = this.replay_data[2][0] * -1;
+                    if(this.is_doubletime) this.audioLeadIn = this.audioLeadIn *.667;
                 }
 
             }
