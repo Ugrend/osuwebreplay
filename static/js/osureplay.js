@@ -2675,7 +2675,7 @@ osu.ui.interface.osugame = {
 
             }
         }else{
-            /*TODO: SEEMS IF 3rd object in replaty array if negative you need to 'take' that time away from the replay or DELAY the start of the song by that much (BUT NOT ALL THE TIME)
+            /*TODO: SEEMS IF 3rd object in replay array if negative you need to 'take' that time away from the replay or DELAY the start of the song by that much (BUT NOT ALL THE TIME)
              *       However I am not sure if the song already has a audioleadin does it also get taken away or not :S
              *       All replays do seem to have a negative in this position
              *       everything will freeze in sync = Positive X,y negative time has audio leadin
@@ -2683,12 +2683,19 @@ osu.ui.interface.osugame = {
              *       kabaneri = no audio leadin no skip, positive x,y negative time , OUT OF SYNC by the time set in here (349 MS)
              *
              *       Maybe if no audio leadin, no skip , no etc theres a min intro time of 349ms?
-             *          Need to do more testing
+             *          THIS IS NOT THE CASE
+             *
+             *       FREEDOMDIVE , no audio leadin, no skip , no etc, setting intro time of 349ms CAUSED OUT OF SYNC by 349MS
+             *       NEED TO LOAD NEGATIVE FROM REPLAY NOT FORCE 349ms
              *         
              */
-            if(this.audioLeadIn == 0){
-                this.audioLeadIn = 349;
+            if(this.replay_data[2][0] < 0){
+                if(this.audioLeadIn == 0){
+                    this.audioLeadIn = this.replay_data[2][0] * -1;
+                }
+
             }
+
 
         }
 
