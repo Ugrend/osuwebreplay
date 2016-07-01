@@ -2463,12 +2463,27 @@ osu.ui.interface.osugame = {
         this.replay_text.x = this.getRenderWidth() / 2;
         this.master_container.addChild(this.replay_text);
     },
+    create_mod_container: function () {
+        for(var i = 0; i < this.mods.length ; i++ ){
+            if(this.mods[i].icon != ""){
+                console.log(this.mods[i]);
+                var modpng = PIXI.Texture.fromImage(osu.skins[this.mods[i].icon]);
+                var modSprite = new PIXI.Sprite(modpng);
+                modSprite.position.y = this.getRenderHeight() / 5;
+                modSprite.position.x = (this.getRenderWidth() *.95) - (i*50);
+                modSprite.anchor.set(0.5);
+                this.master_container.addChild(modSprite);
+            }
+        }
+    },
+
 
     create_master_container: function () {
         this.hit_object_container = new PIXI.Container();
 
         this.create_background();
         this.create_key_press();
+        this.create_mod_container();
         this.create_replay_by_text();
         this.master_container.addChild(this.hit_object_container);
         this.create_skip_container();
