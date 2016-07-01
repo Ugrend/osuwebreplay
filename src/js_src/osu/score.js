@@ -35,7 +35,7 @@ osu.score = {
      * @param hMisses {Number}
      * @returns
      */
-    getGrade: function(h300,h100,h50,hMisses){
+    getGrade: function(h300,h100,h50,hMisses,mods){
         /*
          SS = 100% Accuracy
          S = Over 90% 300s, less than 1% 50s and no misses.
@@ -51,15 +51,23 @@ osu.score = {
          Silver S (SH) = Normal grade S with 'hidden' and/or 'flashlight' mod.
 
          */
+        var is_silver = false;
+        for(var i =0; i < mods.length ; i++){
+            if(mods[i].code == "FL" || mods[i].code == "HD"){
+                is_silver = true;
+            }
+        }
+
+
         var total_hits =  h300 + h100 + h50 + hMisses;
         if(h300 == total_hits){
-            return this.GRADES.SS
+            if(is_silver) return this.GRADES.SSH;else return this.GRADES.SS
         }
         if((h300/total_hits)*100 > 90) {
             if (hMisses > 0 || (h50 / total_hits) * 100 > 1) {
                 return this.GRADES.A;
             }
-            return this.GRADES.S;
+             if(is_silver) return this.GRADES.SH; else return this.GRADES.S;
         }
         if((h300/total_hits)*100 > 80) {
             if (hMisses > 0) {

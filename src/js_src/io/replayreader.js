@@ -103,7 +103,7 @@ var ReplayParser = function(replay_data, callback){
     replay.time_played = date_time.toLocaleString();
 
 
-    replay.grade = osu.score.getGrade(replay.h300, replay.h100, replay.h50,replay.hMisses).name;
+    replay.grade = osu.score.getGrade(replay.h300, replay.h100, replay.h50,replay.hMisses, replay.mods).name;
     replay.accuracy = osu.score.getAccuracy(replay.h300, replay.h100, replay.h50,replay.hMisses);
 
     replay.been_rendered = false;
