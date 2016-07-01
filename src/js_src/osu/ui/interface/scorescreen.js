@@ -291,6 +291,9 @@ osu.ui.interface.scorescreen = {
         gradeSprite.anchor.set(0.5);
 
 
+
+
+
         var replaypng = PIXI.Texture.fromImage(osu.skins.pause_replay);
         var replay_Sprite = new PIXI.Sprite(replaypng);
         replay_Sprite.position.x = this.getRenderWidth() *.8;
@@ -313,6 +316,17 @@ osu.ui.interface.scorescreen = {
         back_Sprite.on("mouseup", this.exit.bind(this));
 
         this.master_container.addChild(gradeSprite);
+        for(var i = 0; i < this.mods.length ; i++ ){
+            if(this.mods[i].icon != ""){
+                var modpng = PIXI.Texture.fromImage(osu.skins[this.mods[i].icon]);
+                var modSprite = new PIXI.Sprite(modpng);
+                modSprite.position.y = this.getRenderHeight() *.7;
+                modSprite.position.x = (this.getRenderWidth() *.9) - (i*50);
+                modSprite.anchor.set(0.5);
+                this.master_container.addChild(modSprite);
+            }
+        }
+
         this.master_container.addChild(replay_Sprite);
         this.master_container.addChild(back_Sprite);
 
