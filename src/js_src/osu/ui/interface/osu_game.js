@@ -48,6 +48,7 @@ osu.ui.interface.osugame = {
     break_times: [],
     replay_played_by_text: "",
     hit_objects: [],
+    events_bound: false,
 
 
     getRenderWidth: function () {
@@ -57,21 +58,34 @@ osu.ui.interface.osugame = {
     getRenderHeight: function () {
         return osu.ui.renderer.renderHeight;
     },
+    create_dimmer: function () {
+
+
+        this.background_dimmer = this.background_dimmer || new PIXI.Container();
+        this.background_dimmer.removeChildren();
+        var dimmer = new PIXI.Graphics();
+        dimmer.beginFill(0x0, osu.settings.SETTINGS.background_dim);
+        dimmer.drawRect(0, 0, this.getRenderWidth(), this.getRenderHeight());
+        this.background_dimmer.addChild(dimmer);
+
+
+    },
+
+
 
     create_background: function () {
         var background = PIXI.Texture.fromImage(this.beatmap.background);
         var background_sprite = new PIXI.Sprite(background);
         background_sprite.width = this.getRenderWidth();
         background_sprite.height = this.getRenderHeight();
-
-        this.background_dimmer = new PIXI.Graphics();
-        this.background_dimmer.beginFill(0x0, 0.5);
-        this.background_dimmer.drawRect(0, 0, this.getRenderWidth(), this.getRenderHeight());
         this.master_container.addChild(background_sprite);
+        this.create_dimmer();
         this.master_container.addChild(this.background_dimmer);
 
 
+
     },
+
 
     tint_untint_key: function (key, do_tint) {
         if (do_tint) {
@@ -304,6 +318,13 @@ osu.ui.interface.osugame = {
             self.fail_container.visible = false;
         }, 4000);
     },
+    bind_events: function () {
+        if(!this.events_bound){
+            event_handler.on(event_handler.EVENTS.SETTINGS_CHANGED, this.create_dimmer.bind(this));
+            this.events_bound = true;
+        }
+
+    },
 
     initGame: function () {
         event_handler.off(event_handler.EVENTS.RENDER, "replay_text"); //unsubscrbe incase another replay closed early
@@ -312,6 +333,8 @@ osu.ui.interface.osugame = {
         this.create_master_container();
         osu.ui.renderer.clearStage();
         osu.ui.renderer.addChild(this.master_container);
+        this.bind_events();
+
         this.has_started = false;
         this.countdown_started = false;
         this.curr_replay_frame = 0;

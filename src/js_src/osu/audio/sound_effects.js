@@ -9,6 +9,7 @@ osu.audio.sound = {
     section_success:   {
         __audio: new Audio(src=osu.skins.audio.sectionpass),
         play: function () {
+            this.__audio.volume = osu.settings.SETTINGS.master_volume * osu.settings.SETTINGS.sound_effects_volume;
             this.__audio.play();
         }
 

@@ -1068,19 +1068,28 @@ osu.audio.music =  {
     __audio: new Audio(),
     md5sum: "",
     playing: false,
+    events_bound: false,
 
     init: function (src, md5sum) {
+
+        if(!this.events_bound){
+            event_handler.on(event_handler.EVENTS.SETTINGS_CHANGED, this.set_volume.bind(this));
+            this.events_bound = true;
+        }
         //only start again
         if(md5sum != this.md5sum){
             this.md5sum = md5sum;
             this.__audio.pause();
             this.__audio.src = src;
-            this.__audio.volume = 0.2;
+            this.set_volume();
             this.playing = false;
         }
         this.set_playback_speed(1);//reset playback speed if was playing DT/HT
         this.__audio.onended = this.repeat.bind(this);
 
+    },
+    set_volume: function () {
+        this.__audio.volume = osu.settings.SETTINGS.master_volume * osu.settings.SETTINGS.music_volume;
     },
 
     stop: function () {
@@ -1148,6 +1157,7 @@ osu.audio.sound = {
     section_success:   {
         __audio: new Audio(src=osu.skins.audio.sectionpass),
         play: function () {
+            this.__audio.volume = osu.settings.SETTINGS.master_volume * osu.settings.SETTINGS.sound_effects_volume;
             this.__audio.play();
         }
 
@@ -1947,7 +1957,7 @@ osu.settings = {
         _background_dim: 0.3,
         _master_volume: 1.0,
         _music_volume: 0.6,
-        _sound_effects: 0.8,
+        _sound_effects_volume: 0.8,
         _use_beatmap_skins: false,
         _use_beatmap_hitsounds: false,
 
@@ -1958,8 +1968,8 @@ osu.settings = {
         set master_volume(v) { this._master_volume = v; event_handler.emit(event_handler.EVENTS.SETTINGS_CHANGED);},
         get music_volume(){return this._music_volume},
         set music_volume(v) { this._music_volume = v; event_handler.emit(event_handler.EVENTS.SETTINGS_CHANGED);},
-        get sound_effects(){return this._sound_effects},
-        set sound_effects(v) { this._sound_effects = v; event_handler.emit(event_handler.EVENTS.SETTINGS_CHANGED);},
+        get sound_effects_volume(){return this._sound_effects_volume},
+        set sound_effects_volume(v) { this._sound_effects_volume = v; event_handler.emit(event_handler.EVENTS.SETTINGS_CHANGED);},
         get use_beatmap_skins(){return this._use_beatmap_skins},
         set use_beatmap_skins(v) { this._use_beatmap_skins = v; event_handler.emit(event_handler.EVENTS.SETTINGS_CHANGED);},
         get use_beatmap_hitsounds(){return this._use_beatmap_hitsounds},
@@ -1982,14 +1992,17 @@ osu.settings = {
                     }
                 }
             }
+            self.onloaded();
             event_handler.emit(event_handler.EVENTS.SETTINGS_CHANGED);
         });
     },
     save_settings: function () {
         database.update_data(database.TABLES.OPTIONS,"options",this.SETTINGS);
+    },
+
+    onloaded: function () {
+
     }
-
-
 
 
 
@@ -2028,6 +2041,12 @@ osu.ui.interface.mainscreen = {
     init: function () {
         this.cacheDom();
         this.bind_events();
+
+        this.$master_volume_slider.val(osu.settings.SETTINGS.master_volume * 100);
+        this.$music_volume_slider.val(osu.settings.SETTINGS.music_volume * 100);
+        this.$sound_volume_slider.val(osu.settings.SETTINGS.sound_effects_volume * 100);
+        this.$background_dim_slider.val(osu.settings.SETTINGS.background_dim * 100);
+
         var self = this;
         database.get_count(database.TABLES.BEATMAPS, function (count) {
             self.beatmap_count = count;
@@ -2052,6 +2071,13 @@ osu.ui.interface.mainscreen = {
             this.map_object_type_counts = document.getElementById("map_object_type_counts");
             this.map_difficulty = document.getElementById("map_difficulty");
             this.map_name = document.getElementById("map_name");
+
+
+            this.$master_volume_slider = $("#master_volume");
+            this.$music_volume_slider = $("#music_volume");
+            this.$sound_volume_slider = $("#sound_volume");
+            this.$background_dim_slider = $("#background_dim");
+
             this.cached_dom = true;
         }
 
@@ -2061,7 +2087,20 @@ osu.ui.interface.mainscreen = {
         //init script can be called multiple times if no maps/replays exist
         if(!this.events_bound){
             var self = this;
-            //yuck
+
+            this.$master_volume_slider.on("change", function (e) {
+               osu.settings.SETTINGS.master_volume = e.currentTarget.value / 100;
+            });
+            this.$music_volume_slider.on("change", function (e) {
+                osu.settings.SETTINGS.music_volume = e.currentTarget.value / 100;
+            });
+            this.$sound_volume_slider.on("change", function (e) {
+                osu.settings.SETTINGS.sound_effects_volume = e.currentTarget.value / 100;
+            });
+            this.$background_dim_slider.on("change", function (e) {
+                osu.settings.SETTINGS.background_dim = e.currentTarget.value / 100;
+            });
+
 
             //On beatmap select click highlight the clicked item, and unhighlight any other items
             this.beatmap_section_html.on("click",".beatmap_preview", function (event) {
@@ -2355,6 +2394,7 @@ osu.ui.interface.osugame = {
     break_times: [],
     replay_played_by_text: "",
     hit_objects: [],
+    events_bound: false,
 
 
     getRenderWidth: function () {
@@ -2364,21 +2404,34 @@ osu.ui.interface.osugame = {
     getRenderHeight: function () {
         return osu.ui.renderer.renderHeight;
     },
+    create_dimmer: function () {
+
+
+        this.background_dimmer = this.background_dimmer || new PIXI.Container();
+        this.background_dimmer.removeChildren();
+        var dimmer = new PIXI.Graphics();
+        dimmer.beginFill(0x0, osu.settings.SETTINGS.background_dim);
+        dimmer.drawRect(0, 0, this.getRenderWidth(), this.getRenderHeight());
+        this.background_dimmer.addChild(dimmer);
+
+
+    },
+
+
 
     create_background: function () {
         var background = PIXI.Texture.fromImage(this.beatmap.background);
         var background_sprite = new PIXI.Sprite(background);
         background_sprite.width = this.getRenderWidth();
         background_sprite.height = this.getRenderHeight();
-
-        this.background_dimmer = new PIXI.Graphics();
-        this.background_dimmer.beginFill(0x0, 0.5);
-        this.background_dimmer.drawRect(0, 0, this.getRenderWidth(), this.getRenderHeight());
         this.master_container.addChild(background_sprite);
+        this.create_dimmer();
         this.master_container.addChild(this.background_dimmer);
 
 
+
     },
+
 
     tint_untint_key: function (key, do_tint) {
         if (do_tint) {
@@ -2611,6 +2664,13 @@ osu.ui.interface.osugame = {
             self.fail_container.visible = false;
         }, 4000);
     },
+    bind_events: function () {
+        if(!this.events_bound){
+            event_handler.on(event_handler.EVENTS.SETTINGS_CHANGED, this.create_dimmer.bind(this));
+            this.events_bound = true;
+        }
+
+    },
 
     initGame: function () {
         event_handler.off(event_handler.EVENTS.RENDER, "replay_text"); //unsubscrbe incase another replay closed early
@@ -2619,6 +2679,8 @@ osu.ui.interface.osugame = {
         this.create_master_container();
         osu.ui.renderer.clearStage();
         osu.ui.renderer.addChild(this.master_container);
+        this.bind_events();
+
         this.has_started = false;
         this.countdown_started = false;
         this.curr_replay_frame = 0;
@@ -3453,6 +3515,9 @@ if (!window.indexedDB) {
 }
 else {
     database.init(function () {
-        osu.ui.interface.mainscreen.init();
+        osu.settings.onloaded = function () {
+            osu.ui.interface.mainscreen.init();
+        };
+        osu.settings.init();
     });
 }

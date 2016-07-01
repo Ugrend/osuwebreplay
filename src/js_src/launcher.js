@@ -8,6 +8,9 @@ if (!window.indexedDB) {
 }
 else {
     database.init(function () {
-        osu.ui.interface.mainscreen.init();
+        osu.settings.onloaded = function () {
+            osu.ui.interface.mainscreen.init();
+        };
+        osu.settings.init();
     });
 }

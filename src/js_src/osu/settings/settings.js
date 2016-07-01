@@ -22,7 +22,7 @@ osu.settings = {
         _background_dim: 0.3,
         _master_volume: 1.0,
         _music_volume: 0.6,
-        _sound_effects: 0.8,
+        _sound_effects_volume: 0.8,
         _use_beatmap_skins: false,
         _use_beatmap_hitsounds: false,
 
@@ -33,8 +33,8 @@ osu.settings = {
         set master_volume(v) { this._master_volume = v; event_handler.emit(event_handler.EVENTS.SETTINGS_CHANGED);},
         get music_volume(){return this._music_volume},
         set music_volume(v) { this._music_volume = v; event_handler.emit(event_handler.EVENTS.SETTINGS_CHANGED);},
-        get sound_effects(){return this._sound_effects},
-        set sound_effects(v) { this._sound_effects = v; event_handler.emit(event_handler.EVENTS.SETTINGS_CHANGED);},
+        get sound_effects_volume(){return this._sound_effects_volume},
+        set sound_effects_volume(v) { this._sound_effects_volume = v; event_handler.emit(event_handler.EVENTS.SETTINGS_CHANGED);},
         get use_beatmap_skins(){return this._use_beatmap_skins},
         set use_beatmap_skins(v) { this._use_beatmap_skins = v; event_handler.emit(event_handler.EVENTS.SETTINGS_CHANGED);},
         get use_beatmap_hitsounds(){return this._use_beatmap_hitsounds},
@@ -57,14 +57,17 @@ osu.settings = {
                     }
                 }
             }
+            self.onloaded();
             event_handler.emit(event_handler.EVENTS.SETTINGS_CHANGED);
         });
     },
     save_settings: function () {
         database.update_data(database.TABLES.OPTIONS,"options",this.SETTINGS);
+    },
+
+    onloaded: function () {
+
     }
-
-
 
 
 

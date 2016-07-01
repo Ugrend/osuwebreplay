@@ -11,19 +11,28 @@ osu.audio.music =  {
     __audio: new Audio(),
     md5sum: "",
     playing: false,
+    events_bound: false,
 
     init: function (src, md5sum) {
+
+        if(!this.events_bound){
+            event_handler.on(event_handler.EVENTS.SETTINGS_CHANGED, this.set_volume.bind(this));
+            this.events_bound = true;
+        }
         //only start again
         if(md5sum != this.md5sum){
             this.md5sum = md5sum;
             this.__audio.pause();
             this.__audio.src = src;
-            this.__audio.volume = 0.2;
+            this.set_volume();
             this.playing = false;
         }
         this.set_playback_speed(1);//reset playback speed if was playing DT/HT
         this.__audio.onended = this.repeat.bind(this);
 
+    },
+    set_volume: function () {
+        this.__audio.volume = osu.settings.SETTINGS.master_volume * osu.settings.SETTINGS.music_volume;
     },
 
     stop: function () {

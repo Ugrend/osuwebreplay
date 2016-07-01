@@ -29,6 +29,12 @@ osu.ui.interface.mainscreen = {
     init: function () {
         this.cacheDom();
         this.bind_events();
+
+        this.$master_volume_slider.val(osu.settings.SETTINGS.master_volume * 100);
+        this.$music_volume_slider.val(osu.settings.SETTINGS.music_volume * 100);
+        this.$sound_volume_slider.val(osu.settings.SETTINGS.sound_effects_volume * 100);
+        this.$background_dim_slider.val(osu.settings.SETTINGS.background_dim * 100);
+
         var self = this;
         database.get_count(database.TABLES.BEATMAPS, function (count) {
             self.beatmap_count = count;
@@ -53,6 +59,13 @@ osu.ui.interface.mainscreen = {
             this.map_object_type_counts = document.getElementById("map_object_type_counts");
             this.map_difficulty = document.getElementById("map_difficulty");
             this.map_name = document.getElementById("map_name");
+
+
+            this.$master_volume_slider = $("#master_volume");
+            this.$music_volume_slider = $("#music_volume");
+            this.$sound_volume_slider = $("#sound_volume");
+            this.$background_dim_slider = $("#background_dim");
+
             this.cached_dom = true;
         }
 
@@ -62,7 +75,20 @@ osu.ui.interface.mainscreen = {
         //init script can be called multiple times if no maps/replays exist
         if(!this.events_bound){
             var self = this;
-            //yuck
+
+            this.$master_volume_slider.on("change", function (e) {
+               osu.settings.SETTINGS.master_volume = e.currentTarget.value / 100;
+            });
+            this.$music_volume_slider.on("change", function (e) {
+                osu.settings.SETTINGS.music_volume = e.currentTarget.value / 100;
+            });
+            this.$sound_volume_slider.on("change", function (e) {
+                osu.settings.SETTINGS.sound_effects_volume = e.currentTarget.value / 100;
+            });
+            this.$background_dim_slider.on("change", function (e) {
+                osu.settings.SETTINGS.background_dim = e.currentTarget.value / 100;
+            });
+
 
             //On beatmap select click highlight the clicked item, and unhighlight any other items
             this.beatmap_section_html.on("click",".beatmap_preview", function (event) {
