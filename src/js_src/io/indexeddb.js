@@ -146,6 +146,22 @@ var database = {
             onsuccess(e.target.result);
         };
     },
+    update_data(table,key,data, onsuccess, onerror){
+        onsuccess = onsuccess || function () {};
+        onerror = onerror || function () {};
+        if (this.__started) {
+            var transaction = this.__db.transaction([table], "readwrite").objectStore(table).put(data, key);
+            transaction.onsuccess =   onsuccess;
+            transaction.onerror = function(e){
+                console.log(e.target.error);
+                onerror(e);
+            };
+        }
+        else {
+            onerror("db not started");
+        }
+
+    },
 
 
     delete_database: function () {

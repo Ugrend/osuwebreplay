@@ -19,6 +19,7 @@ var event_handler = {
         INVALID_FILE: 12,
         BEATMAP_SELECTED: 13,
         STOP_REPLAY: 14,
+        SETTINGS_CHANGED: 15,
     }),
 
     __events: {},
