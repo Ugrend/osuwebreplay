@@ -25,7 +25,7 @@ osu.ui.interface.mainscreen = {
     replays: [],
     beatmapSearch: null,
     replaySearch: null,
-
+    $currentSelectionHtml: "",
 
 
     init: function () {
@@ -90,6 +90,7 @@ osu.ui.interface.mainscreen = {
                     });
                 }else{
                     self.$beatmap_section_html.find(".beatmap_preview").removeClass("hidden");
+                    self.$currentSelectionHtml[0].scrollIntoViewIfNeeded();
                 }
 
 
@@ -163,6 +164,7 @@ osu.ui.interface.mainscreen = {
 
     },
     highlight_beatmap($beatmapHtml){
+        this.$currentSelectionHtml =$beatmapHtml;
         this.$beatmap_section_html.find(".song_preview_row").removeClass('song_preview_unselected').removeClass('song_preview_mouseover').removeClass('song_preview_selected').addClass('song_preview_unselected');
         //resize everything back to unselected size
         this.$beatmap_section_html.find(".beatmap_preview").removeClass("col-xs-9").removeClass("col-xs-8").removeClass("col-xs-7")
