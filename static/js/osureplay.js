@@ -2350,12 +2350,12 @@ osu.ui.interface.mainscreen = {
         this.loaded = true;
         this.displaying_main_screen = true;
         if(!this.current_selection){
-            console.log(this.current_selection);
             //select random beatmap
             this.select_beatmap(this.beatmaps[Math.floor(Math.random()*this.beatmaps.length)].md5sum, true);
         }else{
             this.current_selection.load_background();
         }
+        this.$beatmap_search_field.focus();
     },
     hide_main_screen: function () {
         document.getElementById("container").className = "hidden";
