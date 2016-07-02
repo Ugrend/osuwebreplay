@@ -20,7 +20,7 @@ var num_9 = PIXI.Texture.fromImage(osu.skins.default_9);
 
 
 class Circle{
-    constructor(container,is_hidden, x, y, approach_rate, hit_time,diameter, colour, combo) {
+    constructor(container,is_hidden, x, y, approach_rate, hit_time,diameter, colour, combo, next_object) {
 
 
 
@@ -46,6 +46,17 @@ class Circle{
             this.approchCircleSprite.height = this.diameter * 3;
             this.circleContainer.addChild(this.approchCircleSprite);
         }
+        this.next_object = next_object;
+        //TODO: get angle calculate distance only draw if cetain distance etc etc
+        if(next_object){
+            this.followPointContainer = new PIXI.Container();
+            var line = new PIXI.Graphics();
+            line.moveTo(x,y);
+            line.lineStyle(4,0xFFFFFF,0.5);
+            line.lineTo(next_object.x, next_object.y);
+            this.followPointContainer.addChild(line);
+        }
+
 
 
         this.circleOverlaySprite =  new PIXI.Sprite(hit_circle_overlay);
@@ -114,14 +125,26 @@ class Circle{
         this.circleContainer.y = y;
         this.drawn = false;
         this.destroyed = false;
+        this.destroyed_line = false;
+        this.lined_drawn = false;
+        if(!this.next_object) this.destroyed_line = true;
 
     }
 
 
     draw(cur_time){
 
-        if(this.destroyed){
+        if(this.destroyed && this.destroyed_line){
             return false;
+        }
+
+        if(cur_time > this.hit_time - 110){
+            if(this.next_object){
+                if(!this.lined_drawn) {
+                    this.container.addChildAt(this.followPointContainer, 0);
+                    this.lined_drawn = true;
+                }
+            }
         }
 
         if(!this.destroyed && cur_time > this.hit_time + 110 ){
@@ -129,6 +152,11 @@ class Circle{
             this.destroyed = true;
         }
 
+        if(!this.destroyed_line && cur_time > this.next_object.t){
+
+            this.container.removeChild(this.followPointContainer);
+            this.destroyed_line = true;
+        }
 
         if(!this.destroyed && cur_time < this.hit_time + this.approach_rate){
             if(!this.is_hidden){
@@ -143,6 +171,7 @@ class Circle{
                 }
             }
             if(!this.drawn){
+
                 this.container.addChildAt(this.circleContainer,0);
                 this.drawn = true;
             }
