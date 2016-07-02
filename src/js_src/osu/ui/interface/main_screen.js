@@ -79,8 +79,6 @@ osu.ui.interface.mainscreen = {
         //init script can be called multiple times if no maps/replays exist
         if(!this.events_bound){
             var self = this;
-
-
             this.$beatmap_search_field.on('input', function (e) {
                 var searchParam = e.currentTarget.value;
                 if(self.beatmapSearch && searchParam != ""){
@@ -315,7 +313,6 @@ osu.ui.interface.mainscreen = {
         document.getElementById("render_zone").className = "hidden";
         this.loaded = true;
         this.displaying_main_screen = true;
-        console.log(this.current_selection);
         if(!this.current_selection){
             console.log(this.current_selection);
             //select random beatmap
