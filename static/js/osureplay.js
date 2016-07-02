@@ -1769,8 +1769,10 @@ osu.objects.sliders = {
             this.startCircle = new Circle(container, is_hidden,x,y,approach_rate,hit_time,diameter,colour,combo);
             this.hit_time = hit_time;
             this.sliderGraphics = new PIXI.Graphics();
-            this.sliderGraphics.beginFill(colour,0.5);
-            this.sliderGraphics.lineStyle(diameter,colour,0.5);
+            this.sliderGraphics.beginFill(colour);
+            this.sliderGraphics.lineStyle(5,0xFFFFFF);
+
+
             var slider_points = slider_data[0].split("|");
             var slider_type = slider_points[0];
             if(slider_type == osu.objects.sliders.TYPES.LINEAR){
@@ -1780,14 +1782,28 @@ osu.objects.sliders = {
                 var final_y = draw_to_point[1];
                 if(game.is_hardrock) final_y = 384 - final_y;
                 var final_y = game.calculate_y(final_y);
+                this.sliderGraphics.drawCircle(x,y, (diameter-5)/2);
+                this.sliderGraphics.drawCircle(final_x,final_y, (diameter-5)/2);
+
+                this.sliderGraphics.lineStyle(diameter,0xFFFFFF);
 
                 this.sliderGraphics.moveTo(x, y);
                 this.sliderGraphics.bezierCurveTo(final_x,final_y,final_x,final_y,final_x,final_y);
+                this.sliderGraphics.lineStyle(diameter-10, colour);
+                this.sliderGraphics.moveTo(x, y);
+                this.sliderGraphics.bezierCurveTo(final_x,final_y,final_x,final_y,final_x,final_y);
+
             }
+            var t = this.sliderGraphics.generateTexture();
+            var sprite = new PIXI.Sprite(t);
+            sprite.position.x = this.sliderGraphics.getBounds().x;
+            sprite.position.y = this.sliderGraphics.getBounds().y;
+            sprite.alpha = 0.6;
+
             this.container = container;
             this.drawn = false;
             this.graphics_container = new PIXI.Container();
-            this.graphics_container.addChild(this.sliderGraphics);
+            this.graphics_container.addChild(sprite);
 
             this.destroyed = false;
         }
