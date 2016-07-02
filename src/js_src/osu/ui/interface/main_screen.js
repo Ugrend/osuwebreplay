@@ -18,11 +18,13 @@ osu.ui.interface.mainscreen = {
     current_selection: false,
     beatmap_selection_template: "",
     replay_selection_template: "",
-    beatmap_section_html: null,
-    replay_section_html: null,
+    $beatmap_section_html: null,
+    $replay_section_html: null,
     cached_dom: false,
     events_bound: false,
     replays: [],
+    beatmapSearch: null,
+    replaySearch: null,
 
 
 
@@ -52,14 +54,16 @@ osu.ui.interface.mainscreen = {
         if(!this.cached_dom){
             this.beatmap_selection_template = document.getElementById("beatmap_select_template").innerHTML;
             this.replay_selection_template = document.getElementById("replay_select_template").innerHTML;
-            this.beatmap_section_html = $("#song_selection_area");
-            this.replay_section_html = $("#replay_select_area");
+            this.$beatmap_section_html = $("#song_selection_area");
+            this.$replay_section_html = $("#replay_select_area");
             this.mapped_by = document.getElementById("mapped_by");
             this.map_length_and_objects = document.getElementById("map_length_and_objects");
             this.map_object_type_counts = document.getElementById("map_object_type_counts");
             this.map_difficulty = document.getElementById("map_difficulty");
             this.map_name = document.getElementById("map_name");
 
+            this.$beatmap_search_field = $("#filter_maps_search");
+            this.$replay_search_field = $("#filter_players_search");
 
             this.$master_volume_slider = $("#master_volume");
             this.$music_volume_slider = $("#music_volume");
@@ -76,22 +80,53 @@ osu.ui.interface.mainscreen = {
         if(!this.events_bound){
             var self = this;
 
-            this.$master_volume_slider.on("change", function (e) {
+
+            this.$beatmap_search_field.on('input', function (e) {
+                var searchParam = e.currentTarget.value;
+                if(self.beatmapSearch && searchParam != ""){
+                    self.$beatmap_section_html.find(".beatmap_preview:not([class*='hidden'])").addClass("hidden");
+                    self.beatmapSearch.search(searchParam, function (result) {
+                       for(var i = 0; i < result.length ; i++){
+                           self.$beatmap_section_html.find("#"+result[i].md5sum).removeClass("hidden");
+                       }
+                    });
+                }else{
+                    self.$beatmap_section_html.find(".beatmap_preview").removeClass("hidden");
+                }
+
+
+            });
+
+            this.$replay_search_field.on('input', function (e) {
+                var searchParam = e.currentTarget.value;
+                if(self.replaySearch && searchParam != ""){
+                    self.$replay_section_html.find(".replay_preview:not([class*='hidden'])").addClass("hidden");
+                    self.replaySearch.search(searchParam, function (result) {
+                        for(var i = 0; i < result.length ; i++){
+                            self.$replay_section_html.find("#"+result[i].rMd5Hash).removeClass("hidden");
+                        }
+                    });
+                }else{
+                    self.$replay_section_html.find(".replay_preview").removeClass("hidden");
+                }
+            });
+
+            this.$master_volume_slider.on("input", function (e) {
                osu.settings.SETTINGS.master_volume = e.currentTarget.value / 100;
             });
-            this.$music_volume_slider.on("change", function (e) {
+            this.$music_volume_slider.on("input", function (e) {
                 osu.settings.SETTINGS.music_volume = e.currentTarget.value / 100;
             });
-            this.$sound_volume_slider.on("change", function (e) {
+            this.$sound_volume_slider.on("input", function (e) {
                 osu.settings.SETTINGS.sound_effects_volume = e.currentTarget.value / 100;
             });
-            this.$background_dim_slider.on("change", function (e) {
+            this.$background_dim_slider.on("input", function (e) {
                 osu.settings.SETTINGS.background_dim = e.currentTarget.value / 100;
             });
 
 
             //On beatmap select click highlight the clicked item, and unhighlight any other items
-            this.beatmap_section_html.on("click",".beatmap_preview", function (event) {
+            this.$beatmap_section_html.on("click",".beatmap_preview", function (event) {
                 var clickedObject = $(this);
                 var md5sum = clickedObject.attr("id");
                 self.highlight_beatmap(clickedObject);
@@ -99,7 +134,7 @@ osu.ui.interface.mainscreen = {
             });
 
             //on replay click open replay
-            $(this.replay_section_html).on("click",".replay_preview", function (event) {
+            $(this.$replay_section_html).on("click",".replay_preview", function (event) {
                 var id = $(this).attr('id');
                 for(var i = 0; i < self.replays.length ; i ++){
                     if(self.replays[i].rMd5Hash == id){
@@ -130,9 +165,9 @@ osu.ui.interface.mainscreen = {
 
     },
     highlight_beatmap($beatmapHtml){
-        this.beatmap_section_html.find(".song_preview_row").removeClass('song_preview_unselected').removeClass('song_preview_mouseover').removeClass('song_preview_selected').addClass('song_preview_unselected');
+        this.$beatmap_section_html.find(".song_preview_row").removeClass('song_preview_unselected').removeClass('song_preview_mouseover').removeClass('song_preview_selected').addClass('song_preview_unselected');
         //resize everything back to unselected size
-        this.beatmap_section_html.find(".beatmap_preview").removeClass("col-xs-9").removeClass("col-xs-8").removeClass("col-xs-7")
+        this.$beatmap_section_html.find(".beatmap_preview").removeClass("col-xs-9").removeClass("col-xs-8").removeClass("col-xs-7")
             .removeClass('col-xs-offset-5').removeClass('col-xs-offset-4').removeClass('col-xs-offset-3')
             .addClass('col-xs-offset-5').addClass('col-xs-7');
         $beatmapHtml.removeClass("col-xs-9").removeClass("col-xs-8").removeClass("col-xs-7")
@@ -145,7 +180,7 @@ osu.ui.interface.mainscreen = {
 
 
     select_beatmap(md5sum,highlight_map){
-        this.replay_section_html.html(""); //clear current replay select
+        this.$replay_section_html.html(""); //clear current replay select
 
 
 
@@ -201,6 +236,13 @@ osu.ui.interface.mainscreen = {
                 self.replays[i].grade_img = osu.skins[osu.score.GRADES[self.replays[i].grade].small_icn];
             }
 
+            self.replaySearch = new Bloodhound({
+                datumTokenizer: function (datum) {
+                    return Bloodhound.tokenizers.whitespace(datum.playerName);
+                },
+                queryTokenizer: Bloodhound.tokenizers.whitespace,
+                local: self.replays
+            });
             self.render_replay(self.replays);
 
 
@@ -212,18 +254,9 @@ osu.ui.interface.mainscreen = {
     },
     render_replay(replays){
         var content = Mustache.render(this.replay_selection_template, {replays:replays});
-        this.replay_section_html.append(content);
+        this.$replay_section_html.append(content);
     },
-    
-    on_beatmap_mouse_enter: function () {
 
-    },
-    on_beatmap_click: function () {
-
-    },
-    on_beatmap_mouse_leave: function () {
-
-    },
 
     show_selection: function () {
         if(this.beatmap_count > 0 && this.replay_count > 0){
@@ -264,6 +297,14 @@ osu.ui.interface.mainscreen = {
             for(var i =0; i < this.beatmaps.length; i++){
                 this.render_song(this.beatmaps[i]);
             }
+            this.beatmapSearch = new Bloodhound({
+                datumTokenizer: function (datum) {
+                    var matchon = datum.title + " " + datum.artist + " " + datum.tags;
+                    return Bloodhound.tokenizers.whitespace(matchon);
+                },
+                queryTokenizer: Bloodhound.tokenizers.whitespace,
+                local: this.beatmaps
+            });
             this.show_main_screen();
         }
     },
@@ -317,7 +358,7 @@ osu.ui.interface.mainscreen = {
 
     render_song: function (beatmap) {
         var content = Mustache.render(this.beatmap_selection_template, {beatmaps:beatmap});
-        this.beatmap_section_html.append(content);
+        this.$beatmap_section_html.append(content);
     },
 
     on_load_file: function (data) {
