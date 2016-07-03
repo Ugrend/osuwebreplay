@@ -385,7 +385,7 @@ osu.ui.interface.osugame = {
         if(this.is_hardrock && difficultyCircleSize <7) difficultyCircleSize +=1;
         if(this.is_easy && difficultyCircleSize > 1) difficultyCircleSize -=1; //TODO: work out if that's correct
         var circleSize = (this.getRenderWidth() / 640) * (108.848 - (difficultyCircleSize * 8.9646));
-
+        var unScaledDiameter =  (108.848 - (difficultyCircleSize * 8.9646));
         this.approachTime = 0;
         if (approachRate < 5) {
             this.approachTime = (1800 - (approachRate * 120))
@@ -431,16 +431,14 @@ osu.ui.interface.osugame = {
             var is_spinner = hitObject.type == osu.objects.hitobjects.TYPES.CIRCLE;
 
             if (is_circle|| is_slider) {
-                var x = this.calculate_x(parseInt(this.beatmap.map_data.hit_objects[i][0]));
+                var x = parseInt(this.beatmap.map_data.hit_objects[i][0]);
                 var y = parseInt(this.beatmap.map_data.hit_objects[i][1]);
-                if(this.is_hardrock) y = 384 - y;
-                y = this.calculate_y(y);
                 var t = parseInt(this.beatmap.map_data.hit_objects[i][2]);
                 if(this.is_doubletime) t = t*.667;
                 if (is_circle) {
                     this.hit_objects.push({
                         t: t,
-                        object: new Circle(this.hit_object_container, this.is_hidden, x, y, this.approachTime, t, circleSize, osu.skins.COMBO_COLOURS[comboColour], comboNum, next_object)
+                        object: new Circle(this,this.hit_object_container, this.is_hidden, x, y, this.approachTime, t, circleSize, osu.skins.COMBO_COLOURS[comboColour], comboNum, next_object)
                     });
                 }
                 if(is_slider){
@@ -456,6 +454,7 @@ osu.ui.interface.osugame = {
             }
 
         }
+        osu.objects.hitobjects.create_stacks(this.hit_objects, 0.7, unScaledDiameter, this.is_hardrock);
 
         this.audioLeadIn = parseInt(this.beatmap.map_data.general.AudioLeadIn);
         if(this.is_doubletime) this.audioLeadIn = this.audioLeadIn *.667

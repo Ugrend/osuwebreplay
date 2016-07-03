@@ -20,54 +20,76 @@ var num_9 = PIXI.Texture.fromImage(osu.skins.default_9);
 
 
 class Circle{
-    constructor(container,is_hidden, x, y, approach_rate, hit_time,diameter, colour, combo, next_object) {
-
-
-
+    constructor(game,container,is_hidden, x, y, approach_rate, hit_time,diameter, colour, combo, next_object) {
+        this.game = game;
+        this.type = "circle";
+        this.stack = 0;
         this.container = container;
         this.x = x;
         this.y = y;
         this.is_hidden = is_hidden;
         this.diameter = diameter;
         this.colour = colour;
+        this.approach_rate = approach_rate;
+        this.hit_time = hit_time;
+        this.next_object = next_object;
+        this.last_draw_time = 0;
+        this.destroyed_line = false;
+        if(!this.next_object) this.destroyed_line = true;
+        this.drawn = false;
+        this.destroyed = false;
+
+        this.lined_drawn = false;
+        this.combo = combo;
+    }
+
+    init(){
+
+        this.x = this.game.calculate_x(this.x);
+        if(this.game.is_hardrock) this.y = 384 - this.y;
+        this.y = this.game.calculate_y(this.y);
+
         this.circleContainer = new PIXI.Container();
         this.circleSprite =  new PIXI.Sprite(hit_circle_texture);
         this.circleSprite.tint = this.colour;
         this.circleSprite.anchor.set(0.5);
-        this.circleSprite.height = diameter;
-        this.circleSprite.width = diameter;
-        this.approach_rate = approach_rate;
-        this.hit_time = hit_time;
-        if(!is_hidden) {
+        this.circleSprite.height = this.diameter;
+        this.circleSprite.width = this.diameter;
+
+
+
+
+        //TODO: get angle calculate distance only draw if cetain distance etc etc
+
+        if(!this.is_hidden) {
             this.approchCircleSprite = new PIXI.Sprite(approach_circle_texture);
-            this.approchCircleSprite.tint = colour;
+            this.approchCircleSprite.tint = this.colour;
             this.approchCircleSprite.anchor.set(0.5);
             this.approchCircleSprite.width = this.diameter * 3;
             this.approchCircleSprite.height = this.diameter * 3;
             this.circleContainer.addChild(this.approchCircleSprite);
         }
-        this.next_object = next_object;
-        //TODO: get angle calculate distance only draw if cetain distance etc etc
-        if(next_object){
+//TODO: correct for offsets
+        if(this.next_object){
             this.followPointContainer = new PIXI.Container();
             var line = new PIXI.Graphics();
-            line.moveTo(x,y);
+            line.moveTo(this.x,this.y);
             line.lineStyle(4,0xFFFFFF,0.5);
-            line.lineTo(next_object.x, next_object.y);
+            line.lineTo(this.next_object.x, this.next_object.y);
             this.followPointContainer.addChild(line);
         }
 
 
 
         this.circleOverlaySprite =  new PIXI.Sprite(hit_circle_overlay);
-        this.circleOverlaySprite.height = diameter;
-        this.circleOverlaySprite.width = diameter;
+        this.circleOverlaySprite.height = this.diameter;
+        this.circleOverlaySprite.width = this.diameter;
         this.circleOverlaySprite.anchor.set(0.5);
         this.circleContainer.addChild(this.circleSprite);
         this.circleContainer.addChild(this.circleOverlaySprite);
 
 
-        var comboString = combo.toString();
+        var comboString = this.combo.toString();
         this.comboNumSprites = [];
         for(var i = 0; i< comboString.length ; i++){
             switch(comboString.charAt(i)){
@@ -120,17 +142,11 @@ class Circle{
             this.circleContainer.addChild(this.comboSprite1);
         }
 
-        this.last_draw_time = 0;
-        this.circleContainer.x = x;
-        this.circleContainer.y = y;
-        this.drawn = false;
-        this.destroyed = false;
-        this.destroyed_line = false;
-        this.lined_drawn = false;
-        if(!this.next_object) this.destroyed_line = true;
+
+        this.circleContainer.x = this.x;
+        this.circleContainer.y = this.y;
 
     }
-
 
     draw(cur_time){
 
@@ -157,6 +173,8 @@ class Circle{
             this.container.removeChild(this.followPointContainer);
             this.destroyed_line = true;
         }
+
+
 
         if(!this.destroyed && cur_time < this.hit_time + this.approach_rate){
             if(!this.is_hidden){

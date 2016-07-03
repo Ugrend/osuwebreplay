@@ -37,6 +37,54 @@ osu.objects.hitobjects = {
                 y = game.calculate_y(y);
             }
             var timer = line_array[2];
+    },
+    //https://gist.github.com/peppy/1167470
+    create_stacks: function (hitobjects, stackLeniency, circleSize, hardrock) {
+
+        for(var i = hitobjects.length -1; i > 0; i--){
+            var hitObjectI = hitobjects[i].object;
+            if(hitObjectI.stack !=0 || hitObjectI.type == "spinner") continue;
+
+            if(hitObjectI.type == "circle"){
+                for(var n = i -1; n >=0; n--){
+                    var hitObjectN = hitobjects[n].object;
+                    if(hitObjectN.type == "spinner") continue;
+
+                    var timeI = hitObjectI.hit_time - (1000*stackLeniency);
+                    var timeN = hitObjectN.hit_time;
+                    if(timeI > timeN) break;
+
+                    var distance = osu.helpers.math.distance(hitObjectI.x,hitObjectI.y,hitObjectN.x,hitObjectN.y);
+                    if(distance < 3){
+                        console.log(n);
+                        hitObjectN.stack = hitObjectI.stack + 1;
+                        hitObjectI = hitObjectN;
+                    }
+
+                }
+            }
+        }
+        console.log(hitobjects);
+        for(i = 0; i < hitobjects.length; i++){
+            var hitObject = hitobjects[i].object;
+            var stack = hitObject.stack;
+            circleSize = circleSize;
+            var offset = (stack * (circleSize * 0.05));
+            if(stack > 1){
+                console.log("STACK " +stack);
+                console.log("DIAMETER " + circleSize);
+
+                console.log("OFFSET: " + offset);
+            }
+            var x = hitObject.x - offset;
+            var y = hitObject.y - offset;
+            if(hardrock)
+                y = y + offset;
+
+            hitObject.x = x;
+            hitObject.y = y;
+            hitObject.init();
+        }
 
 
 

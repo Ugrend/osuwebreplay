@@ -7,32 +7,58 @@ osu.objects = osu.objects || {};
 osu.objects.sliders = {
     Slider: class Slider{
         constructor(game,container,is_hidden, x, y, approach_rate, hit_time,diameter, colour, combo, slider_data, next_object) {
-            this.startCircle = new Circle(container, is_hidden,x,y,approach_rate,hit_time,diameter,colour,combo);
+            this.type = "slider";
+            this.stack = 0;
+            this.diameter = diameter;
+            this.container = container;
             this.hit_time = hit_time;
-            this.sliderGraphics = new PIXI.Graphics();
-            this.sliderGraphics.beginFill(colour);
-            this.sliderGraphics.lineStyle(5,0xFFFFFF);
-            var final_x = x;
-            var final_y = y;
+            this.x = x;
+            this.y = y;
+            this.container = container;
+            this.drawn = false;
+            this.game = game;
+            this.slider_data = slider_data;
+            this.destroyed = false;
+            this.next_object = next_object;
+            this.approach_rate = approach_rate;
+            this.is_hidden = is_hidden;
+            this.colour = colour;
+            this.combo = combo;
+            this.destroyed_line = false;
+            if(!this.next_object) this.destroyed_line = true;
+            this.lined_drawn = false;
+        }
 
-            var slider_points = slider_data[0].split("|");
+        init(){
+            this.startCircle = new Circle(this.game,this.container, this.is_hidden,this.x,this.y,this.approach_rate,this.hit_time,this.diameter,this.colour,this.combo);
+            this.startCircle.init();
+            this.x = this.game.calculate_x(this.x);
+            if(this.game.is_hardrock) this.y = 384 - this.y;
+            this.y = this.game.calculate_y(this.y);
+            var final_x = this.x;
+            var final_y = this.y;
+
+            this.sliderGraphics = new PIXI.Graphics();
+            this.sliderGraphics.beginFill(this.colour);
+            this.sliderGraphics.lineStyle(5,0xFFFFFF);
+            var slider_points = this.slider_data[0].split("|");
             var slider_type = slider_points[0];
             if(slider_type == osu.objects.sliders.TYPES.LINEAR){
                 var draw_to_point = slider_points[1].split(':');
-                final_x = game.calculate_x(draw_to_point[0]);
+                final_x = this.game.calculate_x(draw_to_point[0]);
 
                 final_y = draw_to_point[1];
-                if(game.is_hardrock) final_y = 384 - final_y;
-                final_y = game.calculate_y(final_y);
-                this.sliderGraphics.drawCircle(x,y, (diameter-5)/2);
-                this.sliderGraphics.drawCircle(final_x,final_y, (diameter-5)/2);
+                if(this.game.is_hardrock) final_y = 384 - final_y;
+                final_y = this.game.calculate_y(final_y);
+                this.sliderGraphics.drawCircle(this.x,this.y, (this.diameter-5)/2);
+                this.sliderGraphics.drawCircle(final_x,final_y, (this.diameter-5)/2);
 
-                this.sliderGraphics.lineStyle(diameter,0xFFFFFF);
+                this.sliderGraphics.lineStyle(this.diameter,0xFFFFFF);
 
-                this.sliderGraphics.moveTo(x, y);
+                this.sliderGraphics.moveTo(this.x, this.y);
                 this.sliderGraphics.bezierCurveTo(final_x,final_y,final_x,final_y,final_x,final_y);
-                this.sliderGraphics.lineStyle(diameter-10, colour);
-                this.sliderGraphics.moveTo(x, y);
+                this.sliderGraphics.lineStyle(this.diameter-10, this.colour);
+                this.sliderGraphics.moveTo(this.x, this.y);
                 this.sliderGraphics.bezierCurveTo(final_x,final_y,final_x,final_y,final_x,final_y);
 
             }
@@ -42,26 +68,21 @@ osu.objects.sliders = {
             sprite.position.y = this.sliderGraphics.getBounds().y;
             sprite.alpha = 0.6;
 
-            this.container = container;
-            this.drawn = false;
+
             this.graphics_container = new PIXI.Container();
             this.graphics_container.addChild(sprite);
 
-            this.destroyed = false;
-            this.next_object = next_object;
+
             //TODO: get angle calculate distance only draw if cetain distance etc etc
-            if(next_object){
+            if(this.next_object){
                 this.followPointContainer = new PIXI.Container();
                 var line = new PIXI.Graphics();
                 line.moveTo(final_x,final_y);
                 line.lineStyle(4,0xFFFFFF,0.5);
-                line.lineTo(next_object.x, next_object.y);
+                //TODO: fix for offsets
+                line.lineTo(this.next_object.x, this.next_object.y);
                 this.followPointContainer.addChild(line);
             }
-            this.destroyed_line = false;
-            if(!this.next_object) this.destroyed_line = true;
-            this.lined_drawn = false;
-
         }
 
         draw(cur_time){
