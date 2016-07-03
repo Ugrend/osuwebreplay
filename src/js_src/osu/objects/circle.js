@@ -38,7 +38,7 @@ class Circle{
         if(!this.next_object) this.destroyed_line = true;
         this.drawn = false;
         this.destroyed = false;
-
+        this.hidden_time = this.approach_rate / 3.3;
         this.lined_drawn = false;
         this.combo = combo;
     }
@@ -161,6 +161,11 @@ class Circle{
                     this.lined_drawn = true;
                 }
             }
+        }
+
+        if(this.drawn && this.game.is_hidden && cur_time > this.hit_time - this.hidden_time){
+            this.destroy();
+            this.destroyed = true;
         }
 
         if(!this.destroyed && cur_time > this.hit_time + 110 ){

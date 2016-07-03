@@ -13,6 +13,13 @@ osu.objects.hitobjects = {
         SPINNER: 8,
     },
 
+    HIT_SOUNDS: {
+        SOUND_NORMAL: 0,
+        SOUND_WHISTLE: 2,
+        SOUND_FINISH: 4,
+        SOUND_CLAP: 8,
+    },
+
     parse_type: function (hitObjectInt) {
         var newCombo = false;
         if((hitObjectInt & this.TYPES.NEW_COMBO)){
@@ -64,7 +71,7 @@ osu.objects.hitobjects = {
                 }
             }
         }
-       
+
         for(i = 0; i < hitobjects.length; i++){
             var hitObject = hitobjects[i].object;
             var stack = hitObject.stack;

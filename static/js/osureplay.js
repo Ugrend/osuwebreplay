@@ -1658,7 +1658,7 @@ class Circle{
         if(!this.next_object) this.destroyed_line = true;
         this.drawn = false;
         this.destroyed = false;
-
+        this.hidden_time = this.approach_rate / 3.3;
         this.lined_drawn = false;
         this.combo = combo;
     }
@@ -1783,6 +1783,11 @@ class Circle{
             }
         }
 
+        if(this.drawn && this.game.is_hidden && cur_time > this.hit_time - this.hidden_time){
+            this.destroy();
+            this.destroyed = true;
+        }
+
         if(!this.destroyed && cur_time > this.hit_time + 110 ){
             this.destroy();
             this.destroyed = true;
@@ -1844,6 +1849,13 @@ osu.objects.hitobjects = {
         SPINNER: 8,
     },
 
+    HIT_SOUNDS: {
+        SOUND_NORMAL: 0,
+        SOUND_WHISTLE: 2,
+        SOUND_FINISH: 4,
+        SOUND_CLAP: 8,
+    },
+
     parse_type: function (hitObjectInt) {
         var newCombo = false;
         if((hitObjectInt & this.TYPES.NEW_COMBO)){
@@ -1895,7 +1907,7 @@ osu.objects.hitobjects = {
                 }
             }
         }
-       
+
         for(i = 0; i < hitobjects.length; i++){
             var hitObject = hitobjects[i].object;
             var stack = hitObject.stack;
@@ -1945,6 +1957,7 @@ osu.objects.sliders = {
             this.destroyed_line = false;
             if(!this.next_object) this.destroyed_line = true;
             this.lined_drawn = false;
+            this.hidden_time = this.approach_rate / 3.3;
         }
 
         init(){
@@ -2009,7 +2022,10 @@ osu.objects.sliders = {
             if(this.destroyed && !draw_cicle && this.destroyed_line){
                 return false;
             }
-
+            if(this.drawn && this.game.is_hidden && cur_time > this.hit_time - this.hidden_time){
+                this.destroy();
+                this.destroyed = true;
+            }
 
             if(cur_time > this.hit_time -110){
                 if(this.next_object){

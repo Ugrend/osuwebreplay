@@ -27,6 +27,7 @@ osu.objects.sliders = {
             this.destroyed_line = false;
             if(!this.next_object) this.destroyed_line = true;
             this.lined_drawn = false;
+            this.hidden_time = this.approach_rate / 3.3;
         }
 
         init(){
@@ -91,7 +92,10 @@ osu.objects.sliders = {
             if(this.destroyed && !draw_cicle && this.destroyed_line){
                 return false;
             }
-
+            if(this.drawn && this.game.is_hidden && cur_time > this.hit_time - this.hidden_time){
+                this.destroy();
+                this.destroyed = true;
+            }
 
             if(cur_time > this.hit_time -110){
                 if(this.next_object){
