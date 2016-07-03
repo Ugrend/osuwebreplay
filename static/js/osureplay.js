@@ -104,7 +104,51 @@ osu.skins = {
     //AUDIO
 
     audio: {
-        sectionpass: "data/sectionpass.wav"
+        applause: 'data/applause.wav',
+        combobreak: 'data/combobreak.wav',
+        count1s: 'data/count1s.wav',
+        count2s: 'data/count2s.wav',
+        count3s: 'data/count3s.wav',
+        drum_hitclap: 'data/drum-hitclap.wav',
+        drum_hitfinish: 'data/drum-hitfinish.wav',
+        drum_hitfinish2: 'data/drum-hitfinish2.wav',
+        drum_hitnormal: 'data/drum-hitnormal.wav',
+        drum_hitnormal19: 'data/drum-hitnormal19.wav',
+        drum_hitnormal2: 'data/drum-hitnormal2.wav',
+        drum_hitwhistle: 'data/drum-hitwhistle.wav',
+        drum_sliderslide: 'data/drum-sliderslide.wav',
+        drum_slidertick: 'data/drum-slidertick.wav',
+        drum_sliderwhistle: 'data/drum-sliderwhistle.wav',
+        failsound: 'data/failsound.wav',
+        gos: 'data/gos.wav',
+        menuback: 'data/menuback.wav',
+        menuclick: 'data/menuclick.wav',
+        menuhit: 'data/menuhit.wav',
+        normal_hitclap: 'data/normal-hitclap.wav',
+        normal_hitfinish: 'data/normal-hitfinish.wav',
+        normal_hitnormal: 'data/normal-hitnormal.wav',
+        normal_hitwhistle: 'data/normal-hitwhistle.wav',
+        normal_sliderslide: 'data/normal-sliderslide.wav',
+        normal_slidertick: 'data/normal-slidertick.wav',
+        normal_sliderwhistle: 'data/normal-sliderwhistle.wav',
+        readys: 'data/readys.wav',
+        sectionfail: 'data/sectionfail.wav',
+        sectionpass: 'data/sectionpass.wav',
+        shutter: 'data/shutter.wav',
+        soft_hitclap: 'data/soft-hitclap.wav',
+        soft_hitclap19: 'data/soft-hitclap19.wav',
+        soft_hitfinish: 'data/soft-hitfinish.wav',
+        soft_hitnormal: 'data/soft-hitnormal.wav',
+        soft_hitwhistle: 'data/soft-hitwhistle.wav',
+        soft_sliderslide: 'data/soft-sliderslide.wav',
+        soft_sliderslide2: 'data/soft-sliderslide2.wav',
+        soft_slidertick: 'data/soft-slidertick.wav',
+        soft_sliderwhistle: 'data/soft-sliderwhistle.wav',
+        spinnerbonus: 'data/spinnerbonus.wav',
+        spinner_osu: 'data/spinner-osu.wav',
+        spinnerspin: 'data/spinnerspin.wav',
+
+
     }
 
 
@@ -1837,7 +1881,7 @@ osu.objects.hitobjects = {
                     var hitObjectN = hitobjects[n].object;
                     if(hitObjectN.type == "spinner") continue;
 
-                    var timeI = hitObjectI.hit_time - (1000*stackLeniency);
+                    var timeI = hitObjectI.hit_time - (1000*stackLeniency); //convert to miliseconds
                     var timeN = hitObjectN.hit_time;
                     if(timeI > timeN) break;
 
@@ -1851,7 +1895,7 @@ osu.objects.hitobjects = {
                 }
             }
         }
-        console.log(hitobjects);
+       
         for(i = 0; i < hitobjects.length; i++){
             var hitObject = hitobjects[i].object;
             var stack = hitObject.stack;

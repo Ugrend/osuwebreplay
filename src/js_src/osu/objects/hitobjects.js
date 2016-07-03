@@ -50,7 +50,7 @@ osu.objects.hitobjects = {
                     var hitObjectN = hitobjects[n].object;
                     if(hitObjectN.type == "spinner") continue;
 
-                    var timeI = hitObjectI.hit_time - (1000*stackLeniency);
+                    var timeI = hitObjectI.hit_time - (1000*stackLeniency); //convert to miliseconds
                     var timeN = hitObjectN.hit_time;
                     if(timeI > timeN) break;
 
@@ -64,7 +64,7 @@ osu.objects.hitobjects = {
                 }
             }
         }
-        console.log(hitobjects);
+       
         for(i = 0; i < hitobjects.length; i++){
             var hitObject = hitobjects[i].object;
             var stack = hitObject.stack;
