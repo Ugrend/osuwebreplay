@@ -68,14 +68,7 @@ osu.objects.hitobjects = {
         for(i = 0; i < hitobjects.length; i++){
             var hitObject = hitobjects[i].object;
             var stack = hitObject.stack;
-            circleSize = circleSize;
             var offset = (stack * (circleSize * 0.05));
-            if(stack > 1){
-                console.log("STACK " +stack);
-                console.log("DIAMETER " + circleSize);
-
-                console.log("OFFSET: " + offset);
-            }
             var x = hitObject.x - offset;
             var y = hitObject.y - offset;
             if(hardrock)
