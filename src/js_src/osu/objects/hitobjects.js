@@ -19,6 +19,11 @@ osu.objects.hitobjects = {
         SOUND_FINISH: 4,
         SOUND_CLAP: 8,
     },
+    HIT_ADDITIONS: {
+        NORMAL: 1,
+        SOFT: 2,
+        DRUM: 3,
+    },
 
     SLIDER_TYPES: {
         CATMULL: "C",
@@ -42,21 +47,31 @@ osu.objects.hitobjects = {
             return {type: this.TYPES.SPINNER, new_combo: newCombo}
         }
     },
-    parse_line: function (line, timing) {
+    parse_line: function (line, timing, sliderMulti) {
+
+        var get_timing_point = function (offset) {
+            for(var i = timing.length -1 ; i >=0 ; i--){
+                if(timing[i].offset <= offset)  return timing[i];
+            }
+            return timing[0];
+        };
+
+
         var hitObject = {};
 
         var hitArray = line.split(',');
 
-        var type = this.parse_type(parseInt(hitArray[3]));
+        var type = this.parse_type(+hitArray[3]);
 
-        hitObject.x = parseInt(hitArray[0]);
-        hitObject.y = parseInt(hitArray[1]);
-        hitObject.startTime = parseInt(hitArray[2]);
+        hitObject.x = +hitArray[0];
+        hitObject.y = +hitArray[1];
+        hitObject.startTime = +hitArray[2];
         hitObject.type = type.type;
         hitObject.newCombo = type.new_combo;
         hitObject.hitSounds = [];
+        hitObject.timing = get_timing_point(hitObject.startTime);
 
-        var soundByte = parseInt(hitArray[4]);
+        var soundByte = +hitArray[4];
         if ((soundByte & this.HIT_SOUNDS.SOUND_WHISTLE) == this.HIT_SOUNDS.SOUND_WHISTLE)
             hitObject.hitSounds.push(this.HIT_SOUNDS.SOUND_WHISTLE);
         if ((soundByte & this.HIT_SOUNDS.SOUND_FINISH) == this.HIT_SOUNDS.SOUND_FINISH)
@@ -71,15 +86,20 @@ osu.objects.hitobjects = {
             hitObject.additions = this.parse_additions(hitArray[5]);
         }
         if (hitObject.type == this.TYPES.SPINNER) {
-            hitObject.endTime = parseInt(hitArray[5]);
-            hitObject.additions = parseInt(hitArray[6]);
+            hitObject.endTime = +hitArray[5];
+            hitObject.additions = +hitArray[6];
         }
         if (hitObject.type == this.TYPES.SLIDER) {
             var sliderData = hitArray[5].split("|");
             hitObject.sliderType = sliderData[0];
-            hitObject.repeatCount = parseInt(hitArray[6]);
-            hitObject.pixelLength = parseInt(hitArray[7]);
-
+            hitObject.repeatCount = +hitArray[6];
+            hitObject.pixelLength = +hitArray[7];
+            hitObject.additions = this.parse_additions(hitArray[10]);
+            hitObject.edges =[];
+            hitObject.points = [];
+            var beats = (hitObject.pixelLength * hitObject.repeatCount) /(100*sliderMulti)
+            hitObject.duration = Math.ceil(beats * hitObject.timing.millisecondsPerBeat);
+            hitObject.endTime = hitObject.startTime + hitObject.duration;
 
         }
 
@@ -88,6 +108,25 @@ osu.objects.hitobjects = {
     },
 
     parse_additions: function (strAdditions) {
+        if(!strAdditions) return {};
+        var additions = {};
+        var adds = strAdditions.split(":");
+        if(adds.length > 0){
+            additions.sample = +adds[0];
+        }
+        if(adds.length > 1){
+            additions.additionalSample = +adds[1];
+        }
+        if(adds.length > 2){
+            additions.customSampleIndex = +adds[2];
+        }
+        if(adds.length > 3){
+            additions.hitSoundVolume = +adds[3];
+        }
+        if(adds.length > 4){
+            additions.hitsound = +adds[4];
+        }
+
         return {};
     },
 
@@ -109,7 +148,6 @@ osu.objects.hitobjects = {
 
                     var distance = osu.helpers.math.distance(hitObjectI.x, hitObjectI.y, hitObjectN.x, hitObjectN.y);
                     if (distance < 3) {
-                        console.log(n);
                         hitObjectN.stack = hitObjectI.stack + 1;
                         hitObjectI = hitObjectN;
                     }

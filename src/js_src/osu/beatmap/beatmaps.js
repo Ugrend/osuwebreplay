@@ -64,6 +64,9 @@ osu.beatmaps.BeatmapPreview = class BeatmapPreview {
             self.circleSize = beatmap.parsed.difficulty.CircleSize || 0;
             self.overallDifficulty = beatmap.parsed.difficulty.OverallDifficulty || 0;
             self.HPDrain = beatmap.parsed.difficulty.HPDrainRate || 0;
+            self.minBPM = beatmap.parsed.minBPM;
+            self.maxBPM = (beatmap.parsed.maxBPM == -1 ? false : beatmap.parsed.maxBPM);
+
 
             database.get_data(database.TABLES.ASSETS,beatmap.thumbnail, function (result) {
                 self.thumbnail_data = result.data;

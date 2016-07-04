@@ -420,11 +420,14 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
             events: [],
             timing_points: [],
             colours: {},
-            hit_objects: []
+            hit_objects: [],
+            minBPM: -1,
+            maxBPM: -1
         };
         var lines = data.replace("\r", "").split("\n");
         beatmap_config.version = lines[0];
         var current_setting = null;
+        var parentBPMS = 500;
         for (var i = 0; i < lines.length; i++) {
             var line = lines[i].trim();
             if (line === "") {
@@ -464,7 +467,8 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
                     break;
                 case "[timingpoints]":
                     var parts = line.split(",");
-                    beatmap_config.timing_points.push({
+
+                    var timingPoint = {
                         offset: +parts[0],
                         millisecondsPerBeat: +parts[1],
                         meter: +parts[2],
@@ -473,7 +477,32 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
                         volume: +parts[5],
                         inherited: +parts[6],
                         kaiMode: +parts[7]
-                    });
+                    };
+
+                    if(timingPoint.inherited == 1){
+                        parentBPMS = timingPoint.millisecondsPerBeat;
+                        if(parentBPMS < beatmap_config.minBPM || beatmap_config.minBPM == -1){
+                            if(beatmap_config.minBPM > beatmap_config.maxBPM){
+                                beatmap_config.maxBPM = beatmap_config.minBPM;
+                            }
+                            beatmap_config.minBPM = parentBPMS;
+                        }
+                    }
+                    else{
+                        //if inherited and postive we should ignore and multiply by 1
+                        //You cant do this in the editor so shouldnt happen, but this is how the game seems to handle it.
+                        if(timingPoint.millisecondsPerBeat >= 0){
+                            timingPoint.millisecondsPerBeat = parentBPMS;
+                        }
+                        else{
+                            var multiplier = Math.abs(100/timingPoint.millisecondsPerBeat);
+                            timingPoint.millisecondsPerBeat = parentBPMS * multiplier;
+                        }
+                    }
+                    beatmap_config.minBPM = Math.round(60000 / beatmap_config.minBPM);
+                    if(beatmap_config.maxBPM !=-1) beatmap_config.maxBPM = Math.round(60000 / beatmap_config.maxBPM);
+
+                    beatmap_config.timing_points.push(timingPoint);
                     break;
                 case "[colours]":
                     var settings = line.split(":");
@@ -1275,6 +1304,9 @@ osu.beatmaps.BeatmapPreview = class BeatmapPreview {
             self.circleSize = beatmap.parsed.difficulty.CircleSize || 0;
             self.overallDifficulty = beatmap.parsed.difficulty.OverallDifficulty || 0;
             self.HPDrain = beatmap.parsed.difficulty.HPDrainRate || 0;
+            self.minBPM = beatmap.parsed.minBPM;
+            self.maxBPM = (beatmap.parsed.maxBPM == -1 ? false : beatmap.parsed.maxBPM);
+
 
             database.get_data(database.TABLES.ASSETS,beatmap.thumbnail, function (result) {
                 self.thumbnail_data = result.data;
@@ -1855,6 +1887,11 @@ osu.objects.hitobjects = {
         SOUND_FINISH: 4,
         SOUND_CLAP: 8,
     },
+    HIT_ADDITIONS: {
+        NORMAL: 1,
+        SOFT: 2,
+        DRUM: 3,
+    },
 
     SLIDER_TYPES: {
         CATMULL: "C",
@@ -1878,21 +1915,31 @@ osu.objects.hitobjects = {
             return {type: this.TYPES.SPINNER, new_combo: newCombo}
         }
     },
-    parse_line: function (line, timing) {
+    parse_line: function (line, timing, sliderMulti) {
+
+        var get_timing_point = function (offset) {
+            for(var i = timing.length -1 ; i >=0 ; i--){
+                if(timing[i].offset <= offset)  return timing[i];
+            }
+            return timing[0];
+        };
+
+
         var hitObject = {};
 
         var hitArray = line.split(',');
 
-        var type = this.parse_type(parseInt(hitArray[3]));
+        var type = this.parse_type(+hitArray[3]);
 
-        hitObject.x = parseInt(hitArray[0]);
-        hitObject.y = parseInt(hitArray[1]);
-        hitObject.startTime = parseInt(hitArray[2]);
+        hitObject.x = +hitArray[0];
+        hitObject.y = +hitArray[1];
+        hitObject.startTime = +hitArray[2];
         hitObject.type = type.type;
         hitObject.newCombo = type.new_combo;
         hitObject.hitSounds = [];
+        hitObject.timing = get_timing_point(hitObject.startTime);
 
-        var soundByte = parseInt(hitArray[4]);
+        var soundByte = +hitArray[4];
         if ((soundByte & this.HIT_SOUNDS.SOUND_WHISTLE) == this.HIT_SOUNDS.SOUND_WHISTLE)
             hitObject.hitSounds.push(this.HIT_SOUNDS.SOUND_WHISTLE);
         if ((soundByte & this.HIT_SOUNDS.SOUND_FINISH) == this.HIT_SOUNDS.SOUND_FINISH)
@@ -1907,15 +1954,20 @@ osu.objects.hitobjects = {
             hitObject.additions = this.parse_additions(hitArray[5]);
         }
         if (hitObject.type == this.TYPES.SPINNER) {
-            hitObject.endTime = parseInt(hitArray[5]);
-            hitObject.additions = parseInt(hitArray[6]);
+            hitObject.endTime = +hitArray[5];
+            hitObject.additions = +hitArray[6];
         }
         if (hitObject.type == this.TYPES.SLIDER) {
             var sliderData = hitArray[5].split("|");
             hitObject.sliderType = sliderData[0];
-            hitObject.repeatCount = parseInt(hitArray[6]);
-            hitObject.pixelLength = parseInt(hitArray[7]);
-
+            hitObject.repeatCount = +hitArray[6];
+            hitObject.pixelLength = +hitArray[7];
+            hitObject.additions = this.parse_additions(hitArray[10]);
+            hitObject.edges =[];
+            hitObject.points = [];
+            var beats = (hitObject.pixelLength * hitObject.repeatCount) /(100*sliderMulti)
+            hitObject.duration = Math.ceil(beats * hitObject.timing.millisecondsPerBeat);
+            hitObject.endTime = hitObject.startTime + hitObject.duration;
 
         }
 
@@ -1924,6 +1976,25 @@ osu.objects.hitobjects = {
     },
 
     parse_additions: function (strAdditions) {
+        if(!strAdditions) return {};
+        var additions = {};
+        var adds = strAdditions.split(":");
+        if(adds.length > 0){
+            additions.sample = +adds[0];
+        }
+        if(adds.length > 1){
+            additions.additionalSample = +adds[1];
+        }
+        if(adds.length > 2){
+            additions.customSampleIndex = +adds[2];
+        }
+        if(adds.length > 3){
+            additions.hitSoundVolume = +adds[3];
+        }
+        if(adds.length > 4){
+            additions.hitsound = +adds[4];
+        }
+
         return {};
     },
 
@@ -1945,7 +2016,6 @@ osu.objects.hitobjects = {
 
                     var distance = osu.helpers.math.distance(hitObjectI.x, hitObjectI.y, hitObjectN.x, hitObjectN.y);
                     if (distance < 3) {
-                        console.log(n);
                         hitObjectN.stack = hitObjectI.stack + 1;
                         hitObjectI = hitObjectN;
                     }
@@ -2508,7 +2578,7 @@ osu.ui.interface.mainscreen = {
         this.mapped_by.innerHTML = "Mapped by " + beatmap.creator;
         this.map_length_and_objects.innerHTML =
             "Length: " + beatmap.length +
-            " BPM: " + beatmap.bpm +
+            " BPM: " + beatmap.minBPM + (beatmap.maxBPM ? " - " + beatmap.maxBPM : "");
             " Objects: " + beatmap.objects;
         this.map_object_type_counts.innerHTML =
             "Circles: " +  beatmap.circles  +
@@ -2759,16 +2829,17 @@ osu.ui.interface.osugame = {
     },
 
 
-
     create_background: function () {
+
+        this.beatmap.background = this.beatmap.background || ""; //prevent pixi breaking on undefined background
         var background = PIXI.Texture.fromImage(this.beatmap.background);
         var background_sprite = new PIXI.Sprite(background);
         background_sprite.width = this.getRenderWidth();
         background_sprite.height = this.getRenderHeight();
         this.master_container.addChild(background_sprite);
+
         this.create_dimmer();
         this.master_container.addChild(this.background_dimmer);
-
 
 
     },
@@ -2840,7 +2911,6 @@ osu.ui.interface.osugame = {
         this.keypress_area.addChild(this.keypress_4_Text);
 
         this.master_container.addChild(this.keypress_area);
-
 
 
     },
@@ -2944,13 +3014,13 @@ osu.ui.interface.osugame = {
         this.master_container.addChild(this.replay_text);
     },
     create_mod_container: function () {
-        for(var i = 0; i < this.mods.length ; i++ ){
-            if(this.mods[i].icon != ""){
+        for (var i = 0; i < this.mods.length; i++) {
+            if (this.mods[i].icon != "") {
                 console.log(this.mods[i]);
                 var modpng = PIXI.Texture.fromImage(osu.skins[this.mods[i].icon]);
                 var modSprite = new PIXI.Sprite(modpng);
                 modSprite.position.y = this.getRenderHeight() / 5;
-                modSprite.position.x = (this.getRenderWidth() *.95) - (i*50);
+                modSprite.position.x = (this.getRenderWidth() * .95) - (i * 50);
                 modSprite.anchor.set(0.5);
                 this.master_container.addChild(modSprite);
             }
@@ -3006,7 +3076,7 @@ osu.ui.interface.osugame = {
         }, 4000);
     },
     bind_events: function () {
-        if(!this.events_bound){
+        if (!this.events_bound) {
             event_handler.on(event_handler.EVENTS.SETTINGS_CHANGED, this.create_dimmer.bind(this));
             this.events_bound = true;
         }
@@ -3049,9 +3119,9 @@ osu.ui.interface.osugame = {
             if (this.beatmap.map_data.events[i][0] == "2") {
                 var startTime = parseInt(this.beatmap.map_data.events[i][1]);
                 var endTime = parseInt(this.beatmap.map_data.events[i][2]) - 2300
-                if(this.is_doubletime){
-                    startTime = startTime *.667;
-                    endTime = endTime *.667;
+                if (this.is_doubletime) {
+                    startTime = startTime * .667;
+                    endTime = endTime * .667;
                 }
 
                 this.break_times.push(startTime);
@@ -3061,25 +3131,25 @@ osu.ui.interface.osugame = {
         var comboNum = 0;
         var comboColour = 0;
         var approachRate = parseInt(this.beatmap.map_data.difficulty.ApproachRate);
-        if(this.is_hardrock){
+        if (this.is_hardrock) {
             approachRate = approachRate * 1.4;
-            if(approachRate > 10) approachRate = 10;
+            if (approachRate > 10) approachRate = 10;
         }
-        if(this.is_easy) approachRate = approachRate/2;
+        if (this.is_easy) approachRate = approachRate / 2;
 
 
         var difficultyCircleSize = parseInt(this.beatmap.map_data.difficulty.CircleSize);
-        if(this.is_hardrock && difficultyCircleSize <7) difficultyCircleSize +=1;
-        if(this.is_easy && difficultyCircleSize > 1) difficultyCircleSize -=1; //TODO: work out if that's correct
+        if (this.is_hardrock && difficultyCircleSize < 7) difficultyCircleSize += 1;
+        if (this.is_easy && difficultyCircleSize > 1) difficultyCircleSize -= 1; //TODO: work out if that's correct
         var circleSize = (this.getRenderWidth() / 640) * (108.848 - (difficultyCircleSize * 8.9646));
-        var unScaledDiameter =  (108.848 - (difficultyCircleSize * 8.9646));
+        var unScaledDiameter = (108.848 - (difficultyCircleSize * 8.9646));
         this.approachTime = 0;
         if (approachRate < 5) {
             this.approachTime = (1800 - (approachRate * 120))
         } else {
             this.approachTime = (1200 - ((approachRate - 5) * 150));
         }
-        if(this.is_doubletime) this.approachTime =  this.approachTime - (this.approachTime * .33);
+        if (this.is_doubletime) this.approachTime = this.approachTime - (this.approachTime * .33);
 
         for (i = 0; i < this.beatmap.map_data.hit_objects.length; i++) {
             var hitObjectInt = parseInt(this.beatmap.map_data.hit_objects[i][3]);
@@ -3087,17 +3157,17 @@ osu.ui.interface.osugame = {
             var next_object = false;
 
             //TODO: double processing ftl no need to do this twice :(
-            if(i+1 != this.beatmap.map_data.hit_objects.length){
-                var next  = this.beatmap.map_data.hit_objects[i+1];
+            if (i + 1 != this.beatmap.map_data.hit_objects.length) {
+                var next = this.beatmap.map_data.hit_objects[i + 1];
                 var nextObjectType = osu.objects.hitobjects.parse_type(next[3]);
-                if(!nextObjectType.new_combo && nextObjectType.type !== osu.objects.hitobjects.TYPES.SPINNER){
+                if (!nextObjectType.new_combo && nextObjectType.type !== osu.objects.hitobjects.TYPES.SPINNER) {
                     var next_x = this.calculate_x(parseInt(next[0]));
                     var next_y = parseInt(next[1]);
-                    if(this.is_hardrock) next_y = 384 - next_y;
+                    if (this.is_hardrock) next_y = 384 - next_y;
                     next_y = this.calculate_y(next_y);
                     var next_t = parseInt(next[2]);
-                    if(this.is_doubletime) next_t = next_t*.667;
-                    next_object = {x: next_x, y: next_y, t:next_t}
+                    if (this.is_doubletime) next_t = next_t * .667;
+                    next_object = {x: next_x, y: next_y, t: next_t}
                 }
 
             }
@@ -3117,21 +3187,21 @@ osu.ui.interface.osugame = {
             var is_slider = hitObject.type == osu.objects.hitobjects.TYPES.SLIDER;
             var is_spinner = hitObject.type == osu.objects.hitobjects.TYPES.CIRCLE;
 
-            if (is_circle|| is_slider) {
+            if (is_circle || is_slider) {
                 var x = parseInt(this.beatmap.map_data.hit_objects[i][0]);
                 var y = parseInt(this.beatmap.map_data.hit_objects[i][1]);
                 var t = parseInt(this.beatmap.map_data.hit_objects[i][2]);
-                if(this.is_doubletime) t = t*.667;
+                if (this.is_doubletime) t = t * .667;
                 if (is_circle) {
                     this.hit_objects.push({
                         t: t,
-                        object: new Circle(this,this.hit_object_container, this.is_hidden, x, y, this.approachTime, t, circleSize, osu.skins.COMBO_COLOURS[comboColour], comboNum, next_object)
+                        object: new Circle(this, this.hit_object_container, this.is_hidden, x, y, this.approachTime, t, circleSize, osu.skins.COMBO_COLOURS[comboColour], comboNum, next_object)
                     });
                 }
-                if(is_slider){
+                if (is_slider) {
                     this.hit_objects.push({
                         t: t,
-                        object: new osu.objects.sliders.Slider(this,this.hit_object_container, this.is_hidden, x, y, this.approachTime, t, circleSize, osu.skins.COMBO_COLOURS[comboColour], comboNum,this.beatmap.map_data.hit_objects[i].slice(5), next_object)
+                        object: new osu.objects.sliders.Slider(this, this.hit_object_container, this.is_hidden, x, y, this.approachTime, t, circleSize, osu.skins.COMBO_COLOURS[comboColour], comboNum, this.beatmap.map_data.hit_objects[i].slice(5), next_object)
                     });
 
 
@@ -3144,7 +3214,7 @@ osu.ui.interface.osugame = {
         osu.objects.hitobjects.create_stacks(this.hit_objects, 0.7, unScaledDiameter, this.is_hardrock);
 
         this.audioLeadIn = parseInt(this.beatmap.map_data.general.AudioLeadIn);
-        if(this.is_doubletime) this.audioLeadIn = this.audioLeadIn *.667
+        if (this.is_doubletime) this.audioLeadIn = this.audioLeadIn * .667
 
 
         //calculate x,y prior as processing slowly casues it to get out of sync
@@ -3155,9 +3225,9 @@ osu.ui.interface.osugame = {
                 if (this.replay_data[i].length == 4) {
                     this.replay_data[i][1] = this.calculate_x(this.replay_data[i][1]);
                     this.replay_data[i][2] = this.calculate_y(this.replay_data[i][2]);
-                    if(this.is_doubletime){
+                    if (this.is_doubletime) {
                         //seems replay data also needs to be speed up
-                        this.replay_data[i][0] = this.replay_data[i][0] *.667
+                        this.replay_data[i][0] = this.replay_data[i][0] * .667
                     }
                 }
             }
@@ -3218,7 +3288,7 @@ osu.ui.interface.osugame = {
                 }
 
             }
-        }else{
+        } else {
             /*TODO: SEEMS IF 3rd object in replay array if negative you need to 'take' that time away from the replay or DELAY the start of the song by that much (BUT NOT ALL THE TIME)
              *       However I am not sure if the song already has a audioleadin does it also get taken away or not :S
              *       All replays do seem to have a negative in this position
@@ -3239,10 +3309,10 @@ osu.ui.interface.osugame = {
              *         Skips are completly broken with DT
              *
              */
-            if(this.replay_data[2][0] < 0){
-                if(this.audioLeadIn == 0){
+            if (this.replay_data[2][0] < 0) {
+                if (this.audioLeadIn == 0) {
                     this.audioLeadIn = this.replay_data[2][0] * -1;
-                    if(this.is_doubletime) this.audioLeadIn = this.audioLeadIn *.667;
+                    if (this.is_doubletime) this.audioLeadIn = this.audioLeadIn * .667;
                 }
 
             }
@@ -3301,7 +3371,7 @@ osu.ui.interface.osugame = {
             //if it has been destroyed we will set the last object count to that pos so we don't iterate over all the objects later on
             if (!this.hit_objects[i].object.draw(time)) {
                 //only allow this to icrement by 1 in case a object is still drawing like a slider.
-                if(this.oldest_object_position +1 == i){
+                if (this.oldest_object_position + 1 == i) {
                     this.oldest_object_position = i;
                 }
 
@@ -3332,7 +3402,7 @@ osu.ui.interface.osugame = {
     game_loop: function () {
         //TODO: check if i need to do something with replays also
         if (!this.has_started && this.audioLeadIn == 0) {
-            if(this.is_doubletime) osu.audio.music.set_playback_speed(1.5);
+            if (this.is_doubletime) osu.audio.music.set_playback_speed(1.5);
             osu.audio.music.start();
             this.date_started = Date.now();
             this.has_started = true;
@@ -3388,7 +3458,7 @@ osu.ui.interface.osugame = {
 
             if (next_movment[0] < 0 || next_movment[2] < 0) {
                 /*
-                TODO: SEEMS IF 3rd object in array if negative you need to 'take' that time away from the replay or DELAY the start of the song by that much
+                 TODO: SEEMS IF 3rd object in array if negative you need to 'take' that time away from the replay or DELAY the start of the song by that much
                  It seems if Y coord is negative it indicates how much time to skip ahead
                  I have had a map replay where it will go
 
@@ -3533,15 +3603,20 @@ osu.ui.interface.scorescreen = {
 
 
     create_background_container: function(){
+
+        this.beatmap.background = this.beatmap.background || ""; //prevent pixi breaking on undefined background
         var background = PIXI.Texture.fromImage(this.beatmap.background);
         var background_sprite = new PIXI.Sprite(background);
         background_sprite.width = this.getRenderWidth();
         background_sprite.height = this.getRenderHeight();
+        this.master_container.addChild(background_sprite);
+
+
 
         var background_dimmer = new PIXI.Graphics();
         background_dimmer.beginFill(0x0, 0.5);
         background_dimmer.drawRect(0, 0, this.getRenderWidth(), this.getRenderHeight());
-        this.master_container.addChild(background_sprite);
+
         this.master_container.addChild(background_dimmer);
 
 

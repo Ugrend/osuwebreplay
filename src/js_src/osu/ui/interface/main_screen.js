@@ -199,7 +199,7 @@ osu.ui.interface.mainscreen = {
         this.mapped_by.innerHTML = "Mapped by " + beatmap.creator;
         this.map_length_and_objects.innerHTML =
             "Length: " + beatmap.length +
-            " BPM: " + beatmap.bpm +
+            " BPM: " + beatmap.minBPM + (beatmap.maxBPM ? " - " + beatmap.maxBPM : "");
             " Objects: " + beatmap.objects;
         this.map_object_type_counts.innerHTML =
             "Circles: " +  beatmap.circles  +

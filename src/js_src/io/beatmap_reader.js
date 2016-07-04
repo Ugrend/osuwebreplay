@@ -32,11 +32,14 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
             events: [],
             timing_points: [],
             colours: {},
-            hit_objects: []
+            hit_objects: [],
+            minBPM: -1,
+            maxBPM: -1
         };
         var lines = data.replace("\r", "").split("\n");
         beatmap_config.version = lines[0];
         var current_setting = null;
+        var parentBPMS = 500;
         for (var i = 0; i < lines.length; i++) {
             var line = lines[i].trim();
             if (line === "") {
@@ -76,7 +79,8 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
                     break;
                 case "[timingpoints]":
                     var parts = line.split(",");
-                    beatmap_config.timing_points.push({
+
+                    var timingPoint = {
                         offset: +parts[0],
                         millisecondsPerBeat: +parts[1],
                         meter: +parts[2],
@@ -85,7 +89,32 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
                         volume: +parts[5],
                         inherited: +parts[6],
                         kaiMode: +parts[7]
-                    });
+                    };
+
+                    if(timingPoint.inherited == 1){
+                        parentBPMS = timingPoint.millisecondsPerBeat;
+                        if(parentBPMS < beatmap_config.minBPM || beatmap_config.minBPM == -1){
+                            if(beatmap_config.minBPM > beatmap_config.maxBPM){
+                                beatmap_config.maxBPM = beatmap_config.minBPM;
+                            }
+                            beatmap_config.minBPM = parentBPMS;
+                        }
+                    }
+                    else{
+                        //if inherited and postive we should ignore and multiply by 1
+                        //You cant do this in the editor so shouldnt happen, but this is how the game seems to handle it.
+                        if(timingPoint.millisecondsPerBeat >= 0){
+                            timingPoint.millisecondsPerBeat = parentBPMS;
+                        }
+                        else{
+                            var multiplier = Math.abs(100/timingPoint.millisecondsPerBeat);
+                            timingPoint.millisecondsPerBeat = parentBPMS * multiplier;
+                        }
+                    }
+                    beatmap_config.minBPM = Math.round(60000 / beatmap_config.minBPM);
+                    if(beatmap_config.maxBPM !=-1) beatmap_config.maxBPM = Math.round(60000 / beatmap_config.maxBPM);
+
+                    beatmap_config.timing_points.push(timingPoint);
                     break;
                 case "[colours]":
                     var settings = line.split(":");
