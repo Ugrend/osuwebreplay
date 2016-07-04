@@ -74,13 +74,13 @@ osu.ui.interface.osugame = {
 
     create_background: function () {
 
-        if (this.beatmap.background) {
-            var background = PIXI.Texture.fromImage(this.beatmap.background);
-            var background_sprite = new PIXI.Sprite(background);
-            background_sprite.width = this.getRenderWidth();
-            background_sprite.height = this.getRenderHeight();
-            this.master_container.addChild(background_sprite);
-        }
+        this.beatmap.background = this.beatmap.background || ""; //prevent pixi breaking on undefined background
+        var background = PIXI.Texture.fromImage(this.beatmap.background);
+        var background_sprite = new PIXI.Sprite(background);
+        background_sprite.width = this.getRenderWidth();
+        background_sprite.height = this.getRenderHeight();
+        this.master_container.addChild(background_sprite);
+
         this.create_dimmer();
         this.master_container.addChild(this.background_dimmer);
 
