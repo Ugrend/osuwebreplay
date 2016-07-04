@@ -1924,6 +1924,28 @@ osu.objects.hitobjects = {
             return timing[0];
         };
 
+        var parse_additions = function (strAdditions) {
+            if(!strAdditions) return {};
+            var additions = {};
+            var adds = strAdditions.split(":");
+            if(adds.length > 0){
+                additions.sample = +adds[0];
+            }
+            if(adds.length > 1){
+                additions.additionalSample = +adds[1];
+            }
+            if(adds.length > 2){
+                additions.customSampleIndex = +adds[2];
+            }
+            if(adds.length > 3){
+                additions.hitSoundVolume = +adds[3];
+            }
+            if(adds.length > 4){
+                additions.hitsound = +adds[4];
+            }
+
+            return {};
+        };
 
         var hitObject = {};
 
@@ -1951,7 +1973,7 @@ osu.objects.hitobjects = {
 
 
         if (hitObject.type == this.TYPES.CIRCLE) {
-            hitObject.additions = this.parse_additions(hitArray[5]);
+            hitObject.additions = parse_additions(hitArray[5]);
         }
         if (hitObject.type == this.TYPES.SPINNER) {
             hitObject.endTime = +hitArray[5];
@@ -1962,7 +1984,7 @@ osu.objects.hitobjects = {
             hitObject.sliderType = sliderData[0];
             hitObject.repeatCount = +hitArray[6];
             hitObject.pixelLength = +hitArray[7];
-            hitObject.additions = this.parse_additions(hitArray[10]);
+            hitObject.additions = parse_additions(hitArray[10]);
             hitObject.edges =[];
             hitObject.points = [];
             var beats = (hitObject.pixelLength * hitObject.repeatCount) /(100*sliderMulti)
@@ -1975,28 +1997,6 @@ osu.objects.hitobjects = {
         return hitObject;
     },
 
-    parse_additions: function (strAdditions) {
-        if(!strAdditions) return {};
-        var additions = {};
-        var adds = strAdditions.split(":");
-        if(adds.length > 0){
-            additions.sample = +adds[0];
-        }
-        if(adds.length > 1){
-            additions.additionalSample = +adds[1];
-        }
-        if(adds.length > 2){
-            additions.customSampleIndex = +adds[2];
-        }
-        if(adds.length > 3){
-            additions.hitSoundVolume = +adds[3];
-        }
-        if(adds.length > 4){
-            additions.hitsound = +adds[4];
-        }
-
-        return {};
-    },
 
     //https://gist.github.com/peppy/1167470
     create_stacks: function (hitobjects, stackLeniency, circleSize, hardrock) {
