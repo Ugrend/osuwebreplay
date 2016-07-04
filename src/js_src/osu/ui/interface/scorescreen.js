@@ -54,15 +54,20 @@ osu.ui.interface.scorescreen = {
 
 
     create_background_container: function(){
-        var background = PIXI.Texture.fromImage(this.beatmap.background);
-        var background_sprite = new PIXI.Sprite(background);
-        background_sprite.width = this.getRenderWidth();
-        background_sprite.height = this.getRenderHeight();
+
+        if(this.beatmap.background){
+            var background = PIXI.Texture.fromImage(this.beatmap.background);
+            var background_sprite = new PIXI.Sprite(background);
+            background_sprite.width = this.getRenderWidth();
+            background_sprite.height = this.getRenderHeight();
+            this.master_container.addChild(background_sprite);
+        }
+
 
         var background_dimmer = new PIXI.Graphics();
         background_dimmer.beginFill(0x0, 0.5);
         background_dimmer.drawRect(0, 0, this.getRenderWidth(), this.getRenderHeight());
-        this.master_container.addChild(background_sprite);
+
         this.master_container.addChild(background_dimmer);
 
 
