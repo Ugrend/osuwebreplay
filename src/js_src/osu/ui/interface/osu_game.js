@@ -427,7 +427,7 @@ osu.ui.interface.osugame = {
             }
             var is_circle = hitObject.type == osu.objects.hitobjects.TYPES.CIRCLE;
             var is_slider = hitObject.type == osu.objects.hitobjects.TYPES.SLIDER;
-            var is_spinner = hitObject.type == osu.objects.hitobjects.TYPES.CIRCLE;
+            var is_spinner = hitObject.type == osu.objects.hitobjects.TYPES.SPINNER;
 
             if (is_circle || is_slider) {
                 var x = hitObject.x;
@@ -453,7 +453,7 @@ osu.ui.interface.osugame = {
             }
 
         }
-        osu.objects.hitobjects.create_stacks(this.hit_objects, 0.7, unScaledDiameter, this.is_hardrock);
+        osu.objects.hitobjects.create_stacks(this.hit_objects, parseFloat(this.beatmap.map_data.general.StackLeniency) || 0.7, unScaledDiameter, this.is_hardrock);
 
         this.audioLeadIn = parseInt(this.beatmap.map_data.general.AudioLeadIn);
         if (this.is_doubletime) this.audioLeadIn = this.audioLeadIn * .667
