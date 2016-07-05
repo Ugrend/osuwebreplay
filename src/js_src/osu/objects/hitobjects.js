@@ -118,6 +118,34 @@ osu.objects.hitobjects = {
             hitObject.pixelLength = +hitArray[7];
             hitObject.additions = parse_additions(hitArray[10]);
             hitObject.edges =[];
+            var sounds    = [];
+            var additions = [];
+            if (hitArray[8])  sounds = hitArray[8].split('|');
+            if (hitArray[9])  additions = hitArray[9].split('|');
+            for (var x = 0; x < hitObject.repeatCount+1 ; x++) {
+                var edge = {
+                    sounds: [],
+                    additions: parse_additions(additions[x])
+                };
+
+                if (sounds[x]) {
+                    soundByte = sounds[x];
+                    //TODO: function this
+                    if ((soundByte & this.HIT_SOUNDS.SOUND_WHISTLE) == this.HIT_SOUNDS.SOUND_WHISTLE)
+                        edge.additions.push(this.HIT_SOUNDS.SOUND_WHISTLE);
+                    if ((soundByte & this.HIT_SOUNDS.SOUND_FINISH) == this.HIT_SOUNDS.SOUND_FINISH)
+                        edge.additions.push(this.HIT_SOUNDS.SOUND_FINISH);
+                    if ((soundByte & this.HIT_SOUNDS.SOUND_CLAP) == this.HIT_SOUNDS.SOUND_CLAP)
+                        edge.additions.push(this.HIT_SOUNDS.SOUND_CLAP);
+                    if (hitObject.hitSounds.length === 0)
+                        edge.additions.push(this.HIT_SOUNDS.NORMAL);
+                } else {
+                    edge.additions.push(this.HIT_SOUNDS.NORMAL);
+                }
+
+                hitObject.edges.push(edge);
+            }
+
             hitObject.points = [];
             for(var i = 1; i < sliderData.length; i++){
                 var points = sliderData[i].split(":");
