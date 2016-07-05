@@ -65,8 +65,8 @@ class Circle{
             this.approchCircleSprite = new PIXI.Sprite(approach_circle_texture);
             this.approchCircleSprite.tint = this.colour;
             this.approchCircleSprite.anchor.set(0.5);
-            this.approchCircleSprite.width = this.diameter * 3;
-            this.approchCircleSprite.height = this.diameter * 3;
+            this.approchCircleSprite.width = this.diameter * 2.5;
+            this.approchCircleSprite.height = this.diameter * 2.5;
             this.circleContainer.addChild(this.approchCircleSprite);
         }
 //TODO: correct for offsets
@@ -186,7 +186,7 @@ class Circle{
                 //dont need to calculate this so often
                 if(Date.now() - this.last_draw_time > 35) {
                     var time_diff = this.hit_time - cur_time;
-                    var scale = 1 + (time_diff / this.approach_rate) * 3;
+                    var scale = 1 + (time_diff / this.approach_rate) * 2.5;
                     if (scale < 1) scale = 1;
                     this.approchCircleSprite.width = this.diameter * scale;
                     this.approchCircleSprite.height = this.diameter * scale;
