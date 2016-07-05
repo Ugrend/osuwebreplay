@@ -40,7 +40,7 @@ osu.beatmaps.BeatmapPreview = class BeatmapPreview {
         this.circles = 0;
         this.sliders = 0;
         this.spinners = 0;
-        this.length = "";
+        this.song_length = "";
 
         var self = this;
         database.get_data(database.TABLES.BEATMAPS,md5sum, function (r) {
@@ -66,7 +66,21 @@ osu.beatmaps.BeatmapPreview = class BeatmapPreview {
             self.HPDrain = beatmap.parsed.difficulty.HPDrainRate || 0;
             self.minBPM = beatmap.parsed.minBPM;
             self.maxBPM = (beatmap.parsed.maxBPM == -1 ? false : beatmap.parsed.maxBPM);
+            self.circles = beatmap.parsed.circles || 0;
+            self.sliders = beatmap.parsed.sliders || 0;
+            self.spinners = beatmap.parsed.spinners || 0;
+            self.objects = self.circles + self.sliders + self.spinners;
 
+            var milliseconds = beatmap.parsed.time_length;
+            var seconds = parseInt((milliseconds / 1000) % 60 );
+            var minutes = parseInt(((milliseconds / (1000*60)) % 60));
+            var hours   = parseInt(((milliseconds / (1000*60*60)) % 24));
+
+            var pad = function (s) {
+                return ('00'+s).substring(s.length);
+            };
+
+            self.song_length = (hours > 0 ? hours.toString() + ":" : "") + pad(minutes.toString()) + ":"  + pad(seconds.toString());
 
             database.get_data(database.TABLES.ASSETS,beatmap.thumbnail, function (result) {
                 self.thumbnail_data = result.data;

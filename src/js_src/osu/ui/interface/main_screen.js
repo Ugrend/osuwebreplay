@@ -198,8 +198,8 @@ osu.ui.interface.mainscreen = {
             "{{#titleunicode}}{{titleunicode}}{{/titleunicode}}{{^titleunicode}}{{title}}{{/titleunicode}}  [{{version}}]",beatmap);
         this.mapped_by.innerHTML = "Mapped by " + beatmap.creator;
         this.map_length_and_objects.innerHTML =
-            "Length: " + beatmap.length +
-            " BPM: " + beatmap.minBPM + (beatmap.maxBPM ? " - " + beatmap.maxBPM : "");
+            "Length: " + beatmap.song_length +
+            " BPM: " +  (beatmap.maxBPM ? beatmap.maxBPM + " - " : "") + beatmap.minBPM  +
             " Objects: " + beatmap.objects;
         this.map_object_type_counts.innerHTML =
             "Circles: " +  beatmap.circles  +
