@@ -119,6 +119,12 @@ osu.objects.hitobjects = {
             hitObject.additions = parse_additions(hitArray[10]);
             hitObject.edges =[];
             hitObject.points = [];
+            for(var i = 1; i < sliderData.length; i++){
+                var points = sliderData[i].split(":");
+                hitObject.points.push({x:+points[0], y:+points[1]});
+            }
+
+
             var beats = (hitObject.pixelLength * hitObject.repeatCount) /(100*sliderMulti)
             hitObject.duration = Math.ceil(beats * hitObject.timing.millisecondsPerBeat);
             hitObject.endTime = hitObject.startTime + hitObject.duration;
