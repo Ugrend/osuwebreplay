@@ -422,7 +422,11 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
             colours: {},
             hit_objects: [],
             minBPM: -1,
-            maxBPM: -1
+            maxBPM: -1,
+            circles: 0,
+            sliders: 0,
+            spinners: 0,
+            time_length: 0,
         };
         var lines = data.replace("\r", "").split("\n");
         beatmap_config.version = lines[0];
@@ -481,7 +485,7 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
 
                     if(timingPoint.inherited == 1){
                         parentBPMS = timingPoint.millisecondsPerBeat;
-                        if(parentBPMS < beatmap_config.minBPM || beatmap_config.minBPM == -1){
+                        if(parentBPMS < beatmap_config.minBPM || beatmap_config.minBPM === -1){
                             if(beatmap_config.minBPM > beatmap_config.maxBPM){
                                 beatmap_config.maxBPM = beatmap_config.minBPM;
                             }
@@ -511,7 +515,17 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
                     }
                     break;
                 case "[hitobjects]":
-                    var hit_object = line.split(",");
+                    var hit_object = osu.objects.hitobjects.parse_line(line, beatmap_config.timing_points, beatmap_config.difficulty.SliderMultiplier || 1);
+                    switch(hit_object.type) {
+                        case osu.objects.hitobjects.TYPES.CIRCLE:
+                            beatmap_config.circles++;
+                            break;
+                        case osu.objects.hitobjects.TYPES.SLIDER:
+                            beatmap_config.sliders++;
+                            break;
+                        case osu.objects.hitobjects.TYPES.SPINNER:
+                            beatmap_config.spinners++;
+                    }
                     beatmap_config.hit_objects.push(hit_object);
                     break;
 
@@ -519,8 +533,8 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
 
 
         }
-
-
+        var lastHitObject = beatmap_config.hit_objects[beatmap_config.hit_objects.length-1];
+        beatmap_config.time_length = lastHitObject.endTime || lastHitObject.startTime;
         return beatmap_config;
     };
 
@@ -1969,7 +1983,7 @@ osu.objects.hitobjects = {
         if ((soundByte & this.HIT_SOUNDS.SOUND_CLAP) == this.HIT_SOUNDS.SOUND_CLAP)
             hitObject.hitSounds.push(this.HIT_SOUNDS.SOUND_CLAP);
         if (hitObject.hitSounds.length === 0)
-            hitObject.hitSounds.push(this.HIT_SOUNDS.NORMAL);
+            hitObject.hitSounds.push(this.HIT_SOUNDS.SOUND_NORMAL);
 
 
         if (hitObject.type == this.TYPES.CIRCLE) {
@@ -2000,15 +2014,15 @@ osu.objects.hitobjects = {
                     soundByte = sounds[x];
                     //TODO: function this
                     if ((soundByte & this.HIT_SOUNDS.SOUND_WHISTLE) == this.HIT_SOUNDS.SOUND_WHISTLE)
-                        edge.additions.push(this.HIT_SOUNDS.SOUND_WHISTLE);
+                        edge.sounds.push(this.HIT_SOUNDS.SOUND_WHISTLE);
                     if ((soundByte & this.HIT_SOUNDS.SOUND_FINISH) == this.HIT_SOUNDS.SOUND_FINISH)
-                        edge.additions.push(this.HIT_SOUNDS.SOUND_FINISH);
+                        edge.sounds.push(this.HIT_SOUNDS.SOUND_FINISH);
                     if ((soundByte & this.HIT_SOUNDS.SOUND_CLAP) == this.HIT_SOUNDS.SOUND_CLAP)
-                        edge.additions.push(this.HIT_SOUNDS.SOUND_CLAP);
+                        edge.sounds.push(this.HIT_SOUNDS.SOUND_CLAP);
                     if (hitObject.hitSounds.length === 0)
-                        edge.additions.push(this.HIT_SOUNDS.NORMAL);
+                        edge.sounds.push(this.HIT_SOUNDS.SOUND_NORMAL);
                 } else {
-                    edge.additions.push(this.HIT_SOUNDS.NORMAL);
+                    edge.sounds.push(this.HIT_SOUNDS.SOUND_NORMAL);
                 }
 
                 hitObject.edges.push(edge);
@@ -2121,13 +2135,11 @@ osu.objects.sliders = {
             this.sliderGraphics = new PIXI.Graphics();
             this.sliderGraphics.beginFill(this.colour);
             this.sliderGraphics.lineStyle(5,0xFFFFFF);
-            var slider_points = this.slider_data[0].split("|");
-            var slider_type = slider_points[0];
+            var slider_points = this.slider_data.points
+            var slider_type = this.slider_data.sliderType;
             if(slider_type == osu.objects.sliders.TYPES.LINEAR){
-                var draw_to_point = slider_points[1].split(':');
-                final_x = this.game.calculate_x(draw_to_point[0]);
-
-                final_y = draw_to_point[1];
+                final_x = this.game.calculate_x(slider_points[0].x);
+                final_y = slider_points[0].y;
                 if(this.game.is_hardrock) final_y = 384 - final_y;
                 final_y = this.game.calculate_y(final_y);
                 this.sliderGraphics.drawCircle(this.x,this.y, (this.diameter-5)/2);
@@ -3186,27 +3198,26 @@ osu.ui.interface.osugame = {
         if (this.is_doubletime) this.approachTime = this.approachTime - (this.approachTime * .33);
 
         for (i = 0; i < this.beatmap.map_data.hit_objects.length; i++) {
-            var hitObjectInt = parseInt(this.beatmap.map_data.hit_objects[i][3]);
-            var hitObject = osu.objects.hitobjects.parse_type(hitObjectInt);
             var next_object = false;
+            var hitObject = this.beatmap.map_data.hit_objects[i];
+
 
             //TODO: double processing ftl no need to do this twice :(
             if (i + 1 != this.beatmap.map_data.hit_objects.length) {
                 var next = this.beatmap.map_data.hit_objects[i + 1];
-                var nextObjectType = osu.objects.hitobjects.parse_type(next[3]);
-                if (!nextObjectType.new_combo && nextObjectType.type !== osu.objects.hitobjects.TYPES.SPINNER) {
-                    var next_x = this.calculate_x(parseInt(next[0]));
-                    var next_y = parseInt(next[1]);
+                if (!next.newCombo && next.type !== osu.objects.hitobjects.TYPES.SPINNER) {
+                    var next_x = this.calculate_x(next.x);
+                    var next_y = parseInt(next.y);
                     if (this.is_hardrock) next_y = 384 - next_y;
                     next_y = this.calculate_y(next_y);
-                    var next_t = parseInt(next[2]);
+                    var next_t = next.startTime;
                     if (this.is_doubletime) next_t = next_t * .667;
                     next_object = {x: next_x, y: next_y, t: next_t}
                 }
 
             }
 
-            if (comboNum == 0 || hitObject.new_combo) {
+            if (comboNum == 0 || hitObject.newCombo) {
                 comboNum = 1;
                 if (comboColour == osu.skins.COMBO_COLOURS.length - 1) {
                     comboColour = 0;
@@ -3222,9 +3233,9 @@ osu.ui.interface.osugame = {
             var is_spinner = hitObject.type == osu.objects.hitobjects.TYPES.CIRCLE;
 
             if (is_circle || is_slider) {
-                var x = parseInt(this.beatmap.map_data.hit_objects[i][0]);
-                var y = parseInt(this.beatmap.map_data.hit_objects[i][1]);
-                var t = parseInt(this.beatmap.map_data.hit_objects[i][2]);
+                var x = hitObject.x;
+                var y = hitObject.y;
+                var t = hitObject.startTime;
                 if (this.is_doubletime) t = t * .667;
                 if (is_circle) {
                     this.hit_objects.push({
@@ -3235,7 +3246,7 @@ osu.ui.interface.osugame = {
                 if (is_slider) {
                     this.hit_objects.push({
                         t: t,
-                        object: new osu.objects.sliders.Slider(this, this.hit_object_container, this.is_hidden, x, y, this.approachTime, t, circleSize, osu.skins.COMBO_COLOURS[comboColour], comboNum, this.beatmap.map_data.hit_objects[i].slice(5), next_object)
+                        object: new osu.objects.sliders.Slider(this, this.hit_object_container, this.is_hidden, x, y, this.approachTime, t, circleSize, osu.skins.COMBO_COLOURS[comboColour], comboNum, hitObject, next_object)
                     });
 
 

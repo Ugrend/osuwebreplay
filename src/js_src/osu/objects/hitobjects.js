@@ -101,7 +101,7 @@ osu.objects.hitobjects = {
         if ((soundByte & this.HIT_SOUNDS.SOUND_CLAP) == this.HIT_SOUNDS.SOUND_CLAP)
             hitObject.hitSounds.push(this.HIT_SOUNDS.SOUND_CLAP);
         if (hitObject.hitSounds.length === 0)
-            hitObject.hitSounds.push(this.HIT_SOUNDS.NORMAL);
+            hitObject.hitSounds.push(this.HIT_SOUNDS.SOUND_NORMAL);
 
 
         if (hitObject.type == this.TYPES.CIRCLE) {
@@ -132,15 +132,15 @@ osu.objects.hitobjects = {
                     soundByte = sounds[x];
                     //TODO: function this
                     if ((soundByte & this.HIT_SOUNDS.SOUND_WHISTLE) == this.HIT_SOUNDS.SOUND_WHISTLE)
-                        edge.additions.push(this.HIT_SOUNDS.SOUND_WHISTLE);
+                        edge.sounds.push(this.HIT_SOUNDS.SOUND_WHISTLE);
                     if ((soundByte & this.HIT_SOUNDS.SOUND_FINISH) == this.HIT_SOUNDS.SOUND_FINISH)
-                        edge.additions.push(this.HIT_SOUNDS.SOUND_FINISH);
+                        edge.sounds.push(this.HIT_SOUNDS.SOUND_FINISH);
                     if ((soundByte & this.HIT_SOUNDS.SOUND_CLAP) == this.HIT_SOUNDS.SOUND_CLAP)
-                        edge.additions.push(this.HIT_SOUNDS.SOUND_CLAP);
+                        edge.sounds.push(this.HIT_SOUNDS.SOUND_CLAP);
                     if (hitObject.hitSounds.length === 0)
-                        edge.additions.push(this.HIT_SOUNDS.NORMAL);
+                        edge.sounds.push(this.HIT_SOUNDS.SOUND_NORMAL);
                 } else {
-                    edge.additions.push(this.HIT_SOUNDS.NORMAL);
+                    edge.sounds.push(this.HIT_SOUNDS.SOUND_NORMAL);
                 }
 
                 hitObject.edges.push(edge);

@@ -34,7 +34,11 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
             colours: {},
             hit_objects: [],
             minBPM: -1,
-            maxBPM: -1
+            maxBPM: -1,
+            circles: 0,
+            sliders: 0,
+            spinners: 0,
+            time_length: 0,
         };
         var lines = data.replace("\r", "").split("\n");
         beatmap_config.version = lines[0];
@@ -93,7 +97,7 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
 
                     if(timingPoint.inherited == 1){
                         parentBPMS = timingPoint.millisecondsPerBeat;
-                        if(parentBPMS < beatmap_config.minBPM || beatmap_config.minBPM == -1){
+                        if(parentBPMS < beatmap_config.minBPM || beatmap_config.minBPM === -1){
                             if(beatmap_config.minBPM > beatmap_config.maxBPM){
                                 beatmap_config.maxBPM = beatmap_config.minBPM;
                             }
@@ -123,7 +127,17 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
                     }
                     break;
                 case "[hitobjects]":
-                    var hit_object = line.split(",");
+                    var hit_object = osu.objects.hitobjects.parse_line(line, beatmap_config.timing_points, beatmap_config.difficulty.SliderMultiplier || 1);
+                    switch(hit_object.type) {
+                        case osu.objects.hitobjects.TYPES.CIRCLE:
+                            beatmap_config.circles++;
+                            break;
+                        case osu.objects.hitobjects.TYPES.SLIDER:
+                            beatmap_config.sliders++;
+                            break;
+                        case osu.objects.hitobjects.TYPES.SPINNER:
+                            beatmap_config.spinners++;
+                    }
                     beatmap_config.hit_objects.push(hit_object);
                     break;
 
@@ -131,8 +145,8 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
 
 
         }
-
-
+        var lastHitObject = beatmap_config.hit_objects[beatmap_config.hit_objects.length-1];
+        beatmap_config.time_length = lastHitObject.endTime || lastHitObject.startTime;
         return beatmap_config;
     };
 

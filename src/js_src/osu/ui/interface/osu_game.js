@@ -395,27 +395,26 @@ osu.ui.interface.osugame = {
         if (this.is_doubletime) this.approachTime = this.approachTime - (this.approachTime * .33);
 
         for (i = 0; i < this.beatmap.map_data.hit_objects.length; i++) {
-            var hitObjectInt = parseInt(this.beatmap.map_data.hit_objects[i][3]);
-            var hitObject = osu.objects.hitobjects.parse_type(hitObjectInt);
             var next_object = false;
+            var hitObject = this.beatmap.map_data.hit_objects[i];
+
 
             //TODO: double processing ftl no need to do this twice :(
             if (i + 1 != this.beatmap.map_data.hit_objects.length) {
                 var next = this.beatmap.map_data.hit_objects[i + 1];
-                var nextObjectType = osu.objects.hitobjects.parse_type(next[3]);
-                if (!nextObjectType.new_combo && nextObjectType.type !== osu.objects.hitobjects.TYPES.SPINNER) {
-                    var next_x = this.calculate_x(parseInt(next[0]));
-                    var next_y = parseInt(next[1]);
+                if (!next.newCombo && next.type !== osu.objects.hitobjects.TYPES.SPINNER) {
+                    var next_x = this.calculate_x(next.x);
+                    var next_y = parseInt(next.y);
                     if (this.is_hardrock) next_y = 384 - next_y;
                     next_y = this.calculate_y(next_y);
-                    var next_t = parseInt(next[2]);
+                    var next_t = next.startTime;
                     if (this.is_doubletime) next_t = next_t * .667;
                     next_object = {x: next_x, y: next_y, t: next_t}
                 }
 
             }
 
-            if (comboNum == 0 || hitObject.new_combo) {
+            if (comboNum == 0 || hitObject.newCombo) {
                 comboNum = 1;
                 if (comboColour == osu.skins.COMBO_COLOURS.length - 1) {
                     comboColour = 0;
@@ -431,9 +430,9 @@ osu.ui.interface.osugame = {
             var is_spinner = hitObject.type == osu.objects.hitobjects.TYPES.CIRCLE;
 
             if (is_circle || is_slider) {
-                var x = parseInt(this.beatmap.map_data.hit_objects[i][0]);
-                var y = parseInt(this.beatmap.map_data.hit_objects[i][1]);
-                var t = parseInt(this.beatmap.map_data.hit_objects[i][2]);
+                var x = hitObject.x;
+                var y = hitObject.y;
+                var t = hitObject.startTime;
                 if (this.is_doubletime) t = t * .667;
                 if (is_circle) {
                     this.hit_objects.push({
@@ -444,7 +443,7 @@ osu.ui.interface.osugame = {
                 if (is_slider) {
                     this.hit_objects.push({
                         t: t,
-                        object: new osu.objects.sliders.Slider(this, this.hit_object_container, this.is_hidden, x, y, this.approachTime, t, circleSize, osu.skins.COMBO_COLOURS[comboColour], comboNum, this.beatmap.map_data.hit_objects[i].slice(5), next_object)
+                        object: new osu.objects.sliders.Slider(this, this.hit_object_container, this.is_hidden, x, y, this.approachTime, t, circleSize, osu.skins.COMBO_COLOURS[comboColour], comboNum, hitObject, next_object)
                     });
 
 

@@ -42,13 +42,11 @@ osu.objects.sliders = {
             this.sliderGraphics = new PIXI.Graphics();
             this.sliderGraphics.beginFill(this.colour);
             this.sliderGraphics.lineStyle(5,0xFFFFFF);
-            var slider_points = this.slider_data[0].split("|");
-            var slider_type = slider_points[0];
+            var slider_points = this.slider_data.points
+            var slider_type = this.slider_data.sliderType;
             if(slider_type == osu.objects.sliders.TYPES.LINEAR){
-                var draw_to_point = slider_points[1].split(':');
-                final_x = this.game.calculate_x(draw_to_point[0]);
-
-                final_y = draw_to_point[1];
+                final_x = this.game.calculate_x(slider_points[0].x);
+                final_y = slider_points[0].y;
                 if(this.game.is_hardrock) final_y = 384 - final_y;
                 final_y = this.game.calculate_y(final_y);
                 this.sliderGraphics.drawCircle(this.x,this.y, (this.diameter-5)/2);
