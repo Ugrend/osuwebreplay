@@ -384,8 +384,9 @@ osu.ui.interface.osugame = {
         var difficultyCircleSize = parseInt(this.beatmap.map_data.difficulty.CircleSize);
         if (this.is_hardrock && difficultyCircleSize < 7) difficultyCircleSize += 1;
         if (this.is_easy && difficultyCircleSize > 1) difficultyCircleSize -= 1; //TODO: work out if that's correct
-        var circleSize = (this.getRenderWidth() / 640) * (108.848 - (difficultyCircleSize * 8.9646));
         var unScaledDiameter = (108.848 - (difficultyCircleSize * 8.9646));
+        var circleSize = (this.getRenderWidth() / 640) * unScaledDiameter;
+
         this.approachTime = 0;
         if (approachRate < 5) {
             this.approachTime = (1800 - (approachRate * 120))

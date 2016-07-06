@@ -211,20 +211,51 @@ osu.objects.HitObjectParser = {
 
 };
 osu.objects.HitObject = class HitObject{
+    constructor(hitObjectData, size, approachRate, combo, colour, game, nextHitObject){
+        this._x = 0;
+        this._y = 0;
+        this.game = game;
+        this.combo = combo;
+        this.colour = colour;
+        this.stack = 0;
+        this.size = size;
+        this.approachRate = approachRate;
 
 
-
-    constructor(hitObjectData, combo, colour, game){
-        this.hitObjectData = hitObjectData;
-            
-
+        $.extend(this, hitObjectData);
+        if(this.game.is_hardrock) this._y = 384 - this._y;
+        switch (this.type){
+            case osu.objects.HitObjectParser.TYPES.CIRCLE:
+                this.object = new osu.objects.Circle(this);
+                break;
+            case osu.objects.HitObjectParser.TYPES.SLIDER:
+                this.object = new osu.objects.Slider(this);
+                break;
+            case osu.objects.HitObjectParser.TYPES.SPINNER:
+                this.object = new osu.objects.Spinner(this);
+        }
+        this.initialised = false;
     }
+    set x(v){
+        this._x = v;
+        if(this.initialised) this.object.updatePositions();
+    };
+    get x() { return this._x}
+    set y(v){
+        this._y = v;
+        if(this.initialised) this.object.updatePositions();
+    };
+    get y() { return this._y}
+
     init(){
-        this.hitObject.init();
+        this.x = this.game.calculate_x(this.x);
+        this.y = this.game.calculate_y(this.y);
+        this.object.init();
+        this.initialised = true;
     }
 
     draw(cur_time){
-        this.hitObject.draw();
+        return this.object.draw(cur_time);
     }
 
 

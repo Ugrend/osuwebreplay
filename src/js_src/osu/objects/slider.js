@@ -4,6 +4,12 @@
  */
 osu = osu || {};
 osu.objects = osu.objects || {};
+osu.objects.Slider = class Slider{
+    constructor(hitObject){
+
+    }
+
+};
 osu.objects.sliders = {
     Slider: class Slider{
         constructor(game,container,is_hidden, x, y, approach_rate, hit_time,diameter, colour, combo, slider_data, next_object) {
