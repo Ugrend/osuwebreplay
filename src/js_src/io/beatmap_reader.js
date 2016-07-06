@@ -127,15 +127,15 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
                     }
                     break;
                 case "[hitobjects]":
-                    var hit_object = osu.objects.hitobjects.parse_line(line, beatmap_config.timing_points, beatmap_config.difficulty.SliderMultiplier || 1);
+                    var hit_object = osu.objects.HitObjectParser.parse_line(line, beatmap_config.timing_points, beatmap_config.difficulty.SliderMultiplier || 1);
                     switch(hit_object.type) {
-                        case osu.objects.hitobjects.TYPES.CIRCLE:
+                        case osu.objects.HitObjectParser.TYPES.CIRCLE:
                             beatmap_config.circles++;
                             break;
-                        case osu.objects.hitobjects.TYPES.SLIDER:
+                        case osu.objects.HitObjectParser.TYPES.SLIDER:
                             beatmap_config.sliders++;
                             break;
-                        case osu.objects.hitobjects.TYPES.SPINNER:
+                        case osu.objects.HitObjectParser.TYPES.SPINNER:
                             beatmap_config.spinners++;
                     }
                     beatmap_config.hit_objects.push(hit_object);

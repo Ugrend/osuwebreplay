@@ -402,7 +402,7 @@ osu.ui.interface.osugame = {
             //TODO: double processing ftl no need to do this twice :(
             if (i + 1 != this.beatmap.map_data.hit_objects.length) {
                 var next = this.beatmap.map_data.hit_objects[i + 1];
-                if (!next.newCombo && next.type !== osu.objects.hitobjects.TYPES.SPINNER) {
+                if (!next.newCombo && next.type !== osu.objects.HitObjectParser.TYPES.SPINNER) {
                     var next_x = this.calculate_x(next.x);
                     var next_y = parseInt(next.y);
                     if (this.is_hardrock) next_y = 384 - next_y;
@@ -425,9 +425,9 @@ osu.ui.interface.osugame = {
             } else {
                 comboNum++;
             }
-            var is_circle = hitObject.type == osu.objects.hitobjects.TYPES.CIRCLE;
-            var is_slider = hitObject.type == osu.objects.hitobjects.TYPES.SLIDER;
-            var is_spinner = hitObject.type == osu.objects.hitobjects.TYPES.SPINNER;
+            var is_circle = hitObject.type == osu.objects.HitObjectParser.TYPES.CIRCLE;
+            var is_slider = hitObject.type == osu.objects.HitObjectParser.TYPES.SLIDER;
+            var is_spinner = hitObject.type == osu.objects.HitObjectParser.TYPES.SPINNER;
 
             if (is_circle || is_slider) {
                 var x = hitObject.x;
@@ -453,7 +453,7 @@ osu.ui.interface.osugame = {
             }
 
         }
-        osu.objects.hitobjects.create_stacks(this.hit_objects, parseFloat(this.beatmap.map_data.general.StackLeniency) || 0.7, unScaledDiameter, this.is_hardrock);
+        osu.objects.HitObjectParser.create_stacks(this.hit_objects, parseFloat(this.beatmap.map_data.general.StackLeniency) || 0.7, unScaledDiameter, this.is_hardrock);
 
         this.audioLeadIn = parseInt(this.beatmap.map_data.general.AudioLeadIn);
         if (this.is_doubletime) this.audioLeadIn = this.audioLeadIn * .667

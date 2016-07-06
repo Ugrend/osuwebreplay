@@ -5,7 +5,9 @@
 
 osu = osu || {};
 osu.objects = osu.objects || {};
-osu.objects.hitobjects = {
+
+
+osu.objects.HitObjectParser = {
     TYPES: {
         CIRCLE: 1,
         SLIDER: 2,
@@ -37,13 +39,13 @@ osu.objects.hitobjects = {
         if ((hitObjectInt & this.TYPES.NEW_COMBO)) {
             newCombo = true;
         }
-        if ((hitObjectInt & osu.objects.hitobjects.TYPES.CIRCLE)) {
+        if ((hitObjectInt & osu.objects.HitObjectParser.TYPES.CIRCLE)) {
             return {type: this.TYPES.CIRCLE, new_combo: newCombo}
         }
-        if ((hitObjectInt & osu.objects.hitobjects.TYPES.SLIDER)) {
+        if ((hitObjectInt & osu.objects.HitObjectParser.TYPES.SLIDER)) {
             return {type: this.TYPES.SLIDER, new_combo: newCombo}
         }
-        if ((hitObjectInt & osu.objects.hitobjects.TYPES.SPINNER)) {
+        if ((hitObjectInt & osu.objects.HitObjectParser.TYPES.SPINNER)) {
             return {type: this.TYPES.SPINNER, new_combo: newCombo}
         }
     },
@@ -206,5 +208,26 @@ osu.objects.hitobjects = {
 
 
     }
+
+};
+osu.objects.HitObject = class HitObject{
+
+
+
+    constructor(hitObjectData, combo, colour, game){
+        this.hitObjectData = hitObjectData;
+            
+
+    }
+    init(){
+        this.hitObject.init();
+    }
+
+    draw(cur_time){
+        this.hitObject.draw();
+    }
+
+
+
 
 };

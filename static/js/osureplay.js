@@ -515,15 +515,15 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
                     }
                     break;
                 case "[hitobjects]":
-                    var hit_object = osu.objects.hitobjects.parse_line(line, beatmap_config.timing_points, beatmap_config.difficulty.SliderMultiplier || 1);
+                    var hit_object = osu.objects.HitObjectParser.parse_line(line, beatmap_config.timing_points, beatmap_config.difficulty.SliderMultiplier || 1);
                     switch(hit_object.type) {
-                        case osu.objects.hitobjects.TYPES.CIRCLE:
+                        case osu.objects.HitObjectParser.TYPES.CIRCLE:
                             beatmap_config.circles++;
                             break;
-                        case osu.objects.hitobjects.TYPES.SLIDER:
+                        case osu.objects.HitObjectParser.TYPES.SLIDER:
                             beatmap_config.sliders++;
                             break;
-                        case osu.objects.hitobjects.TYPES.SPINNER:
+                        case osu.objects.HitObjectParser.TYPES.SPINNER:
                             beatmap_config.spinners++;
                     }
                     beatmap_config.hit_objects.push(hit_object);
@@ -1901,7 +1901,9 @@ class Circle{
 
 osu = osu || {};
 osu.objects = osu.objects || {};
-osu.objects.hitobjects = {
+
+
+osu.objects.HitObjectParser = {
     TYPES: {
         CIRCLE: 1,
         SLIDER: 2,
@@ -1933,13 +1935,13 @@ osu.objects.hitobjects = {
         if ((hitObjectInt & this.TYPES.NEW_COMBO)) {
             newCombo = true;
         }
-        if ((hitObjectInt & osu.objects.hitobjects.TYPES.CIRCLE)) {
+        if ((hitObjectInt & osu.objects.HitObjectParser.TYPES.CIRCLE)) {
             return {type: this.TYPES.CIRCLE, new_combo: newCombo}
         }
-        if ((hitObjectInt & osu.objects.hitobjects.TYPES.SLIDER)) {
+        if ((hitObjectInt & osu.objects.HitObjectParser.TYPES.SLIDER)) {
             return {type: this.TYPES.SLIDER, new_combo: newCombo}
         }
-        if ((hitObjectInt & osu.objects.hitobjects.TYPES.SPINNER)) {
+        if ((hitObjectInt & osu.objects.HitObjectParser.TYPES.SPINNER)) {
             return {type: this.TYPES.SPINNER, new_combo: newCombo}
         }
     },
@@ -2104,7 +2106,27 @@ osu.objects.hitobjects = {
     }
 
 };
+osu.objects.HitObject = class HitObject{
 
+
+
+    constructor(hitObjectData, combo, colour, game){
+        this.hitObjectData = hitObjectData;
+            
+
+    }
+    init(){
+        this.hitObject.init();
+    }
+
+    draw(cur_time){
+        this.hitObject.draw();
+    }
+
+
+
+
+};
 /**
  * slider.js
  * Created by Ugrend on 11/06/2016.
@@ -3219,7 +3241,7 @@ osu.ui.interface.osugame = {
             //TODO: double processing ftl no need to do this twice :(
             if (i + 1 != this.beatmap.map_data.hit_objects.length) {
                 var next = this.beatmap.map_data.hit_objects[i + 1];
-                if (!next.newCombo && next.type !== osu.objects.hitobjects.TYPES.SPINNER) {
+                if (!next.newCombo && next.type !== osu.objects.HitObjectParser.TYPES.SPINNER) {
                     var next_x = this.calculate_x(next.x);
                     var next_y = parseInt(next.y);
                     if (this.is_hardrock) next_y = 384 - next_y;
@@ -3242,9 +3264,9 @@ osu.ui.interface.osugame = {
             } else {
                 comboNum++;
             }
-            var is_circle = hitObject.type == osu.objects.hitobjects.TYPES.CIRCLE;
-            var is_slider = hitObject.type == osu.objects.hitobjects.TYPES.SLIDER;
-            var is_spinner = hitObject.type == osu.objects.hitobjects.TYPES.SPINNER;
+            var is_circle = hitObject.type == osu.objects.HitObjectParser.TYPES.CIRCLE;
+            var is_slider = hitObject.type == osu.objects.HitObjectParser.TYPES.SLIDER;
+            var is_spinner = hitObject.type == osu.objects.HitObjectParser.TYPES.SPINNER;
 
             if (is_circle || is_slider) {
                 var x = hitObject.x;
@@ -3270,7 +3292,7 @@ osu.ui.interface.osugame = {
             }
 
         }
-        osu.objects.hitobjects.create_stacks(this.hit_objects, parseFloat(this.beatmap.map_data.general.StackLeniency) || 0.7, unScaledDiameter, this.is_hardrock);
+        osu.objects.HitObjectParser.create_stacks(this.hit_objects, parseFloat(this.beatmap.map_data.general.StackLeniency) || 0.7, unScaledDiameter, this.is_hardrock);
 
         this.audioLeadIn = parseInt(this.beatmap.map_data.general.AudioLeadIn);
         if (this.is_doubletime) this.audioLeadIn = this.audioLeadIn * .667
