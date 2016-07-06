@@ -6,8 +6,112 @@ osu = osu || {};
 osu.objects = osu.objects || {};
 osu.objects.Slider = class Slider{
     constructor(hitObject){
+        this.hitObject = hitObject;
+        this.last_draw_time  =0;
+        this.drawn = false;
+        this.destroyed = false;
+        this.initialised = false;
+        /*this is just used if we need to move the slider,
+        once generated the x,y coords of the slider will differ from the hitObject x,y
+        storing the originals will allow to move the slider by the difference
+         */
+        this.originalX = this.hitObject.x;
+        this.originalY = this.hitObject.y;
 
     }
+    init(){
+        this.startCircle = new osu.objects.Circle(this.hitObject);
+        this.startCircle.init();
+
+        var sliderGraphics = new PIXI.Graphics();
+        var points = this.hitObject.points;
+        sliderGraphics.beginFill(this.hitObject.colour);
+        sliderGraphics.lineStyle(5,0xFFFFFF);
+        //startpoint
+        sliderGraphics.drawCircle(this.hitObject.x, this.hitObject.y, (this.hitObject.size -5 )/2);
+
+        //endpoint (technically this is wrong but i no like math)
+        var final_x = points[points.length-1].x;
+        var final_y = points[points.length-1].y
+
+        sliderGraphics.drawCircle(final_x, final_y, (this.hitObject.size -5 )/2);
+
+        //ghetto sliders o baby
+        if(this.hitObject.sliderType == osu.objects.sliders.TYPES.LINEAR){
+            //Creates border on slider
+            sliderGraphics.lineStyle(this.hitObject.size,0xFFFFFF);
+            sliderGraphics.moveTo(this.hitObject.x, this.hitObject.y);
+            sliderGraphics.lineTo(final_x, final_y);
+            //Creates fill on slider
+            sliderGraphics.lineStyle(this.hitObject.size-10, this.hitObject.colour);
+            sliderGraphics.moveTo(this.hitObject.x, this.hitObject.y);
+            sliderGraphics.lineTo(final_x, final_y);
+        }
+
+        //convert to texture so it doesnt look ugly :D
+        var t = sliderGraphics.generateTexture();
+        var sprite = new PIXI.Sprite(t);
+        sprite.position.x = sliderGraphics.getBounds().x;
+        sprite.position.y = sliderGraphics.getBounds().y;
+        sprite.alpha = 0.6;
+        this.sliderGraphicsContainer = new PIXI.Container();
+        this.sliderGraphicsContainer.addChild(sprite);
+        this.initialised = true;
+    }
+
+    updatePositions(){
+        this.startCircle.updatePositions();
+
+        var moveX = this.originalX - this.hitObject.x;
+        var moveY = this.originalY - this.hitObject.y;
+        //the container x,y may differ from the hitobject xy so we move it by the difference change.
+        this.sliderGraphicsContainer.x -= moveX;
+        this.sliderGraphicsContainer.y -= moveY;
+        this.originalX = this.hitObject.x;
+        this.originalY = this.hitObject.y;
+    }
+    hit(time){
+
+    }
+
+    draw(cur_time){
+        var drawCircle = this.startCircle.draw(cur_time);
+        //object is no longer rendered but still might have some logic (eg being missed, is hidden etc)
+        if(this.destroyed && !drawCircle){
+            if(cur_time < this.hitObject.endTime + 500){
+                return true;
+            }
+            return false;
+        }
+        //TODO: should this be at the slider endtime, or use start time?
+        if(this.drawn && this.hitObject.game.is_hidden && cur_time > this.hitObject.endTime - this.hidden_time){
+            this.destroy();
+            this.destroyed = true;
+        }
+
+        if(!drawCircle){
+            //animate slider ?
+        }
+
+        if(!this.drawn){
+            this.container.addChildAt(this.sliderGraphicsContainer,0);
+            this.drawn = true;
+        }
+
+        if(!this.destroyed && cur_time > this.hitObject.endTime + 110){
+            this.destroy();
+            this.destroyed = true;
+        }
+        return true;
+    }
+
+    destroy(){
+        this.destroyed = true;
+        this.container.removeChild(this.graphics_container);
+
+    }
+
+
 
 };
 osu.objects.sliders = {

@@ -112,7 +112,7 @@ osu.objects.Circle = class Circle{
             this.container.removeChild(this.followPointContainer);
             this.destroyed_line = true;
         }
-        if(!this.destroyed && cur_time < this.hitObject.startTime + this.approach_rate){
+        if(!this.destroyed && cur_time < this.hitObject.startTime + this.hitObject.approachRate){
             if(!this.hitObject.game.is_hidden){
                 //dont need to calculate this so often
                 if(Date.now() - this.last_draw_time > 35) {
