@@ -1539,6 +1539,20 @@ osu.GAMETYPES = {
     MANIA: 3
 };
 /**
+ * constants.js
+ * Created by Ugrend on 6/07/2016.
+ */
+
+osu = osu || {};
+osu.helpers = osu.helpers || {};
+osu.helpers.constants = {
+    OSU_GAME_HEIGHT: 384,
+    OSU_GAME_WIDTH: 512,
+    DOUBLE_TIME_MULTI: .667,
+
+
+};
+/**
  *
  *
  * Created by Ugrend on 3/07/2016.
@@ -1710,6 +1724,7 @@ osu.objects.Circle = class Circle{
         this.last_draw_time = 0;
         this.drawn = false;
         this.destroyed = false;
+        this.hidden_time = this.hitObject.approachRate / 3.3;
     }
     init(){
         this.circleContainer = new PIXI.Container();
@@ -1787,11 +1802,6 @@ osu.objects.Circle = class Circle{
             this.destroyed = true;
         }
 
-        if(!this.destroyed_line && cur_time > this.next_object.t){
-
-            this.container.removeChild(this.followPointContainer);
-            this.destroyed_line = true;
-        }
         if(!this.destroyed && cur_time < this.hitObject.startTime + this.hitObject.approachRate){
             if(!this.hitObject.game.is_hidden){
                 //dont need to calculate this so often
@@ -1805,7 +1815,7 @@ osu.objects.Circle = class Circle{
                 }
             }
             if(!this.drawn){
-                this.container.addChildAt(this.circleContainer,0);
+                this.hitObject.game.hit_object_container.addChildAt(this.circleContainer,0);
                 this.drawn = true;
             }
         }
@@ -1817,173 +1827,10 @@ osu.objects.Circle = class Circle{
     }
 
     destroy(){
-        this.container.removeChild(this.circleContainer);
+        this.hitObject.game.hit_object_container.removeChild(this.circleContainer);
     }
 
 };
-
-class Circle{
-    constructor(game,container,is_hidden, x, y, approach_rate, hit_time,diameter, colour, combo, next_object) {
-        this.game = game;
-        this.type = "circle";
-        this.stack = 0;
-        this.container = container;
-        this.x = x;
-        this.y = y;
-        this.is_hidden = is_hidden;
-        this.diameter = diameter;
-        this.colour = colour;
-        this.approach_rate = approach_rate;
-        this.hit_time = hit_time;
-        this.next_object = next_object;
-        this.last_draw_time = 0;
-        this.destroyed_line = false;
-        if(!this.next_object) this.destroyed_line = true;
-        this.drawn = false;
-        this.destroyed = false;
-        this.hidden_time = this.approach_rate / 3.3;
-        this.lined_drawn = false;
-        this.combo = combo;
-    }
-
-    init(){
-
-        this.x = this.game.calculate_x(this.x);
-        if(this.game.is_hardrock) this.y = 384 - this.y;
-        this.y = this.game.calculate_y(this.y);
-
-        this.circleContainer = new PIXI.Container();
-        this.circleSprite =  new PIXI.Sprite(hit_circle_texture);
-        this.circleSprite.tint = this.colour;
-        this.circleSprite.anchor.set(0.5);
-        this.circleSprite.height = this.diameter;
-        this.circleSprite.width = this.diameter;
-
-
-
-
-        //TODO: get angle calculate distance only draw if cetain distance etc etc
-
-        if(!this.is_hidden) {
-            this.approchCircleSprite = new PIXI.Sprite(approach_circle_texture);
-            this.approchCircleSprite.tint = this.colour;
-            this.approchCircleSprite.anchor.set(0.5);
-            this.approchCircleSprite.width = this.diameter * 2.5;
-            this.approchCircleSprite.height = this.diameter * 2.5;
-            this.circleContainer.addChild(this.approchCircleSprite);
-        }
-//TODO: correct for offsets
-        if(this.next_object){
-            this.followPointContainer = new PIXI.Container();
-            var line = new PIXI.Graphics();
-            line.moveTo(this.x,this.y);
-            line.lineStyle(4,0xFFFFFF,0.5);
-            line.lineTo(this.next_object.x, this.next_object.y);
-            this.followPointContainer.addChild(line);
-        }
-
-
-
-        this.circleOverlaySprite =  new PIXI.Sprite(hit_circle_overlay);
-        this.circleOverlaySprite.height = this.diameter;
-        this.circleOverlaySprite.width = this.diameter;
-        this.circleOverlaySprite.anchor.set(0.5);
-        this.circleContainer.addChild(this.circleSprite);
-        this.circleContainer.addChild(this.circleOverlaySprite);
-
-
-        var comboString = this.combo.toString();
-        this.comboNumSprites = [];
-        for(var i = 0; i< comboString.length ; i++){
-            this.comboNumSprites.push(new PIXI.Sprite(hit_numbers["num_"+comboString.charAt(i)]));
-        }
-
-        if(this.comboNumSprites.length > 1){
-            this.comboSprite1 = this.comboNumSprites[0];
-            this.comboSprite2 = this.comboNumSprites[1];
-            this.comboSprite1.x -= this.diameter/10;
-            this.comboSprite2.x += this.diameter/10;
-            this.comboSprite1.anchor.set(0.5);
-            this.comboSprite2.anchor.set(0.5);
-            this.circleContainer.addChild(this.comboSprite1);
-            this.circleContainer.addChild(this.comboSprite2);
-        }else{
-            this.comboSprite1 = this.comboNumSprites[0];
-            this.comboSprite1.anchor.set(0.5);
-            this.circleContainer.addChild(this.comboSprite1);
-        }
-
-
-        this.circleContainer.x = this.x;
-        this.circleContainer.y = this.y;
-
-    }
-
-    draw(cur_time){
-
-        if(this.destroyed && this.destroyed_line){
-            return false;
-        }
-
-        if(cur_time > this.hit_time - 110){
-            if(this.next_object){
-                if(!this.lined_drawn) {
-                    this.container.addChildAt(this.followPointContainer, 0);
-                    this.lined_drawn = true;
-                }
-            }
-        }
-
-        if(this.drawn && this.game.is_hidden && cur_time > this.hit_time - this.hidden_time){
-            this.destroy();
-            this.destroyed = true;
-        }
-
-        if(!this.destroyed && cur_time > this.hit_time + 110 ){
-            this.destroy();
-            this.destroyed = true;
-        }
-
-        if(!this.destroyed_line && cur_time > this.next_object.t){
-
-            this.container.removeChild(this.followPointContainer);
-            this.destroyed_line = true;
-        }
-
-
-
-        if(!this.destroyed && cur_time < this.hit_time + this.approach_rate){
-            if(!this.is_hidden){
-                //dont need to calculate this so often
-                if(Date.now() - this.last_draw_time > 35) {
-                    var time_diff = this.hit_time - cur_time;
-                    var scale = 1 + (time_diff / this.approach_rate) * 2.5;
-                    if (scale < 1) scale = 1;
-                    this.approchCircleSprite.width = this.diameter * scale;
-                    this.approchCircleSprite.height = this.diameter * scale;
-                    this.last_draw_time = Date.now();
-                }
-            }
-            if(!this.drawn){
-
-                this.container.addChildAt(this.circleContainer,0);
-                this.drawn = true;
-            }
-        }
-        return true;
-    }
-
-    hit(time){
-
-    }
-
-    destroy(){
-        this.container.removeChild(this.circleContainer);
-
-    }
-
-}
-
 
 /**
  * followpoint.js
@@ -2169,16 +2016,16 @@ osu.objects.HitObjectParser = {
     create_stacks: function (hitobjects, stackLeniency, circleSize, hardrock) {
 
         for (var i = hitobjects.length - 1; i > 0; i--) {
-            var hitObjectI = hitobjects[i].object;
-            if (hitObjectI.stack != 0 || hitObjectI.type == "spinner") continue;
+            var hitObjectI = hitobjects[i];
+            if (hitObjectI.stack != 0 || hitObjectI.type == osu.objects.HitObjectParser.TYPES.SPINNER) continue;
 
-            if (hitObjectI.type == "circle") {
+            if (hitObjectI.type == osu.objects.HitObjectParser.TYPES.CIRCLE) {
                 for (var n = i - 1; n >= 0; n--) {
-                    var hitObjectN = hitobjects[n].object;
-                    if (hitObjectN.type == "spinner") continue;
+                    var hitObjectN = hitobjects[n];
+                    if (hitObjectN.type == osu.objects.HitObjectParser.TYPES.SPINNER) continue;
 
-                    var timeI = hitObjectI.hit_time - (1000 * stackLeniency); //convert to miliseconds
-                    var timeN = hitObjectN.hit_time;
+                    var timeI = hitObjectI.startTime - (1000 * stackLeniency); //convert to miliseconds
+                    var timeN = hitObjectN.startTime;
                     if (timeI > timeN) break;
 
                     var distance = osu.helpers.math.distance(hitObjectI.x, hitObjectI.y, hitObjectN.x, hitObjectN.y);
@@ -2192,7 +2039,7 @@ osu.objects.HitObjectParser = {
         }
 
         for (i = 0; i < hitobjects.length; i++) {
-            var hitObject = hitobjects[i].object;
+            var hitObject = hitobjects[i];
             var stack = hitObject.stack;
             var offset = (stack * (circleSize * 0.05));
             var x = hitObject.x - offset;
@@ -2210,16 +2057,15 @@ osu.objects.HitObjectParser = {
 
 };
 osu.objects.HitObject = class HitObject{
-    constructor(hitObjectData, size, approachRate, combo, colour, game, nextHitObject){
+    constructor(hitObjectData, size, approachRate, game){
         this._x = 0;
         this._y = 0;
         this.game = game;
-        this.combo = combo;
-        this.colour = colour;
+        this.combo = 1;
+        this.colour = 0xFFFFFF;
         this.stack = 0;
         this.size = size;
         this.approachRate = approachRate;
-
 
         $.extend(this, hitObjectData);
         if(this.game.is_hardrock) this._y = 384 - this._y;
@@ -2249,6 +2095,10 @@ osu.objects.HitObject = class HitObject{
     init(){
         this.x = this.game.calculate_x(this.x);
         this.y = this.game.calculate_y(this.y);
+        if(this.game.is_doubletime){
+            this.startTime *= osu.helpers.constants.DOUBLE_TIME_MULTI;
+            if(this.endTime) this.endTime *= osu.helpers.constants.DOUBLE_TIME_MULTI;
+        }
         this.object.init();
         this.initialised = true;
     }
@@ -2280,6 +2130,7 @@ osu.objects.Slider = class Slider{
          */
         this.originalX = this.hitObject.x;
         this.originalY = this.hitObject.y;
+        this.hidden_time = this.hitObject.approachRate / 3.3;
 
     }
     init(){
@@ -2288,19 +2139,33 @@ osu.objects.Slider = class Slider{
 
         var sliderGraphics = new PIXI.Graphics();
         var points = this.hitObject.points;
-        sliderGraphics.beginFill(this.hitObject.colour);
-        sliderGraphics.lineStyle(5,0xFFFFFF);
-        //startpoint
-        sliderGraphics.drawCircle(this.hitObject.x, this.hitObject.y, (this.hitObject.size -5 )/2);
+        for(var i = 0 ; i < points.length ; i++){
+            points[i].x = this.hitObject.game.calculate_x(points[i].x);
+            if(this.hitObject.game.is_hardrock) points[i].y = osu.helpers.constants.OSU_GAME_HEIGHT - points[i].y;
+            points[i].y = this.hitObject.game.calculate_x(points[i].y);
 
-        //endpoint (technically this is wrong but i no like math)
-        var final_x = points[points.length-1].x;
-        var final_y = points[points.length-1].y
+        }
 
-        sliderGraphics.drawCircle(final_x, final_y, (this.hitObject.size -5 )/2);
+
 
         //ghetto sliders o baby
         if(this.hitObject.sliderType == osu.objects.sliders.TYPES.LINEAR){
+
+
+            //TODO: move this out of the if statement once other sliders are done
+            sliderGraphics.beginFill(this.hitObject.colour);
+            sliderGraphics.lineStyle(5,0xFFFFFF);
+            //startpoint
+            sliderGraphics.drawCircle(this.hitObject.x, this.hitObject.y, (this.hitObject.size -5 )/2);
+
+            //endpoint (technically this is wrong but i no like math)
+            var final_x = points[points.length-1].x;
+            var final_y = points[points.length-1].y
+
+            sliderGraphics.drawCircle(final_x, final_y, (this.hitObject.size -5 )/2);
+
+
+
             //Creates border on slider
             sliderGraphics.lineStyle(this.hitObject.size,0xFFFFFF);
             sliderGraphics.moveTo(this.hitObject.x, this.hitObject.y);
@@ -2357,7 +2222,7 @@ osu.objects.Slider = class Slider{
         }
 
         if(!this.drawn){
-            this.container.addChildAt(this.sliderGraphicsContainer,0);
+            this.hitObject.game.hit_object_container.addChildAt(this.sliderGraphicsContainer,0);
             this.drawn = true;
         }
 
@@ -2370,7 +2235,7 @@ osu.objects.Slider = class Slider{
 
     destroy(){
         this.destroyed = true;
-        this.container.removeChild(this.graphics_container);
+        this.hitObject.game.hit_object_container.removeChild(this.sliderGraphicsContainer);
 
     }
 
@@ -2378,133 +2243,6 @@ osu.objects.Slider = class Slider{
 
 };
 osu.objects.sliders = {
-    Slider: class Slider{
-        constructor(game,container,is_hidden, x, y, approach_rate, hit_time,diameter, colour, combo, slider_data, next_object) {
-            this.type = "slider";
-            this.stack = 0;
-            this.diameter = diameter;
-            this.container = container;
-            this.hit_time = hit_time;
-            this.x = x;
-            this.y = y;
-            this.container = container;
-            this.drawn = false;
-            this.game = game;
-            this.slider_data = slider_data;
-            this.destroyed = false;
-            this.next_object = next_object;
-            this.approach_rate = approach_rate;
-            this.is_hidden = is_hidden;
-            this.colour = colour;
-            this.combo = combo;
-            this.destroyed_line = false;
-            if(!this.next_object) this.destroyed_line = true;
-            this.lined_drawn = false;
-            this.hidden_time = this.approach_rate / 3.3;
-        }
-
-        init(){
-            this.startCircle = new Circle(this.game,this.container, this.is_hidden,this.x,this.y,this.approach_rate,this.hit_time,this.diameter,this.colour,this.combo);
-            this.startCircle.init();
-            this.x = this.game.calculate_x(this.x);
-            if(this.game.is_hardrock) this.y = 384 - this.y;
-            this.y = this.game.calculate_y(this.y);
-            var final_x = this.x;
-            var final_y = this.y;
-
-            this.sliderGraphics = new PIXI.Graphics();
-            this.sliderGraphics.beginFill(this.colour);
-            this.sliderGraphics.lineStyle(5,0xFFFFFF);
-            var slider_points = this.slider_data.points
-            var slider_type = this.slider_data.sliderType;
-            if(slider_type == osu.objects.sliders.TYPES.LINEAR){
-                final_x = this.game.calculate_x(slider_points[0].x);
-                final_y = slider_points[0].y;
-                if(this.game.is_hardrock) final_y = 384 - final_y;
-                final_y = this.game.calculate_y(final_y);
-                this.sliderGraphics.drawCircle(this.x,this.y, (this.diameter-5)/2);
-                this.sliderGraphics.drawCircle(final_x,final_y, (this.diameter-5)/2);
-
-                this.sliderGraphics.lineStyle(this.diameter,0xFFFFFF);
-
-                this.sliderGraphics.moveTo(this.x, this.y);
-                this.sliderGraphics.bezierCurveTo(final_x,final_y,final_x,final_y,final_x,final_y);
-                this.sliderGraphics.lineStyle(this.diameter-10, this.colour);
-                this.sliderGraphics.moveTo(this.x, this.y);
-                this.sliderGraphics.bezierCurveTo(final_x,final_y,final_x,final_y,final_x,final_y);
-
-            }
-            var t = this.sliderGraphics.generateTexture();
-            var sprite = new PIXI.Sprite(t);
-            sprite.position.x = this.sliderGraphics.getBounds().x;
-            sprite.position.y = this.sliderGraphics.getBounds().y;
-            sprite.alpha = 0.6;
-
-
-            this.graphics_container = new PIXI.Container();
-            this.graphics_container.addChild(sprite);
-
-
-            //TODO: get angle calculate distance only draw if cetain distance etc etc
-            if(this.next_object){
-                this.followPointContainer = new PIXI.Container();
-                var line = new PIXI.Graphics();
-                line.moveTo(final_x,final_y);
-                line.lineStyle(4,0xFFFFFF,0.5);
-                //TODO: fix for offsets
-                line.lineTo(this.next_object.x, this.next_object.y);
-                this.followPointContainer.addChild(line);
-            }
-        }
-
-        draw(cur_time){
-
-            var draw_cicle = this.startCircle.draw(cur_time);
-            if(this.destroyed && !draw_cicle && this.destroyed_line){
-                return false;
-            }
-            if(this.drawn && this.game.is_hidden && cur_time > this.hit_time - this.hidden_time){
-                this.destroy();
-                this.destroyed = true;
-            }
-
-            if(cur_time > this.hit_time -110){
-                if(this.next_object){
-                    if(!this.lined_drawn) {
-                        this.container.addChildAt(this.followPointContainer, 0);
-                        this.lined_drawn = true;
-                    }
-                }
-            }
-
-            if(!this.destroyed_line && cur_time > this.next_object.t){
-                this.container.removeChild(this.followPointContainer);
-                this.destroyed_line = true;
-            }
-
-            if(!draw_cicle){
-                //animate slider ?
-            }
-            if(!this.drawn){
-                this.container.addChildAt(this.graphics_container,0);
-                this.drawn = true;
-            }
-            if(!this.destroyed && cur_time > this.hit_time + 300){
-
-                this.destroy();
-            }
-            return true;
-
-        }
-        destroy(){
-            this.destroyed = true;
-            this.container.removeChild(this.graphics_container);
-
-        }
-
-
-    },
-
     TYPES: Object.freeze({
         BEZIER: "B",
         LINEAR: "L",
@@ -2525,6 +2263,12 @@ osu.objects = osu.objects || {};
 osu.objects.Spinner = class Spinner{
     constructor(hitObject){
 
+    }
+    init(){
+
+    }
+    draw(){
+        return false;
     }
 
 };
@@ -3454,8 +3198,8 @@ osu.ui.interface.osugame = {
                 var startTime = parseInt(this.beatmap.map_data.events[i][1]);
                 var endTime = parseInt(this.beatmap.map_data.events[i][2]) - 2300
                 if (this.is_doubletime) {
-                    startTime = startTime * .667;
-                    endTime = endTime * .667;
+                    startTime *= osu.helpers.constants.DOUBLE_TIME_MULTI;
+                    endTime *= osu.helpers.constants.DOUBLE_TIME_MULTI;
                 }
 
                 this.break_times.push(startTime);
@@ -3486,26 +3230,8 @@ osu.ui.interface.osugame = {
         }
         if (this.is_doubletime) this.approachTime = this.approachTime - (this.approachTime * .33);
 
-        for (i = 0; i < this.beatmap.map_data.hit_objects.length; i++) {
-            var next_object = false;
-            var hitObject = this.beatmap.map_data.hit_objects[i];
-
-
-            //TODO: double processing ftl no need to do this twice :(
-            if (i + 1 != this.beatmap.map_data.hit_objects.length) {
-                var next = this.beatmap.map_data.hit_objects[i + 1];
-                if (!next.newCombo && next.type !== osu.objects.HitObjectParser.TYPES.SPINNER) {
-                    var next_x = this.calculate_x(next.x);
-                    var next_y = parseInt(next.y);
-                    if (this.is_hardrock) next_y = 384 - next_y;
-                    next_y = this.calculate_y(next_y);
-                    var next_t = next.startTime;
-                    if (this.is_doubletime) next_t = next_t * .667;
-                    next_object = {x: next_x, y: next_y, t: next_t}
-                }
-
-            }
-
+        for (i = 0; i < this.beatmap.map_data.hit_objects.length; i++){
+            var hitObject = new osu.objects.HitObject(this.beatmap.map_data.hit_objects[i], circleSize, this.approachTime, this);
             if (comboNum == 0 || hitObject.newCombo) {
                 comboNum = 1;
                 if (comboColour == osu.skins.COMBO_COLOURS.length - 1) {
@@ -3517,38 +3243,16 @@ osu.ui.interface.osugame = {
             } else {
                 comboNum++;
             }
-            var is_circle = hitObject.type == osu.objects.HitObjectParser.TYPES.CIRCLE;
-            var is_slider = hitObject.type == osu.objects.HitObjectParser.TYPES.SLIDER;
-            var is_spinner = hitObject.type == osu.objects.HitObjectParser.TYPES.SPINNER;
+            hitObject.colour = osu.skins.COMBO_COLOURS[comboColour];
+            hitObject.combo = comboNum;
 
-            if (is_circle || is_slider) {
-                var x = hitObject.x;
-                var y = hitObject.y;
-                var t = hitObject.startTime;
-                if (this.is_doubletime) t = t * .667;
-                if (is_circle) {
-                    this.hit_objects.push({
-                        t: t,
-                        object: new Circle(this, this.hit_object_container, this.is_hidden, x, y, this.approachTime, t, circleSize, osu.skins.COMBO_COLOURS[comboColour], comboNum, next_object)
-                    });
-                }
-                if (is_slider) {
-                    this.hit_objects.push({
-                        t: t,
-                        object: new osu.objects.sliders.Slider(this, this.hit_object_container, this.is_hidden, x, y, this.approachTime, t, circleSize, osu.skins.COMBO_COLOURS[comboColour], comboNum, hitObject, next_object)
-                    });
-
-
-                }
-
-
-            }
-
+            this.hit_objects.push(hitObject);
         }
+
         osu.objects.HitObjectParser.create_stacks(this.hit_objects, parseFloat(this.beatmap.map_data.general.StackLeniency) || 0.7, unScaledDiameter, this.is_hardrock);
 
         this.audioLeadIn = parseInt(this.beatmap.map_data.general.AudioLeadIn);
-        if (this.is_doubletime) this.audioLeadIn = this.audioLeadIn * .667
+        if (this.is_doubletime) this.audioLeadIn = this.audioLeadIn * osu.helpers.constants.DOUBLE_TIME_MULTI;
 
 
         //calculate x,y prior as processing slowly casues it to get out of sync
@@ -3561,7 +3265,7 @@ osu.ui.interface.osugame = {
                     this.replay_data[i][2] = this.calculate_y(this.replay_data[i][2]);
                     if (this.is_doubletime) {
                         //seems replay data also needs to be speed up
-                        this.replay_data[i][0] = this.replay_data[i][0] * .667
+                        this.replay_data[i][0] *= osu.helpers.constants.DOUBLE_TIME_MULTI;
                     }
                 }
             }
@@ -3646,7 +3350,7 @@ osu.ui.interface.osugame = {
             if (this.replay_data[2][0] < 0) {
                 if (this.audioLeadIn == 0) {
                     this.audioLeadIn = this.replay_data[2][0] * -1;
-                    if (this.is_doubletime) this.audioLeadIn = this.audioLeadIn * .667;
+                    if (this.is_doubletime) this.audioLeadIn *= osu.helpers.constants.DOUBLE_TIME_MULTI;
                 }
 
             }
@@ -3698,12 +3402,12 @@ osu.ui.interface.osugame = {
         }
 
         for (var i = this.oldest_object_position; i < this.hit_objects.length; i++) {
-            if (this.hit_objects[i].t - this.approachTime > time) {
+            if (this.hit_objects[i].startTime - this.approachTime > time) {
                 break;
             }
             //draw will return false if the object has been destroyed
             //if it has been destroyed we will set the last object count to that pos so we don't iterate over all the objects later on
-            if (!this.hit_objects[i].object.draw(time)) {
+            if (!this.hit_objects[i].draw(time)) {
                 //only allow this to icrement by 1 in case a object is still drawing like a slider.
                 if (this.oldest_object_position + 1 == i) {
                     this.oldest_object_position = i;

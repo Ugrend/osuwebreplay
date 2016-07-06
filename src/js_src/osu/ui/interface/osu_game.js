@@ -363,8 +363,8 @@ osu.ui.interface.osugame = {
                 var startTime = parseInt(this.beatmap.map_data.events[i][1]);
                 var endTime = parseInt(this.beatmap.map_data.events[i][2]) - 2300
                 if (this.is_doubletime) {
-                    startTime = startTime * .667;
-                    endTime = endTime * .667;
+                    startTime *= osu.helpers.constants.DOUBLE_TIME_MULTI;
+                    endTime *= osu.helpers.constants.DOUBLE_TIME_MULTI;
                 }
 
                 this.break_times.push(startTime);
@@ -395,26 +395,8 @@ osu.ui.interface.osugame = {
         }
         if (this.is_doubletime) this.approachTime = this.approachTime - (this.approachTime * .33);
 
-        for (i = 0; i < this.beatmap.map_data.hit_objects.length; i++) {
-            var next_object = false;
-            var hitObject = this.beatmap.map_data.hit_objects[i];
-
-
-            //TODO: double processing ftl no need to do this twice :(
-            if (i + 1 != this.beatmap.map_data.hit_objects.length) {
-                var next = this.beatmap.map_data.hit_objects[i + 1];
-                if (!next.newCombo && next.type !== osu.objects.HitObjectParser.TYPES.SPINNER) {
-                    var next_x = this.calculate_x(next.x);
-                    var next_y = parseInt(next.y);
-                    if (this.is_hardrock) next_y = 384 - next_y;
-                    next_y = this.calculate_y(next_y);
-                    var next_t = next.startTime;
-                    if (this.is_doubletime) next_t = next_t * .667;
-                    next_object = {x: next_x, y: next_y, t: next_t}
-                }
-
-            }
-
+        for (i = 0; i < this.beatmap.map_data.hit_objects.length; i++){
+            var hitObject = new osu.objects.HitObject(this.beatmap.map_data.hit_objects[i], circleSize, this.approachTime, this);
             if (comboNum == 0 || hitObject.newCombo) {
                 comboNum = 1;
                 if (comboColour == osu.skins.COMBO_COLOURS.length - 1) {
@@ -426,38 +408,16 @@ osu.ui.interface.osugame = {
             } else {
                 comboNum++;
             }
-            var is_circle = hitObject.type == osu.objects.HitObjectParser.TYPES.CIRCLE;
-            var is_slider = hitObject.type == osu.objects.HitObjectParser.TYPES.SLIDER;
-            var is_spinner = hitObject.type == osu.objects.HitObjectParser.TYPES.SPINNER;
+            hitObject.colour = osu.skins.COMBO_COLOURS[comboColour];
+            hitObject.combo = comboNum;
 
-            if (is_circle || is_slider) {
-                var x = hitObject.x;
-                var y = hitObject.y;
-                var t = hitObject.startTime;
-                if (this.is_doubletime) t = t * .667;
-                if (is_circle) {
-                    this.hit_objects.push({
-                        t: t,
-                        object: new Circle(this, this.hit_object_container, this.is_hidden, x, y, this.approachTime, t, circleSize, osu.skins.COMBO_COLOURS[comboColour], comboNum, next_object)
-                    });
-                }
-                if (is_slider) {
-                    this.hit_objects.push({
-                        t: t,
-                        object: new osu.objects.sliders.Slider(this, this.hit_object_container, this.is_hidden, x, y, this.approachTime, t, circleSize, osu.skins.COMBO_COLOURS[comboColour], comboNum, hitObject, next_object)
-                    });
-
-
-                }
-
-
-            }
-
+            this.hit_objects.push(hitObject);
         }
+
         osu.objects.HitObjectParser.create_stacks(this.hit_objects, parseFloat(this.beatmap.map_data.general.StackLeniency) || 0.7, unScaledDiameter, this.is_hardrock);
 
         this.audioLeadIn = parseInt(this.beatmap.map_data.general.AudioLeadIn);
-        if (this.is_doubletime) this.audioLeadIn = this.audioLeadIn * .667
+        if (this.is_doubletime) this.audioLeadIn = this.audioLeadIn * osu.helpers.constants.DOUBLE_TIME_MULTI;
 
 
         //calculate x,y prior as processing slowly casues it to get out of sync
@@ -470,7 +430,7 @@ osu.ui.interface.osugame = {
                     this.replay_data[i][2] = this.calculate_y(this.replay_data[i][2]);
                     if (this.is_doubletime) {
                         //seems replay data also needs to be speed up
-                        this.replay_data[i][0] = this.replay_data[i][0] * .667
+                        this.replay_data[i][0] *= osu.helpers.constants.DOUBLE_TIME_MULTI;
                     }
                 }
             }
@@ -555,7 +515,7 @@ osu.ui.interface.osugame = {
             if (this.replay_data[2][0] < 0) {
                 if (this.audioLeadIn == 0) {
                     this.audioLeadIn = this.replay_data[2][0] * -1;
-                    if (this.is_doubletime) this.audioLeadIn = this.audioLeadIn * .667;
+                    if (this.is_doubletime) this.audioLeadIn *= osu.helpers.constants.DOUBLE_TIME_MULTI;
                 }
 
             }
@@ -607,12 +567,12 @@ osu.ui.interface.osugame = {
         }
 
         for (var i = this.oldest_object_position; i < this.hit_objects.length; i++) {
-            if (this.hit_objects[i].t - this.approachTime > time) {
+            if (this.hit_objects[i].startTime - this.approachTime > time) {
                 break;
             }
             //draw will return false if the object has been destroyed
             //if it has been destroyed we will set the last object count to that pos so we don't iterate over all the objects later on
-            if (!this.hit_objects[i].object.draw(time)) {
+            if (!this.hit_objects[i].draw(time)) {
                 //only allow this to icrement by 1 in case a object is still drawing like a slider.
                 if (this.oldest_object_position + 1 == i) {
                     this.oldest_object_position = i;

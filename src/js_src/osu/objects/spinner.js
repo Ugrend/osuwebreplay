@@ -8,5 +8,11 @@ osu.objects.Spinner = class Spinner{
     constructor(hitObject){
 
     }
+    init(){
+
+    }
+    draw(){
+        return false;
+    }
 
 };

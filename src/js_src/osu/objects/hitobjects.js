@@ -170,16 +170,16 @@ osu.objects.HitObjectParser = {
     create_stacks: function (hitobjects, stackLeniency, circleSize, hardrock) {
 
         for (var i = hitobjects.length - 1; i > 0; i--) {
-            var hitObjectI = hitobjects[i].object;
-            if (hitObjectI.stack != 0 || hitObjectI.type == "spinner") continue;
+            var hitObjectI = hitobjects[i];
+            if (hitObjectI.stack != 0 || hitObjectI.type == osu.objects.HitObjectParser.TYPES.SPINNER) continue;
 
-            if (hitObjectI.type == "circle") {
+            if (hitObjectI.type == osu.objects.HitObjectParser.TYPES.CIRCLE) {
                 for (var n = i - 1; n >= 0; n--) {
-                    var hitObjectN = hitobjects[n].object;
-                    if (hitObjectN.type == "spinner") continue;
+                    var hitObjectN = hitobjects[n];
+                    if (hitObjectN.type == osu.objects.HitObjectParser.TYPES.SPINNER) continue;
 
-                    var timeI = hitObjectI.hit_time - (1000 * stackLeniency); //convert to miliseconds
-                    var timeN = hitObjectN.hit_time;
+                    var timeI = hitObjectI.startTime - (1000 * stackLeniency); //convert to miliseconds
+                    var timeN = hitObjectN.startTime;
                     if (timeI > timeN) break;
 
                     var distance = osu.helpers.math.distance(hitObjectI.x, hitObjectI.y, hitObjectN.x, hitObjectN.y);
@@ -193,7 +193,7 @@ osu.objects.HitObjectParser = {
         }
 
         for (i = 0; i < hitobjects.length; i++) {
-            var hitObject = hitobjects[i].object;
+            var hitObject = hitobjects[i];
             var stack = hitObject.stack;
             var offset = (stack * (circleSize * 0.05));
             var x = hitObject.x - offset;
@@ -211,16 +211,15 @@ osu.objects.HitObjectParser = {
 
 };
 osu.objects.HitObject = class HitObject{
-    constructor(hitObjectData, size, approachRate, combo, colour, game, nextHitObject){
+    constructor(hitObjectData, size, approachRate, game){
         this._x = 0;
         this._y = 0;
         this.game = game;
-        this.combo = combo;
-        this.colour = colour;
+        this.combo = 1;
+        this.colour = 0xFFFFFF;
         this.stack = 0;
         this.size = size;
         this.approachRate = approachRate;
-
 
         $.extend(this, hitObjectData);
         if(this.game.is_hardrock) this._y = 384 - this._y;
@@ -250,6 +249,10 @@ osu.objects.HitObject = class HitObject{
     init(){
         this.x = this.game.calculate_x(this.x);
         this.y = this.game.calculate_y(this.y);
+        if(this.game.is_doubletime){
+            this.startTime *= osu.helpers.constants.DOUBLE_TIME_MULTI;
+            if(this.endTime) this.endTime *= osu.helpers.constants.DOUBLE_TIME_MULTI;
+        }
         this.object.init();
         this.initialised = true;
     }

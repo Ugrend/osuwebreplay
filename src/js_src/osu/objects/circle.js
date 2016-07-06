@@ -30,6 +30,7 @@ osu.objects.Circle = class Circle{
         this.last_draw_time = 0;
         this.drawn = false;
         this.destroyed = false;
+        this.hidden_time = this.hitObject.approachRate / 3.3;
     }
     init(){
         this.circleContainer = new PIXI.Container();
@@ -107,11 +108,6 @@ osu.objects.Circle = class Circle{
             this.destroyed = true;
         }
 
-        if(!this.destroyed_line && cur_time > this.next_object.t){
-
-            this.container.removeChild(this.followPointContainer);
-            this.destroyed_line = true;
-        }
         if(!this.destroyed && cur_time < this.hitObject.startTime + this.hitObject.approachRate){
             if(!this.hitObject.game.is_hidden){
                 //dont need to calculate this so often
@@ -125,7 +121,7 @@ osu.objects.Circle = class Circle{
                 }
             }
             if(!this.drawn){
-                this.container.addChildAt(this.circleContainer,0);
+                this.hitObject.game.hit_object_container.addChildAt(this.circleContainer,0);
                 this.drawn = true;
             }
         }
@@ -137,170 +133,7 @@ osu.objects.Circle = class Circle{
     }
 
     destroy(){
-        this.container.removeChild(this.circleContainer);
+        this.hitObject.game.hit_object_container.removeChild(this.circleContainer);
     }
 
 };
-
-class Circle{
-    constructor(game,container,is_hidden, x, y, approach_rate, hit_time,diameter, colour, combo, next_object) {
-        this.game = game;
-        this.type = "circle";
-        this.stack = 0;
-        this.container = container;
-        this.x = x;
-        this.y = y;
-        this.is_hidden = is_hidden;
-        this.diameter = diameter;
-        this.colour = colour;
-        this.approach_rate = approach_rate;
-        this.hit_time = hit_time;
-        this.next_object = next_object;
-        this.last_draw_time = 0;
-        this.destroyed_line = false;
-        if(!this.next_object) this.destroyed_line = true;
-        this.drawn = false;
-        this.destroyed = false;
-        this.hidden_time = this.approach_rate / 3.3;
-        this.lined_drawn = false;
-        this.combo = combo;
-    }
-
-    init(){
-
-        this.x = this.game.calculate_x(this.x);
-        if(this.game.is_hardrock) this.y = 384 - this.y;
-        this.y = this.game.calculate_y(this.y);
-
-        this.circleContainer = new PIXI.Container();
-        this.circleSprite =  new PIXI.Sprite(hit_circle_texture);
-        this.circleSprite.tint = this.colour;
-        this.circleSprite.anchor.set(0.5);
-        this.circleSprite.height = this.diameter;
-        this.circleSprite.width = this.diameter;
-
-
-
-
-        //TODO: get angle calculate distance only draw if cetain distance etc etc
-
-        if(!this.is_hidden) {
-            this.approchCircleSprite = new PIXI.Sprite(approach_circle_texture);
-            this.approchCircleSprite.tint = this.colour;
-            this.approchCircleSprite.anchor.set(0.5);
-            this.approchCircleSprite.width = this.diameter * 2.5;
-            this.approchCircleSprite.height = this.diameter * 2.5;
-            this.circleContainer.addChild(this.approchCircleSprite);
-        }
-//TODO: correct for offsets
-        if(this.next_object){
-            this.followPointContainer = new PIXI.Container();
-            var line = new PIXI.Graphics();
-            line.moveTo(this.x,this.y);
-            line.lineStyle(4,0xFFFFFF,0.5);
-            line.lineTo(this.next_object.x, this.next_object.y);
-            this.followPointContainer.addChild(line);
-        }
-
-
-
-        this.circleOverlaySprite =  new PIXI.Sprite(hit_circle_overlay);
-        this.circleOverlaySprite.height = this.diameter;
-        this.circleOverlaySprite.width = this.diameter;
-        this.circleOverlaySprite.anchor.set(0.5);
-        this.circleContainer.addChild(this.circleSprite);
-        this.circleContainer.addChild(this.circleOverlaySprite);
-
-
-        var comboString = this.combo.toString();
-        this.comboNumSprites = [];
-        for(var i = 0; i< comboString.length ; i++){
-            this.comboNumSprites.push(new PIXI.Sprite(hit_numbers["num_"+comboString.charAt(i)]));
-        }
-
-        if(this.comboNumSprites.length > 1){
-            this.comboSprite1 = this.comboNumSprites[0];
-            this.comboSprite2 = this.comboNumSprites[1];
-            this.comboSprite1.x -= this.diameter/10;
-            this.comboSprite2.x += this.diameter/10;
-            this.comboSprite1.anchor.set(0.5);
-            this.comboSprite2.anchor.set(0.5);
-            this.circleContainer.addChild(this.comboSprite1);
-            this.circleContainer.addChild(this.comboSprite2);
-        }else{
-            this.comboSprite1 = this.comboNumSprites[0];
-            this.comboSprite1.anchor.set(0.5);
-            this.circleContainer.addChild(this.comboSprite1);
-        }
-
-
-        this.circleContainer.x = this.x;
-        this.circleContainer.y = this.y;
-
-    }
-
-    draw(cur_time){
-
-        if(this.destroyed && this.destroyed_line){
-            return false;
-        }
-
-        if(cur_time > this.hit_time - 110){
-            if(this.next_object){
-                if(!this.lined_drawn) {
-                    this.container.addChildAt(this.followPointContainer, 0);
-                    this.lined_drawn = true;
-                }
-            }
-        }
-
-        if(this.drawn && this.game.is_hidden && cur_time > this.hit_time - this.hidden_time){
-            this.destroy();
-            this.destroyed = true;
-        }
-
-        if(!this.destroyed && cur_time > this.hit_time + 110 ){
-            this.destroy();
-            this.destroyed = true;
-        }
-
-        if(!this.destroyed_line && cur_time > this.next_object.t){
-
-            this.container.removeChild(this.followPointContainer);
-            this.destroyed_line = true;
-        }
-
-
-
-        if(!this.destroyed && cur_time < this.hit_time + this.approach_rate){
-            if(!this.is_hidden){
-                //dont need to calculate this so often
-                if(Date.now() - this.last_draw_time > 35) {
-                    var time_diff = this.hit_time - cur_time;
-                    var scale = 1 + (time_diff / this.approach_rate) * 2.5;
-                    if (scale < 1) scale = 1;
-                    this.approchCircleSprite.width = this.diameter * scale;
-                    this.approchCircleSprite.height = this.diameter * scale;
-                    this.last_draw_time = Date.now();
-                }
-            }
-            if(!this.drawn){
-
-                this.container.addChildAt(this.circleContainer,0);
-                this.drawn = true;
-            }
-        }
-        return true;
-    }
-
-    hit(time){
-
-    }
-
-    destroy(){
-        this.container.removeChild(this.circleContainer);
-
-    }
-
-}
-
