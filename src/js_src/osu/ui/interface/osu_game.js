@@ -415,6 +415,7 @@ osu.ui.interface.osugame = {
         }
 
         osu.objects.HitObjectParser.create_stacks(this.hit_objects, parseFloat(this.beatmap.map_data.general.StackLeniency) || 0.7, unScaledDiameter, this.is_hardrock);
+        osu.objects.HitObjectParser.calculate_follow_points(this.hit_objects, this);
 
         this.audioLeadIn = parseInt(this.beatmap.map_data.general.AudioLeadIn);
         if (this.is_doubletime) this.audioLeadIn = this.audioLeadIn * osu.helpers.constants.DOUBLE_TIME_MULTI;
@@ -545,6 +546,15 @@ osu.ui.interface.osugame = {
     calculate_y: function (y) {
         y = parseInt(y);
         return (this.getRenderHeight() / 480) * (y + 48);
+    },
+    calculate_original_x: function (x) {
+        x = parseInt(x);
+        return (x + 64) / (this.getRenderWidth() / 640) ;
+
+    },
+    calculate_original_y: function (y) {
+        y = parseInt(y);
+        return   (y + 48) / (this.getRenderHeight() / 480);
     },
 
     render_object: function () {

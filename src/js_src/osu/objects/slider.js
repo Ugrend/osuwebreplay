@@ -33,7 +33,11 @@ osu.objects.Slider = class Slider{
 
         }
 
-
+        //endpoint (technically this is wrong but i no like math)
+        var final_x = points[points.length-1].x;
+        var final_y = points[points.length-1].y;
+        this.hitObject.endX = final_x;
+        this.hitObject.endY =final_y;
 
         //ghetto sliders o baby
         if(this.hitObject.sliderType == osu.objects.sliders.TYPES.LINEAR){
@@ -45,9 +49,7 @@ osu.objects.Slider = class Slider{
             //startpoint
             sliderGraphics.drawCircle(this.hitObject.x, this.hitObject.y, (this.hitObject.size -5 )/2);
 
-            //endpoint (technically this is wrong but i no like math)
-            var final_x = points[points.length-1].x;
-            var final_y = points[points.length-1].y
+
 
             sliderGraphics.drawCircle(final_x, final_y, (this.hitObject.size -5 )/2);
 

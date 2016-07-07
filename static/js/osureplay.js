@@ -72,7 +72,7 @@ osu.skins = {
     hitcircle: "data/hitcircle.png",
     hitcicleoverlay: "data/hitcircleoverlay.png",
     approachcircle: "data/approachcircle.png",
-
+    followpoint: "data/followpoint.png",
 
 
     default_0: "data/default-0.png",
@@ -1566,14 +1566,49 @@ osu.helpers.math = {
         var v1 = Math.abs(x1 - x2);
         var v2 = Math.abs(y1 - y2);
         return Math.sqrt((v1 * v1) + (v2 * v2));
+    },
+
+    slope: function(x1,y1,x2,y2){
+        if(x1 == x2){
+            return null;
+        }
+        return (y2 - y1) / (x2 - x1);
+    },
+
+    intercept: function(x, y, slope){
+        if(slope === null){
+            return x;
+        }
+        return y - slope * x;
+    },
+
+    getLiniearPoints(x1, y1, x2, y2, minDistance){
+        minDistance = minDistance || null;
+        var m = this.slope(x1,y1,x2,y2);
+        var b = this.intercept(x1, y1, m);
+
+        var lastPoint = null;
+        var coordinates = [];
+        for (var x = x1; x <= x2; x++) {
+            var y = m * x + b;
+            var point = {x:x,y:y};
+            if(minDistance){
+                if(lastPoint){
+                    if(this.distance(lastPoint.x,lastPoint.y,point.x,point.y) < minDistance){
+                        continue;
+                    }
+
+                }
+
+            }
+            lastPoint = point;
+            coordinates.push(point);
+        }
+        return coordinates;
+    },
+    angleDeg: function (x1,x2,y1,y2) {
+        return   Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
     }
-
-
-
-
-
-
-
 
 };
 
@@ -1840,10 +1875,63 @@ osu = osu || {};
 osu.objects = osu.objects || {};
 osu.objects.FollowPoint = class FollowPoint{
     constructor(hitObject1, hitObject2){
+        this.hitObject1 = hitObject1;
+        this.hitObject2 = hitObject2;
+        this.drawn = false;
+        this.destroyed = false;
+    }
+
+    init(){
+        this.x1 = this.hitObject1.endX || this.hitObject1.x;
+        this.y1 = this.hitObject1.endY  || this.hitObject1.y;
+        this.x2 = this.hitObject2.x;
+        this.y2 = this.hitObject2.y;
+        this.drawTime = this.hitObject1.endTime || this.hitObject1.startTime;
+        this.points = osu.helpers.math.getLiniearPoints(this.x1, this.y1, this.x2, this.y2, 20);
+        this.angle = osu.helpers.math.angleDeg(this.x1, this.y1, this.x2, this.y2);
+
+        this.followPointContainer = new PIXI.Container();
+        var arrowTexture =  PIXI.Texture.fromImage(osu.skins.followpoint);
+        for(var i = 0 ; i < this.points.length; i++){
+            var arrowSprite = new PIXI.Sprite(arrowTexture);
+            arrowSprite.anchor.set(0.5);
+            arrowSprite.position.x = this.points[i].x;
+            arrowSprite.position.y = this.points[i].y;
+            this.followPointContainer.addChild(arrowSprite);
+        }
+        var graphicsLine = new PIXI.Graphics();
+        graphicsLine.moveTo(this.x1, this.y1);
+        graphicsLine.lineStyle(3,0xFFFFFF);
+        graphicsLine.lineTo(this.x2,this.y2);
+        this.followPointContainer.addChild(graphicsLine);
 
     }
 
+    draw(cur_time){
+        if(this.destroyed){
+            return false;
+        }
+
+        if(!this.drawn && cur_time >= this.drawTime){
+            this.hitObject1.game.hit_object_container.addChildAt(this.followPointContainer,0);
+            this.drawn = true;
+            return true;
+        }
+        if(!this.destroyed && cur_time > this.hitObject2.startTime){
+            this.destroy();
+            this.destroyed = true;
+        }
+
+
+        return true;
+    }
+    destroy(){
+        this.hitObject1.game.hit_object_container.removeChild(this.followPointContainer);
+    }
+
 };
+
+
 /**
  * hitobjects.js
  * Created by Ugrend on 17/06/2016.
@@ -2033,7 +2121,6 @@ osu.objects.HitObjectParser = {
                         hitObjectN.stack = hitObjectI.stack + 1;
                         hitObjectI = hitObjectN;
                     }
-
                 }
             }
         }
@@ -2053,6 +2140,29 @@ osu.objects.HitObjectParser = {
         }
 
 
+
+    },
+
+    calculate_follow_points: function (hitobjects, game) {
+
+        for(var i = 0; i < hitobjects.length -1; i++){
+            var hitObject1 = hitobjects[i];
+            var hitObject2 = hitobjects[i+1];
+            if (hitObject1.type == osu.objects.HitObjectParser.TYPES.SPINNER) continue;
+            if (hitObject2.type == osu.objects.HitObjectParser.TYPES.SPINNER) continue;
+            if(hitObject2.newCombo) continue;
+
+            var startX = game.calculate_original_x(hitObject1.endX || hitObject1.x);
+            var startY = game.calculate_original_x(hitObject1.endY || hitObject1.y);
+            var endX = game.calculate_original_x(hitObject2.x);
+            var endY = game.calculate_original_x(hitObject2.y);
+            var distance = osu.helpers.math.distance(startX,startY,endX,endY);
+            if(distance > 50){
+                hitObject1.followPoint = new osu.objects.FollowPoint(hitObject1, hitObject2);
+                hitObject1.followPoint.init();
+            }
+        }
+
     }
 
 };
@@ -2066,6 +2176,7 @@ osu.objects.HitObject = class HitObject{
         this.stack = 0;
         this.size = size;
         this.approachRate = approachRate;
+        this.followPoint = false;
 
         $.extend(this, hitObjectData);
         if(this.game.is_hardrock) this._y = 384 - this._y;
@@ -2104,7 +2215,11 @@ osu.objects.HitObject = class HitObject{
     }
 
     draw(cur_time){
-        return this.object.draw(cur_time);
+        var followResult = false;
+        if(this.followPoint){
+            followResult = this.followPoint.draw(cur_time);
+        }
+        return this.object.draw(cur_time) ||  followResult;
     }
 
 
@@ -2146,7 +2261,11 @@ osu.objects.Slider = class Slider{
 
         }
 
-
+        //endpoint (technically this is wrong but i no like math)
+        var final_x = points[points.length-1].x;
+        var final_y = points[points.length-1].y;
+        this.hitObject.endX = final_x;
+        this.hitObject.endY =final_y;
 
         //ghetto sliders o baby
         if(this.hitObject.sliderType == osu.objects.sliders.TYPES.LINEAR){
@@ -2158,9 +2277,7 @@ osu.objects.Slider = class Slider{
             //startpoint
             sliderGraphics.drawCircle(this.hitObject.x, this.hitObject.y, (this.hitObject.size -5 )/2);
 
-            //endpoint (technically this is wrong but i no like math)
-            var final_x = points[points.length-1].x;
-            var final_y = points[points.length-1].y
+
 
             sliderGraphics.drawCircle(final_x, final_y, (this.hitObject.size -5 )/2);
 
@@ -3250,6 +3367,7 @@ osu.ui.interface.osugame = {
         }
 
         osu.objects.HitObjectParser.create_stacks(this.hit_objects, parseFloat(this.beatmap.map_data.general.StackLeniency) || 0.7, unScaledDiameter, this.is_hardrock);
+        osu.objects.HitObjectParser.calculate_follow_points(this.hit_objects, this);
 
         this.audioLeadIn = parseInt(this.beatmap.map_data.general.AudioLeadIn);
         if (this.is_doubletime) this.audioLeadIn = this.audioLeadIn * osu.helpers.constants.DOUBLE_TIME_MULTI;
@@ -3380,6 +3498,15 @@ osu.ui.interface.osugame = {
     calculate_y: function (y) {
         y = parseInt(y);
         return (this.getRenderHeight() / 480) * (y + 48);
+    },
+    calculate_original_x: function (x) {
+        x = parseInt(x);
+        return (x + 64) / (this.getRenderWidth() / 640) ;
+
+    },
+    calculate_original_y: function (y) {
+        y = parseInt(y);
+        return   (y + 48) / (this.getRenderHeight() / 480);
     },
 
     render_object: function () {

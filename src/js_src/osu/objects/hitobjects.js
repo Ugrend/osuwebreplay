@@ -187,7 +187,6 @@ osu.objects.HitObjectParser = {
                         hitObjectN.stack = hitObjectI.stack + 1;
                         hitObjectI = hitObjectN;
                     }
-
                 }
             }
         }
@@ -207,6 +206,29 @@ osu.objects.HitObjectParser = {
         }
 
 
+
+    },
+
+    calculate_follow_points: function (hitobjects, game) {
+
+        for(var i = 0; i < hitobjects.length -1; i++){
+            var hitObject1 = hitobjects[i];
+            var hitObject2 = hitobjects[i+1];
+            if (hitObject1.type == osu.objects.HitObjectParser.TYPES.SPINNER) continue;
+            if (hitObject2.type == osu.objects.HitObjectParser.TYPES.SPINNER) continue;
+            if(hitObject2.newCombo) continue;
+
+            var startX = game.calculate_original_x(hitObject1.endX || hitObject1.x);
+            var startY = game.calculate_original_x(hitObject1.endY || hitObject1.y);
+            var endX = game.calculate_original_x(hitObject2.x);
+            var endY = game.calculate_original_x(hitObject2.y);
+            var distance = osu.helpers.math.distance(startX,startY,endX,endY);
+            if(distance > 50){
+                hitObject1.followPoint = new osu.objects.FollowPoint(hitObject1, hitObject2);
+                hitObject1.followPoint.init();
+            }
+        }
+
     }
 
 };
@@ -220,6 +242,7 @@ osu.objects.HitObject = class HitObject{
         this.stack = 0;
         this.size = size;
         this.approachRate = approachRate;
+        this.followPoint = false;
 
         $.extend(this, hitObjectData);
         if(this.game.is_hardrock) this._y = 384 - this._y;
@@ -258,7 +281,11 @@ osu.objects.HitObject = class HitObject{
     }
 
     draw(cur_time){
-        return this.object.draw(cur_time);
+        var followResult = false;
+        if(this.followPoint){
+            followResult = this.followPoint.draw(cur_time);
+        }
+        return this.object.draw(cur_time) ||  followResult;
     }
 
 

@@ -60,7 +60,7 @@ osu.skins = {
     hitcircle: "data/hitcircle.png",
     hitcicleoverlay: "data/hitcircleoverlay.png",
     approachcircle: "data/approachcircle.png",
-
+    followpoint: "data/followpoint.png",
 
 
     default_0: "data/default-0.png",
