@@ -60,7 +60,6 @@ osu.objects.Slider = class Slider{
             var beziers = [];
             var controlPoints = [];
             var lastP = false;
-            console.log(this.hitObject.points.length);
             for(var i=-1; i< this.hitObject.points.length ; i++){
                 var tPos;
                 if(i==-1){

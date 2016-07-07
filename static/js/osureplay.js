@@ -1605,11 +1605,7 @@ osu.helpers.math = {
             coordinates.push(point);
         }
         return coordinates;
-    },
-    angleDeg: function (x1,x2,y1,y2) {
-        return   Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
     }
-
 };
 
 
@@ -1886,25 +1882,27 @@ osu.objects.FollowPoint = class FollowPoint{
         this.y1 = this.hitObject1.endY  || this.hitObject1.y;
         this.x2 = this.hitObject2.x;
         this.y2 = this.hitObject2.y;
-        this.drawTime = this.hitObject1.endTime || this.hitObject1.startTime;
-        this.points = osu.helpers.math.getLiniearPoints(this.x1, this.y1, this.x2, this.y2, 20);
-        this.angle = osu.helpers.math.angleDeg(this.x1, this.y1, this.x2, this.y2);
 
+        this.drawTime = this.hitObject1.endTime  || this.hitObject1.startTime;
+        this.drawTime -= this.hitObject1.approachRate/2;
+        var xDiff = this.x2 - this.x1;
+        var yDiff = this.y2 - this.y1;
+        var angle = Math.atan2(yDiff, xDiff);
+        var distance = osu.helpers.math.distance(this.x1, this.y1, this.x2, this.y2);
+        var numPoints = Math.round(distance / (this.hitObject1.size/1.5));
+        var steps = 1/(numPoints+1);
+        var nextStep = steps;
         this.followPointContainer = new PIXI.Container();
         var arrowTexture =  PIXI.Texture.fromImage(osu.skins.followpoint);
-        for(var i = 0 ; i < this.points.length; i++){
+        for(var i = 0 ; i < numPoints; i++){
             var arrowSprite = new PIXI.Sprite(arrowTexture);
-            arrowSprite.anchor.set(0.5);
-            arrowSprite.position.x = this.points[i].x;
-            arrowSprite.position.y = this.points[i].y;
-            this.followPointContainer.addChild(arrowSprite);
-        }
-        var graphicsLine = new PIXI.Graphics();
-        graphicsLine.moveTo(this.x1, this.y1);
-        graphicsLine.lineStyle(3,0xFFFFFF);
-        graphicsLine.lineTo(this.x2,this.y2);
-        this.followPointContainer.addChild(graphicsLine);
 
+            arrowSprite.rotation = angle;
+            arrowSprite.position.x = this.x1 + (xDiff * nextStep);
+            arrowSprite.position.y = this.y1 + (yDiff * nextStep);
+            this.followPointContainer.addChild(arrowSprite);
+            nextStep += steps;
+        }
     }
 
     draw(cur_time){
@@ -2288,7 +2286,6 @@ osu.objects.Slider = class Slider{
             var beziers = [];
             var controlPoints = [];
             var lastP = false;
-            console.log(this.hitObject.points.length);
             for(var i=-1; i< this.hitObject.points.length ; i++){
                 var tPos;
                 if(i==-1){
