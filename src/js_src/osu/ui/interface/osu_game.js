@@ -52,6 +52,8 @@ osu.ui.interface.osugame = {
     events_bound: false,
     curMapTime:0,
     replayDiff:0,
+    delayEnd: 0,
+    finished: false,
 
     getRenderWidth: function () {
         return osu.ui.renderer.renderWidth;
@@ -305,9 +307,13 @@ osu.ui.interface.osugame = {
             self.fail_container.visible = false;
         }, 4000);
     },
+    end_replay: function () {
+        this.finished = true;
+    },
     bind_events: function () {
         if (!this.events_bound) {
             event_handler.on(event_handler.EVENTS.SETTINGS_CHANGED, this.create_dimmer.bind(this));
+            event_handler.on(event_handler.EVENTS.STOP_REPLAY, this.end_replay.bind(this));
             this.events_bound = true;
         }
 
@@ -359,6 +365,8 @@ osu.ui.interface.osugame = {
         this.replayDiff = 0;
         this.break_times = [];
         this.warning_arrow_times =[];
+        this.delayEnd = 0;
+        this.finished = false;
         for (var i = 0; i < this.mods.length; i++) {
             var mod = this.mods[i].code;
             if (mod == "HD") this.is_hidden = true;
@@ -519,6 +527,20 @@ osu.ui.interface.osugame = {
 
             }
         }
+
+        if(this.oldest_object_position == this.hit_objects.length -1){
+           if(this.delayEnd == 0){
+               this.cursor.x = this.getRenderWidth() / 2;
+               this.cursor.y = this.getRenderHeight() / 2;
+               this.delayEnd = this.curMapTime + 5000;
+           }
+           if(this.curMapTime >= this.delayEnd){
+               this.finished = true;
+
+               event_handler.off(event_handler.EVENTS.RENDER, "replay_text");
+               osu.ui.interface.scorescreen.renderScoreScreen();
+           }
+        }
     },
 
     skip_intro: function () {
@@ -594,7 +616,7 @@ osu.ui.interface.osugame = {
 
         }
         this.render_replay_frame();
-        setTimeout(this.game_loop.bind(this), 0);
+        if(!this.finished) setTimeout(this.game_loop.bind(this), 0);
 
     }
 
