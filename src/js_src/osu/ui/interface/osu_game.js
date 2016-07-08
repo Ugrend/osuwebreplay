@@ -482,6 +482,9 @@ osu.ui.interface.osugame = {
 
         }
 
+        this.delayEnd = this.beatmap.map_data.time_length + 5000;
+        if(this.is_doubletime) this.delayEnd *= osu.helpers.constants.DOUBLE_TIME_MULTI;
+
         event_handler.on(event_handler.EVENTS.RENDER, this.move_replay_text.bind(this), "replay_text")
 
     },
@@ -529,11 +532,6 @@ osu.ui.interface.osugame = {
         }
 
         if(this.oldest_object_position == this.hit_objects.length -1){
-           if(this.delayEnd == 0){
-               this.cursor.x = this.getRenderWidth() / 2;
-               this.cursor.y = this.getRenderHeight() / 2;
-               this.delayEnd = this.curMapTime + 5000;
-           }
            if(this.curMapTime >= this.delayEnd){
                this.finished = true;
 
