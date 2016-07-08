@@ -357,6 +357,8 @@ osu.ui.interface.osugame = {
         this.is_halftime = false;
         this.is_doubletime = false;
         this.replayDiff = 0;
+        this.break_times = [];
+        this.warning_arrow_times =[];
         for (var i = 0; i < this.mods.length; i++) {
             var mod = this.mods[i].code;
             if (mod == "HD") this.is_hidden = true;
