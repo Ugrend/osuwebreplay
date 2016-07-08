@@ -98,6 +98,8 @@ var ReplayParser = function(replay_data, callback){
         time_played: RP.getLong(),
         replayByteLength: RP.getInteger()
     };
+
+    //this converts from .net ticks to epoch time
     var epoch = (replay.time_played - 621355968000000000) / 10000 ;
     var date_time = new Date(epoch);
     replay.time_played = date_time.toLocaleString();
@@ -112,13 +114,33 @@ var ReplayParser = function(replay_data, callback){
         RP.replay_bytes.slice(RP.byte_index),
         function(data) {
             var replayData = data.split(",");
+            var lastTimeFrame = 0;
             for(var i = 0 ; i< replayData.length ; i++){
                 var splitData = replayData[i].split("|");
                 for(var x = 0; x< splitData.length ; x++){
                     splitData[x] = parseFloat(splitData[x]);
                 }
-                replayData[i] = splitData;
+
+                if(splitData.length !=4) continue;
+                var time = +splitData[0];
+                if(time > 0){
+                    time+= lastTimeFrame;
+                    lastTimeFrame = time;
+                }
+
+                var replayFrame = {
+                    t: time,
+                    x:splitData[1],
+                    y: splitData[2],
+                    keys: osu.keypress.get_keys(splitData[3])
+
+                };
+
+
+                replayData[i] = replayFrame;
             }
+
+
             replay.replayData = replayData;
 
             database.insert_data(database.TABLES.REPLAYS, replay.rMd5Hash, replay, function () {

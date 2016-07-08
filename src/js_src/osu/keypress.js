@@ -27,7 +27,7 @@ osu.keypress = Object.freeze({
     },
 
     //TODO: need to work out how this works, its returning wrong keys i think
-    getKeys: function(keys_int){
+    get_keys: function(keys_int){
         var keys = [];
         if (keys_int == 0) {
             keys.push(this.KEYS.NONE);

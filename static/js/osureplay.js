@@ -1092,6 +1092,8 @@ var ReplayParser = function(replay_data, callback){
         time_played: RP.getLong(),
         replayByteLength: RP.getInteger()
     };
+
+    //this converts from .net ticks to epoch time
     var epoch = (replay.time_played - 621355968000000000) / 10000 ;
     var date_time = new Date(epoch);
     replay.time_played = date_time.toLocaleString();
@@ -1106,13 +1108,33 @@ var ReplayParser = function(replay_data, callback){
         RP.replay_bytes.slice(RP.byte_index),
         function(data) {
             var replayData = data.split(",");
+            var lastTimeFrame = 0;
             for(var i = 0 ; i< replayData.length ; i++){
                 var splitData = replayData[i].split("|");
                 for(var x = 0; x< splitData.length ; x++){
                     splitData[x] = parseFloat(splitData[x]);
                 }
-                replayData[i] = splitData;
+
+                if(splitData.length !=4) continue;
+                var time = +splitData[0];
+                if(time > 0){
+                    time+= lastTimeFrame;
+                    lastTimeFrame = time;
+                }
+
+                var replayFrame = {
+                    t: time,
+                    x:splitData[1],
+                    y: splitData[2],
+                    keys: osu.keypress.get_keys(splitData[3])
+
+                };
+
+
+                replayData[i] = replayFrame;
             }
+
+
             replay.replayData = replayData;
 
             database.insert_data(database.TABLES.REPLAYS, replay.rMd5Hash, replay, function () {
@@ -1639,7 +1661,7 @@ osu.keypress = Object.freeze({
     },
 
     //TODO: need to work out how this works, its returning wrong keys i think
-    getKeys: function(keys_int){
+    get_keys: function(keys_int){
         var keys = [];
         if (keys_int == 0) {
             keys.push(this.KEYS.NONE);
@@ -3028,6 +3050,7 @@ osu.ui.interface.osugame = {
     curr_replay_frame: 0,
     mods: [],
     oldest_object_position: 0,
+    oldestReplayFrame:0,
     replay_intro_time: -1,
     end_skip_frame: -1,
     skip_frames: [],
@@ -3037,12 +3060,11 @@ osu.ui.interface.osugame = {
     replay_played_by_text: "",
     hit_objects: [],
     events_bound: false,
-
+    curTime:0,
 
     getRenderWidth: function () {
         return osu.ui.renderer.renderWidth;
     },
-
     getRenderHeight: function () {
         return osu.ui.renderer.renderHeight;
     },
@@ -3058,8 +3080,6 @@ osu.ui.interface.osugame = {
 
 
     },
-
-
     create_background: function () {
 
         this.beatmap.background = this.beatmap.background || ""; //prevent pixi breaking on undefined background
@@ -3074,8 +3094,6 @@ osu.ui.interface.osugame = {
 
 
     },
-
-
     tint_untint_key: function (key, do_tint) {
         if (do_tint) {
             key.tint = 0xFFFF00;
@@ -3084,8 +3102,6 @@ osu.ui.interface.osugame = {
             key.tint = 0xFFFFFF;
         }
     },
-
-
     create_key_press: function () {
         this.keypress_area = new PIXI.Container();
         var keypress_texture = PIXI.Texture.fromImage(osu.skins.inputoverlay_key);
@@ -3145,8 +3161,6 @@ osu.ui.interface.osugame = {
 
 
     },
-
-
     create_cursor: function () {
         this.cursor = new PIXI.Container();
         var cursor_texture = PIXI.Texture.fromImage(osu.skins.cursor);
@@ -3178,7 +3192,6 @@ osu.ui.interface.osugame = {
         this.master_container.addChild(this.skip_container);
 
     },
-
     create_play_warn_arrows_container: function () {
         this.arrow_container = new PIXI.Container();
         var arrow_texture = new PIXI.Texture.fromImage(osu.skins.play_warningarrow);
@@ -3234,7 +3247,6 @@ osu.ui.interface.osugame = {
         this.fail_container.addChild(fail_sprite);
         this.master_container.addChild(this.fail_container);
     },
-
     create_replay_by_text: function () {
         this.replay_text = new PIXI.Text(this.replay_played_by_text, {
             font: "20px Arial",
@@ -3257,8 +3269,6 @@ osu.ui.interface.osugame = {
             }
         }
     },
-
-
     create_master_container: function () {
         this.hit_object_container = new PIXI.Container();
 
@@ -3274,7 +3284,6 @@ osu.ui.interface.osugame = {
         this.create_cursor();
 
     },
-
     flash_warning_arrows: function () {
         if (this.flash_count < 15) {
             var self = this;
@@ -3290,7 +3299,6 @@ osu.ui.interface.osugame = {
         }
 
     },
-
     show_success: function () {
         this.success_container.visible = true;
         osu.audio.sound.section_success.play();
@@ -3313,6 +3321,27 @@ osu.ui.interface.osugame = {
         }
 
     },
+    /*osu coords are 512/384 but we dont want 0,512/etc to appear almost off screen
+     So instead will devide by a bigger but same aspect ratio and increase the original x/y by the difference/2
+     */
+    calculate_x: function (x) {
+        x = parseInt(x);
+        var result = (this.getRenderWidth() / 640) * (x + 64);
+        return result;
+    },
+    calculate_y: function (y) {
+        y = parseInt(y);
+        return (this.getRenderHeight() / 480) * (y + 48);
+    },
+    calculate_original_x: function (x) {
+        x = parseInt(x);
+        return (x + 64) / (this.getRenderWidth() / 640) ;
+
+    },
+    calculate_original_y: function (y) {
+        y = parseInt(y);
+        return   (y + 48) / (this.getRenderHeight() / 480);
+    },
 
     initGame: function () {
         event_handler.off(event_handler.EVENTS.RENDER, "replay_text"); //unsubscrbe incase another replay closed early
@@ -3322,7 +3351,7 @@ osu.ui.interface.osugame = {
         osu.ui.renderer.clearStage();
         osu.ui.renderer.addChild(this.master_container);
         this.bind_events();
-
+        this.curTime = 0;
         this.has_started = false;
         this.countdown_started = false;
         this.curr_replay_frame = 0;
@@ -3333,6 +3362,7 @@ osu.ui.interface.osugame = {
         this.is_hidden = false;
         this.is_hardrock = false;
         this.is_easy = false;
+        this.oldestReplayFrame = 0;
         this.is_halftime = false;
         this.is_doubletime = false;
         for (var i = 0; i < this.mods.length; i++) {
@@ -3414,101 +3444,38 @@ osu.ui.interface.osugame = {
 
         if (!replay.been_rendered) {
             for (var i = 0; i < this.replay_data.length; i++) {
-                if (this.replay_data[i].length == 4) {
-                    this.replay_data[i][1] = this.calculate_x(this.replay_data[i][1]);
-                    this.replay_data[i][2] = this.calculate_y(this.replay_data[i][2]);
-                    if (this.is_doubletime) {
-                        //seems replay data also needs to be speed up
-                        this.replay_data[i][0] *= osu.helpers.constants.DOUBLE_TIME_MULTI;
-                    }
+                this.replay_data[i].x = this.calculate_x(this.replay_data[i].x);
+                this.replay_data[i].y = this.calculate_y(this.replay_data[i].y);
+                if (this.is_doubletime) {
+                    //seems replay data also needs to be speed up
+                    //TODO: Check if i need to worry about the negative values
+                    this.replay_data[i].t *= osu.helpers.constants.DOUBLE_TIME_MULTI;
                 }
+
             }
             replay.been_rendered = true;
         }
 
         this.skip_frames = [];
 
-        //calculate skip values
-        var skip_time = -1;
-        var skip_frame = -1;
-        this.end_skip_frame = -1;
-        var time_count = 0;
-        for (var i = 0; i < this.replay_data.length; i++) {
-            if (this.replay_data[i][2] < 0 && this.replay_data[i][0] > 0) {
-                skip_time = this.replay_data[i][0];
-                skip_frame = i;
-                break;
-            }
-            if (i > 5) {
-                //no need to go too far into the future
-                break;
-            }
+
+
+        var skipFrame = this.replay_data[1];
+
+        this.skipTime = -1;
+
+        if(skipFrame.t > 0){
+            this.skipTime = skipFrame.t;
+            this.warning_arrow_times.push(this.skipTime);
         }
-        if (skip_time > -1) {
-            this.warning_arrow_times.push(skip_time);
-            for (var i = skip_frame + 1; i < this.replay_data.length; i++) {
-                if (this.replay_data[i][0] >= 0) {
-                    if (time_count < skip_time) {
-                        time_count += this.replay_data[i][0]
-                    } else {
-                        this.end_skip_frame = i;
-                        break;
-                    }
-                }
-            }
-            var time_difference = time_count - skip_time;
-            if (time_difference > 0) {
-                var i = this.end_skip_frame;
-                while (time_difference > 0) {
-                    var remainder = time_difference % this.replay_data[i][0];
-                    if (remainder > 0 && remainder != time_difference) {
-                        this.skip_frames.push({
-                            frame: i,
-                            minus: remainder
-                        });
-                        time_difference -= remainder;
-                        i++
-                    } else {
-                        this.skip_frames.push({
-                            frame: i,
-                            minus: remainder
-                        });
-                        time_difference = 0;
-
-                    }
-
-                }
-
-            }
-        } else {
-            /*TODO: SEEMS IF 3rd object in replay array if negative you need to 'take' that time away from the replay or DELAY the start of the song by that much (BUT NOT ALL THE TIME)
-             *       However I am not sure if the song already has a audioleadin does it also get taken away or not :S
-             *       All replays do seem to have a negative in this position
-             *       everything will freeze in sync = Positive X,y negative time has audio leadin
-             *       Cold Green Eyes = has skip sequence in sync negative time, positve x,y,
-             *       kabaneri = no audio leadin no skip, positive x,y negative time , OUT OF SYNC by the time set in here (349 MS)
-             *
-             *       Maybe if no audio leadin, no skip , no etc theres a min intro time of 349ms?
-             *          THIS IS NOT THE CASE
-             *
-             *       FREEDOMDIVE , no audio leadin, no skip , no etc, setting intro time of 349ms CAUSED OUT OF SYNC by 349MS
-             *       NEED TO LOAD NEGATIVE FROM REPLAY NOT FORCE 349ms
-             *
-             *         Replay data must have something with break data in it soemwhere, everything will freeze- time freeze seems to get slightly out of sync after a break
-             *         however insane difficulty with DT, on the break the replay gets WAY WAY out of sync and ends up being way way way ahead of the song
-             *         Watching side by side with real game, the beatmap itself seems in sync, its the replay that breaks
-             *
-             *         Skips are completly broken with DT
-             *
-             */
-            if (this.replay_data[2][0] < 0) {
+        else{
+            if (this.replay_data[2].t < 0) {
                 if (this.audioLeadIn == 0) {
-                    this.audioLeadIn = this.replay_data[2][0] * -1;
+                    this.audioLeadIn = this.replay_data[2].t * -1;
                     if (this.is_doubletime) this.audioLeadIn *= osu.helpers.constants.DOUBLE_TIME_MULTI;
                 }
 
             }
-
 
         }
 
@@ -3523,31 +3490,10 @@ osu.ui.interface.osugame = {
         this.replay_text.x -= 1.5;
     },
 
-    /*osu coords are 512/384 but we dont want 0,512/etc to appear almost off screen
-     So instead will devide by a bigger but same aspect ratio and increase the original x/y by the difference/2
-     */
-    calculate_x: function (x) {
-        x = parseInt(x);
-        var result = (this.getRenderWidth() / 640) * (x + 64);
-        return result;
-    },
-    calculate_y: function (y) {
-        y = parseInt(y);
-        return (this.getRenderHeight() / 480) * (y + 48);
-    },
-    calculate_original_x: function (x) {
-        x = parseInt(x);
-        return (x + 64) / (this.getRenderWidth() / 640) ;
-
-    },
-    calculate_original_y: function (y) {
-        y = parseInt(y);
-        return   (y + 48) / (this.getRenderHeight() / 480);
-    },
 
     render_object: function () {
 
-        var time = Date.now() - this.date_started;
+        var time = this.curTime;
         for (var x = 0; x < this.warning_arrow_times.length; x++) {
             if (time > this.warning_arrow_times[x]) {
                 this.warning_arrow_times.splice(x, 1);
@@ -3581,27 +3527,49 @@ osu.ui.interface.osugame = {
     },
 
     skip_intro: function () {
-        if (this.replay_intro_time != -1) {
-            for (var i = 0; i < this.skip_frames.length; i++) {
-                var frame = this.skip_frames[i].frame;
-                var minus = this.skip_frames[i].minus;
-                this.replay_data[frame][0] -= minus
-            }
-            osu.audio.music.set_position(this.replay_intro_time / 1000);
-            this.curr_replay_frame = this.end_skip_frame;
-            this.expected_replay_movment_time = null;// clear current movement frame
-            //set the time we started back in time so objects will spawn
+        if(this.skipTime){
+            osu.audio.music.set_position(this.skipTime / 1000);
+            this.curTime = this.skipTime;
             var elapsed_time = Date.now() - this.date_started;
+            this.date_started -= (this.skipTime - elapsed_time);
+        }
 
-            this.date_started -= (this.replay_intro_time - elapsed_time);
+    },
+
+    render_replay_frame(){
+        var curTime = this.curTime;
+        if(this.skipTime) curTime += this.skipTime;
+        for(var i = this.oldestReplayFrame; i < this.replay_data.length; i++){
+            if(this.replay_data[i].t <= 0){
+                var x =this.replay_data[i].x;
+                var y = this.replay_data[i].y;
+                if(x > 0 && y > 0){
+                    this.cursor.x = x;
+                    this.cursor.y = y;
+                    i++;
+                    this.oldestReplayFrame =i;
+                    break;
+                }
+            }
+            if(curTime >= this.replay_data[i].t){
+                var x =this.replay_data[i].x;
+                var y = this.replay_data[i].y;
+                if(x > 0 && y > 0){
+                    this.cursor.x = x;
+                    this.cursor.y = y;
+                    i++;
+                    this.oldestReplayFrame =i;
+                    break;
+                }
+            }else{
+                break;
+            }
 
         }
 
     },
 
-
     game_loop: function () {
-        //TODO: check if i need to do something with replays also
         if (!this.has_started && this.audioLeadIn == 0) {
             if (this.is_doubletime) osu.audio.music.set_playback_speed(1.5);
             osu.audio.music.start();
@@ -3618,87 +3586,19 @@ osu.ui.interface.osugame = {
             }
 
         }
-        var difference = 0;
         var time = Date.now();
         if (this.has_started) {
-            if (this.replay_intro_time > -1 && this.date_started + this.replay_intro_time < Date.now()) {
-                this.replay_intro_time = -1;
+            this.curTime = time - this.date_started;
+            if (this.skipTime > -1 && this.skipTime < this.curTime) {
                 this.skip_container.visible = false;
+            }else{
+                this.skip_container.visible = true;
             }
-
-
             this.render_object();
+
         }
-
-
-        if (this.expected_replay_movment_time) {
-
-            if (time < this.expected_replay_movment_time) {
-                // isnt time yet
-                setTimeout(this.game_loop.bind(this), 0);
-                return;
-            }
-            // if we have gone over remove the difference from next action to keep in sync
-            difference = time - this.expected_replay_movment_time;
-        }
-
-        if (this.replay_data.length == this.curr_replay_frame) {
-            this.time_finished = Date.now();
-            this.cursor.x = this.getRenderWidth() / 2;
-            this.cursor.y = this.getRenderHeight() / 2;
-            event_handler.off(event_handler.EVENTS.RENDER, "replay_text");
-            osu.ui.interface.scorescreen.renderScoreScreen();
-            return;
-        }
-        var next_movment = this.replay_data[this.curr_replay_frame];
-        this.curr_replay_frame++;
-        if (next_movment.length == 4) {
-
-            var x = next_movment[1];
-            var y = next_movment[2];
-
-            if (next_movment[0] < 0 || next_movment[2] < 0) {
-                /*
-                 TODO: SEEMS IF 3rd object in array if negative you need to 'take' that time away from the replay or DELAY the start of the song by that much
-                 It seems if Y coord is negative it indicates how much time to skip ahead
-                 I have had a map replay where it will go
-
-
-
-                 8383T , -500Y
-
-                 which does seem to be the skip value
-
-                 on the next frame
-                 -8383 , 310Y
-                 Which would also to be with the skip but i cant see how it would be used
-                 The replay would then continue as normal
-
-                 To skip I would need to calculate the time spent in the skip duration and skip that far ahead in the replay
-
-
-                 */
-                if (next_movment[2] < 0 && next_movment[0] > 0) {
-                    this.replay_intro_time = next_movment[0];
-                    this.skip_container.visible = true;
-                }
-                this.cursor.x = x;
-                this.cursor.y = y;
-                this.expected_replay_movment_time = null;
-                this.game_loop();
-            }
-            else {
-                var next_tick = next_movment[0] - difference;
-                this.expected_replay_movment_time = Date.now() + next_tick;
-                this.cursor.x = x;
-                this.cursor.y = y;
-                this.game_loop();
-            }
-        }
-        else {
-            this.expected_replay_movment_time = null;
-            this.game_loop();
-        }
+        this.render_replay_frame();
+        setTimeout(this.game_loop.bind(this), 0);
 
     }
 
