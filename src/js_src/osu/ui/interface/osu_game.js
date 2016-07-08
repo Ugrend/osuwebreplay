@@ -50,7 +50,8 @@ osu.ui.interface.osugame = {
     replay_played_by_text: "",
     hit_objects: [],
     events_bound: false,
-    curTime:0,
+    curMapTime:0,
+    replayDiff:0,
 
     getRenderWidth: function () {
         return osu.ui.renderer.renderWidth;
@@ -341,7 +342,7 @@ osu.ui.interface.osugame = {
         osu.ui.renderer.clearStage();
         osu.ui.renderer.addChild(this.master_container);
         this.bind_events();
-        this.curTime = 0;
+        this.curMapTime = 0;
         this.has_started = false;
         this.countdown_started = false;
         this.curr_replay_frame = 0;
@@ -355,6 +356,7 @@ osu.ui.interface.osugame = {
         this.oldestReplayFrame = 0;
         this.is_halftime = false;
         this.is_doubletime = false;
+        this.replayDiff = 0;
         for (var i = 0; i < this.mods.length; i++) {
             var mod = this.mods[i].code;
             if (mod == "HD") this.is_hidden = true;
@@ -460,8 +462,9 @@ osu.ui.interface.osugame = {
         }
         else{
             if (this.replay_data[2].t < 0) {
+                this.replayDiff = this.replay_data[2].t * -1;
                 if (this.audioLeadIn == 0) {
-                    this.audioLeadIn = this.replay_data[2].t * -1;
+                    this.audioLeadIn =  this.replayDiff;
                     if (this.is_doubletime) this.audioLeadIn *= osu.helpers.constants.DOUBLE_TIME_MULTI;
                 }
 
@@ -483,7 +486,7 @@ osu.ui.interface.osugame = {
 
     render_object: function () {
 
-        var time = this.curTime;
+        var time = this.curMapTime;
         for (var x = 0; x < this.warning_arrow_times.length; x++) {
             if (time > this.warning_arrow_times[x]) {
                 this.warning_arrow_times.splice(x, 1);
@@ -519,7 +522,7 @@ osu.ui.interface.osugame = {
     skip_intro: function () {
         if(this.skipTime){
             osu.audio.music.set_position(this.skipTime / 1000);
-            this.curTime = this.skipTime;
+            this.curMapTime = this.skipTime;
             var elapsed_time = Date.now() - this.date_started;
             this.date_started -= (this.skipTime - elapsed_time);
         }
@@ -527,10 +530,12 @@ osu.ui.interface.osugame = {
     },
 
     render_replay_frame(){
-        var curTime = this.curTime;
-        if(this.skipTime) curTime += this.skipTime;
+        var curTime = this.curMapTime;
+        if(this.skipTime>0) curTime += this.skipTime;
         for(var i = this.oldestReplayFrame; i < this.replay_data.length; i++){
-            if(this.replay_data[i].t <= 0){
+            var t = this.replay_data[i].t - this.replayDiff;
+
+            if(t <= 0){
                 var x =this.replay_data[i].x;
                 var y = this.replay_data[i].y;
                 if(x > 0 && y > 0){
@@ -541,7 +546,7 @@ osu.ui.interface.osugame = {
                     break;
                 }
             }
-            if(curTime >= this.replay_data[i].t){
+            if(curTime >= t){
                 var x =this.replay_data[i].x;
                 var y = this.replay_data[i].y;
                 if(x > 0 && y > 0){
@@ -566,7 +571,6 @@ osu.ui.interface.osugame = {
             this.date_started = Date.now();
             this.has_started = true;
         } else {
-
             if (!this.countdown_started) {
                 var self = this;
                 setTimeout(function () {
@@ -578,8 +582,8 @@ osu.ui.interface.osugame = {
         }
         var time = Date.now();
         if (this.has_started) {
-            this.curTime = time - this.date_started;
-            if (this.skipTime > -1 && this.skipTime < this.curTime) {
+            this.curMapTime = time - this.date_started;
+            if (this.skipTime ==-1 || this.skipTime > -1 && this.skipTime < this.curMapTime) {
                 this.skip_container.visible = false;
             }else{
                 this.skip_container.visible = true;
