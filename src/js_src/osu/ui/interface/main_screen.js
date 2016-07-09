@@ -127,6 +127,7 @@ osu.ui.interface.mainscreen = {
 
             //On beatmap select click highlight the clicked item, and unhighlight any other items
             this.$beatmap_section_html.on("click",".beatmap_preview", function (event) {
+                osu.audio.sound.play_sound(osu.audio.sound.MENUCLICK);
                 var clickedObject = $(this);
                 var md5sum = clickedObject.attr("id");
                 self.highlight_beatmap(clickedObject);
@@ -135,6 +136,7 @@ osu.ui.interface.mainscreen = {
 
             //on replay click open replay
             $(this.$replay_section_html).on("click",".replay_preview", function (event) {
+                osu.audio.sound.play_sound(osu.audio.sound.MENUHIT);
                 var id = $(this).attr('id');
                 for(var i = 0; i < self.replays.length ; i ++){
                     if(self.replays[i].rMd5Hash == id){

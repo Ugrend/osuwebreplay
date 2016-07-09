@@ -2858,6 +2858,7 @@ osu.ui.interface.mainscreen = {
 
             //On beatmap select click highlight the clicked item, and unhighlight any other items
             this.$beatmap_section_html.on("click",".beatmap_preview", function (event) {
+                osu.audio.sound.play_sound(osu.audio.sound.MENUCLICK);
                 var clickedObject = $(this);
                 var md5sum = clickedObject.attr("id");
                 self.highlight_beatmap(clickedObject);
@@ -2866,6 +2867,7 @@ osu.ui.interface.mainscreen = {
 
             //on replay click open replay
             $(this.$replay_section_html).on("click",".replay_preview", function (event) {
+                osu.audio.sound.play_sound(osu.audio.sound.MENUHIT);
                 var id = $(this).attr('id');
                 for(var i = 0; i < self.replays.length ; i ++){
                     if(self.replays[i].rMd5Hash == id){
@@ -3653,6 +3655,7 @@ osu.ui.interface.osugame = {
 
     skip_intro: function () {
         if(this.skipTime){
+            osu.audio.sound.play_sound(osu.audio.sound.MENUHIT);
             osu.audio.music.set_position(this.skipTime / 1000);
             this.curMapTime = this.skipTime;
             var elapsed_time = Date.now() - this.date_started;
@@ -4113,18 +4116,26 @@ osu.ui.interface.scorescreen = {
 
     },
     exit: function () {
+        osu.audio.sound.play_sound(osu.audio.sound.MENUBACK);
         osu.ui.interface.mainscreen.show_main_screen();
     },
 
     start_replay: function(){
-        osu.audio.music.stop();
-        osu.audio.music.preview_screen = false;
-        osu.ui.interface.osugame.replay_data = replay.replayData;
-        osu.ui.interface.osugame.beatmap = this.beatmap;
-        osu.ui.interface.osugame.mods = this.mods;
-        osu.ui.interface.osugame.replay_played_by_text = "REPLAY MODE - Watching " + replay.playerName + " play " + this.beatmap.map_name;
-        osu.ui.interface.osugame.initGame();
-        osu.ui.interface.osugame.game_loop();
+        osu.audio.sound.play_sound(osu.audio.sound.MENUHIT);
+        var self = this;
+        setTimeout(function () {
+            //ghetto fix to play menu sound
+
+            osu.audio.music.preview_screen = false;
+            osu.ui.interface.osugame.replay_data = replay.replayData;
+            osu.ui.interface.osugame.beatmap = self.beatmap;
+            osu.ui.interface.osugame.mods = self.mods;
+            osu.ui.interface.osugame.replay_played_by_text = "REPLAY MODE - Watching " + replay.playerName + " play " + self.beatmap.map_name;
+            osu.ui.interface.osugame.initGame();
+            osu.audio.music.stop();
+            osu.ui.interface.osugame.game_loop();
+        },2000);
+
     },
 
 

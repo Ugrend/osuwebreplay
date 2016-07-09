@@ -543,6 +543,7 @@ osu.ui.interface.osugame = {
 
     skip_intro: function () {
         if(this.skipTime){
+            osu.audio.sound.play_sound(osu.audio.sound.MENUHIT);
             osu.audio.music.set_position(this.skipTime / 1000);
             this.curMapTime = this.skipTime;
             var elapsed_time = Date.now() - this.date_started;
