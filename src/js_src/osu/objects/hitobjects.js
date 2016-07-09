@@ -78,7 +78,7 @@ osu.objects.HitObjectParser = {
                 additions.hitsound = +adds[4];
             }
 
-            return {};
+            return additions;
         };
 
         var hitObject = {};
