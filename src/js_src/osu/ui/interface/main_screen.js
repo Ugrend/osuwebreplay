@@ -78,6 +78,7 @@ osu.ui.interface.mainscreen = {
     bind_events: function () {
         //init script can be called multiple times if no maps/replays exist
         if(!this.events_bound){
+            osu.audio.sound.init();
             var self = this;
             this.$beatmap_search_field.on('input', function (e) {
                 var searchParam = e.currentTarget.value;

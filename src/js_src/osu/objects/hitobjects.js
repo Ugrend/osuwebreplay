@@ -288,7 +288,9 @@ osu.objects.HitObject = class HitObject{
         return this.object.draw(cur_time) ||  followResult;
     }
 
-
+    hit(cur_time){
+        return this.object.hit(cur_time);
+    }
 
 
 };

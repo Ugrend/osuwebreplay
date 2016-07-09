@@ -31,6 +31,7 @@ osu.objects.Circle = class Circle{
         this.drawn = false;
         this.destroyed = false;
         this.hidden_time = this.hitObject.approachRate / 3.3;
+        this.beenHit = false;
     }
     init(){
         this.circleContainer = new PIXI.Container();
@@ -90,7 +91,7 @@ osu.objects.Circle = class Circle{
 
 
     draw(cur_time){
-
+        this.hit(cur_time);
         if(this.destroyed){
             //object is no longer rendered but still might have some logic (eg being missed, is hidden etc)
             if(cur_time < this.hitObject.startTime + 500){
@@ -129,7 +130,13 @@ osu.objects.Circle = class Circle{
     }
 
     hit(time){
+        if(time >= this.hitObject.startTime){
+            if(!this.beenHit){
+                osu.audio.sound.play_sound(osu.audio.sound.NORMAL_HITNORMAL,this.hitObject.timing.volume/100);
+                this.beenHit = true;
+            }
 
+        }
     }
 
     destroy(){
