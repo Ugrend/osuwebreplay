@@ -81,7 +81,7 @@ osu.objects.Circle = class Circle{
         this.circleContainer.x = this.hitObject.x;
         this.circleContainer.y =  this.hitObject.y;
 
-
+        this.hitSounds = osu.audio.HitSound.getHitSounds(this.hitObject.hitSounds)
     }
 
     updatePositions(){
@@ -132,7 +132,9 @@ osu.objects.Circle = class Circle{
     hit(time){
         if(time >= this.hitObject.startTime){
             if(!this.beenHit){
-                osu.audio.sound.play_sound(osu.audio.sound.NORMAL_HITNORMAL,this.hitObject.timing.volume/100);
+                for(var i = 0 ; i < this.hitSounds.length ; i++){
+                    osu.audio.sound.play_sound(this.hitSounds[i], this.hitObject.timing.volume/100);
+                }
                 this.beenHit = true;
             }
 

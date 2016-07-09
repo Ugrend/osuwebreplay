@@ -1171,6 +1171,39 @@ var SkinReader = function(skin_zip) {
 var osu = osu || {};
 osu.audio = osu.audio || {};
 osu.audio.HitSound = {
+    HIT_SOUNDS: {
+        SOUND_NORMAL: "HITNORMAL",
+        SOUND_WHISTLE: "HITWHISTLE",
+        SOUND_FINISH: "HITFINISH",
+        SOUND_CLAP: "HITCLAP",
+    },
+    HIT_ADDITIONS: {
+        NORMAL: "NORMAL_",
+        SOFT: "SOFT_",
+        DRUM: "DRUM_"
+    },
+
+    getHitSounds: function (hitSoundArray, additions) {
+        var soundArray = [];
+        soundArray.push(osu.audio.sound[this.HIT_ADDITIONS.NORMAL+this.HIT_SOUNDS.SOUND_NORMAL]);
+        for(var i = 0 ; i < hitSoundArray.length; i ++){
+            switch(hitSoundArray[i]){
+                case osu.objects.HitObjectParser.HIT_SOUNDS.SOUND_NORMAL:
+                    break;
+                case osu.objects.HitObjectParser.HIT_SOUNDS.SOUND_WHISTLE:
+                    soundArray.push(osu.audio.sound[this.HIT_ADDITIONS.NORMAL+this.HIT_SOUNDS.SOUND_WHISTLE]);
+                    break;
+                case osu.objects.HitObjectParser.HIT_SOUNDS.SOUND_FINISH:
+                    soundArray.push(osu.audio.sound[this.HIT_ADDITIONS.NORMAL+this.HIT_SOUNDS.SOUND_FINISH]);
+                    break;
+                case osu.objects.HitObjectParser.HIT_SOUNDS.SOUND_CLAP:
+                    soundArray.push(osu.audio.sound[this.HIT_ADDITIONS.NORMAL+this.HIT_SOUNDS.SOUND_CLAP]);
+                    break;
+            }
+
+        }
+        return soundArray;
+    }
 
 
 };
@@ -1918,7 +1951,7 @@ osu.objects.Circle = class Circle{
         this.circleContainer.x = this.hitObject.x;
         this.circleContainer.y =  this.hitObject.y;
 
-
+        this.hitSounds = osu.audio.HitSound.getHitSounds(this.hitObject.hitSounds)
     }
 
     updatePositions(){
@@ -1969,7 +2002,9 @@ osu.objects.Circle = class Circle{
     hit(time){
         if(time >= this.hitObject.startTime){
             if(!this.beenHit){
-                osu.audio.sound.play_sound(osu.audio.sound.NORMAL_HITNORMAL,this.hitObject.timing.volume/100);
+                for(var i = 0 ; i < this.hitSounds.length ; i++){
+                    osu.audio.sound.play_sound(this.hitSounds[i], this.hitObject.timing.volume/100);
+                }
                 this.beenHit = true;
             }
 

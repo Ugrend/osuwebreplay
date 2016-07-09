@@ -113,15 +113,19 @@ osu.ui.interface.mainscreen = {
 
             this.$master_volume_slider.on("input", function (e) {
                osu.settings.SETTINGS.master_volume = e.currentTarget.value / 100;
+                osu.audio.sound.play_sound(osu.audio.sound.MENUCLICK);
             });
             this.$music_volume_slider.on("input", function (e) {
                 osu.settings.SETTINGS.music_volume = e.currentTarget.value / 100;
+                osu.audio.sound.play_sound(osu.audio.sound.MENUCLICK);
             });
             this.$sound_volume_slider.on("input", function (e) {
                 osu.settings.SETTINGS.sound_effects_volume = e.currentTarget.value / 100;
+                osu.audio.sound.play_sound(osu.audio.sound.MENUCLICK);
             });
             this.$background_dim_slider.on("input", function (e) {
                 osu.settings.SETTINGS.background_dim = e.currentTarget.value / 100;
+                osu.audio.sound.play_sound(osu.audio.sound.MENUCLICK);
             });
 
 
