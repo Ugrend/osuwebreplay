@@ -268,10 +268,10 @@ osu.ui.interface.osugame = {
     },
     create_replay_by_text: function () {
         this.replay_text = new PIXI.Text(this.replay_played_by_text, {
-            font: "20px Arial",
+            font: "30px Arial",
             fill: "#FFFFFF"
         });
-        this.replay_text.y = this.getRenderHeight() / 10;
+        this.replay_text.y = this.getRenderHeight() / 8;
         this.replay_text.x = this.getRenderWidth() / 2;
         this.master_container.addChild(this.replay_text);
     },
@@ -302,6 +302,78 @@ osu.ui.interface.osugame = {
 
         this.master_container.addChild(this.settingIconContainer);
     },
+    create_timer_container: function () {
+        this.timerX = this.getRenderWidth() - (this.getRenderWidth()*.11);
+        this.timerY = this.getRenderHeight() * .1;
+        var timerContainer = new PIXI.Container();
+        var baseCircle = new PIXI.Graphics();
+        baseCircle.lineStyle(4,0xFFFFFF);
+        baseCircle.beginFill(0x0,0);
+        baseCircle.drawCircle(0, 0,25);
+        baseCircle.beginFill(0xFFFFFF,2);
+        baseCircle.drawCircle(0,0,1);
+        var baseCircleTexture = baseCircle.generateTexture();
+        var baseCircleSprite = new PIXI.Sprite(baseCircleTexture);
+        baseCircleSprite.position.x = this.timerX;
+        baseCircleSprite.position.y = this.timerY;
+        baseCircleSprite.anchor.set(0.5);
+
+        this.timerMask = new PIXI.Graphics();
+        var pie = new PIXI.Graphics();
+        pie.mask = this.timerMask;
+        pie.beginFill(0xB4B4B2,0.8);
+        pie.drawCircle(this.timerX, this.timerY,25);
+        pie.endFill();
+
+        timerContainer.addChild(pie);
+        timerContainer.addChild(baseCircleSprite);
+        this.master_container.addChild(timerContainer);
+
+    },
+
+    update_timer_percentage(percentage){
+        //http://jsfiddle.net/asoyaqud/17/
+        var createPoint = function(x,y) { return {x:x,y:y}; };
+        var rotateXY = function(x,y,angle) {
+            var rad = Math.PI * angle/180;
+            var cosVal = Math.cos(rad);
+            var sinVal = Math.sin(rad);
+            return createPoint(cosVal*x - sinVal*y,
+                sinVal*x + cosVal*y);
+        };
+        var computeMaskPolygon = function(x,y,radius,angle) {
+            while(angle<0)
+                angle += 360;
+            angle%=360;
+
+            var delta = rotateXY(0, -2*radius, angle);
+            var pts = [createPoint(x,y-2*radius),
+                createPoint(x,y),
+                createPoint(x+delta.x, y+delta.y)];
+
+            if(angle > 270)
+                pts.push(createPoint(x-2*radius,y));
+            if(angle > 180)
+                pts.push(createPoint(x,y+2*radius));
+            if(angle > 90)
+                pts.push(createPoint(x+2*radius,y));
+
+            return pts;
+        };
+        this.timerMask.clear();
+        var angle = percentage*360;
+        if(angle >= 360) angle = 359.9;
+
+        var pts = computeMaskPolygon(this.timerX, this.timerY, 25, angle);
+        this.timerMask.beginFill(0xFFFFFF);
+        this.timerMask.moveTo(pts[0].x, pts[0].y);
+        for(var i=1;i<pts.length;++i) {
+            this.timerMask.lineTo(pts[i].x, pts[i].y);
+        }
+        this.timerMask.lineTo(pts[0].x, pts[0].y);
+        this.timerMask.endFill();
+    },
+
     create_master_container: function () {
 
         this.master_container.removeChildren();
@@ -311,6 +383,7 @@ osu.ui.interface.osugame = {
         this.create_key_press();
         this.create_mod_container();
         this.create_replay_by_text();
+        this.create_timer_container();
         this.master_container.addChild(this.hit_object_container);
         this.create_skip_container();
         this.create_success_container();
@@ -552,13 +625,17 @@ osu.ui.interface.osugame = {
         if (this.replay_text.x < (-this.replay_text.width + 5)) {
             this.replay_text.x = this.getRenderWidth();
         }
-        this.replay_text.x -= 1.5;
+        this.replay_text.x -= 2;
     },
 
 
     render_object: function () {
 
+
+
         var time = this.curMapTime;
+
+
         for (var x = 0; x < this.warning_arrow_times.length; x++) {
             if (time > this.warning_arrow_times[x]) {
                 this.warning_arrow_times.splice(x, 1);
@@ -589,6 +666,10 @@ osu.ui.interface.osugame = {
 
             }
         }
+
+
+
+        this.update_timer_percentage(this.curMapTime/this.beatmap.map_data.time_length);
 
         if(this.oldest_object_position == this.hit_objects.length -1){
            if(this.curMapTime >= this.delayEnd){
