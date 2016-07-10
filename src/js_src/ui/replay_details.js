@@ -14,7 +14,6 @@ function loadBeatMap(){
 
 
 function showReplayData(beatmap){
-    document.getElementById("render_zone").className = "";
     osu.ui.interface.mainscreen.hide_main_screen();
     osu.ui.interface.scorescreen.mods = replay.mods;
     osu.ui.interface.scorescreen.beatmap = beatmap;
@@ -30,5 +29,8 @@ function showReplayData(beatmap){
     osu.ui.interface.scorescreen.maxCombo = replay.tCombo;
     osu.ui.interface.scorescreen.grade = replay.grade;
     osu.ui.interface.scorescreen.accuracy = replay.accuracy;
-    osu.ui.interface.scorescreen.renderScoreScreen();
+    setTimeout(function () {
+        document.getElementById("render_zone").className = "";
+        osu.ui.interface.scorescreen.renderScoreScreen();
+    }, 500);
 }

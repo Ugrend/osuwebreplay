@@ -64,6 +64,9 @@ osu.ui.interface.mainscreen = {
             this.$footer = $("#footer");
             this.$beatmap_search_field = $("#filter_maps_search");
             this.$replay_search_field = $("#filter_players_search");
+            this.$title_and_search = $("#title_and_search");
+            this.$details_replay_search = $("#details_replay_search");
+
 
             this.$master_volume_slider = $("#master_volume");
             this.$music_volume_slider = $("#music_volume");
@@ -321,7 +324,27 @@ osu.ui.interface.mainscreen = {
         document.getElementById("container").className = "";
         document.getElementById("main_menu").className = "";
         document.getElementById("render_zone").className = "hidden";
-        this.$footer.attr('style','');
+        if(this.$footer.css('display') =='none'){
+            this.$footer.toggle("slide", {direction: "down"});
+        }
+        if(this.$beatmap_section_html.css('display') == "none"){
+            this.$beatmap_section_html.toggle("slide", {direction: "right"});
+        }
+        if(this.$replay_section_html.css('display') == "none"){
+            this.$replay_section_html.toggle("slide", {direction: "left"});
+        }
+        if(this.$title_and_search.css('display') == "none"){
+            this.$title_and_search.toggle("slide", {direction: "up"});
+        }
+        if(this.$details_replay_search.css('display') == "none"){
+            this.$details_replay_search.toggle("slide", {direction: "up"});
+        }
+
+
+
+
+
+
         this.$footer.find('#skin_settings').attr('style','');
         this.$footer.find('#skin_select_field').attr('style','');
         this.loaded = true;
@@ -335,9 +358,23 @@ osu.ui.interface.mainscreen = {
         this.$beatmap_search_field.focus();
     },
     hide_main_screen: function () {
-        document.getElementById("main_menu").className = "hidden";
+        console.log(this.$footer.css('display'));
+        if(this.$footer.css('display') !='none'){
+            this.$footer.toggle("slide", {direction: "down"});
+        }
+        if(this.$beatmap_section_html.css('display') != "none"){
+            this.$beatmap_section_html.toggle("slide", {direction: "right"});
+        }
+        if(this.$replay_section_html.css('display') != "none"){
+            this.$replay_section_html.toggle("slide", {direction: "left"});
+        }
+        if(this.$title_and_search.css('display') != "none"){
+            this.$title_and_search.toggle("slide", {direction: "up"});
+        }
+        if(this.$details_replay_search.css('display') != "none"){
+            this.$details_replay_search.toggle("slide", {direction: "up"});
+        }
         this.displaying_main_screen = false;
-        this.remove_background();
     },
 
     set_background: function (background_data) {
