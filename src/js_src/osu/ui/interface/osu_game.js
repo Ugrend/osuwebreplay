@@ -22,6 +22,7 @@ osu.ui.interface.osugame = {
 
 
     master_container: new PIXI.Container(),
+    offSetDetails: null,
     replay_data: [],
     key_1_count: 0,
     key_2_count: 0,
@@ -54,6 +55,31 @@ osu.ui.interface.osugame = {
     replayDiff:0,
     delayEnd: 0,
     finished: false,
+
+    calculateLetterBox: function () {
+        var x = osu.ui.renderer.renderWidth;
+        var y = osu.ui.renderer.renderHeight;
+        var fixed_ratio_y = (3 / 4) * x;
+        var fixed_ratio_x = (4 / 3) * y;
+        var details = {
+            width: x,
+            height: y,
+            x_offset: 0,
+            y_offset: 0,
+        };
+
+        if (fixed_ratio_y > y) {
+            //if we increasing y bigger than the screen we need to make x smaller
+            details.width = fixed_ratio_x;
+        }
+        else {
+            details.height = fixed_ratio_y;
+        }
+        details.x_offset = (x - details.width)/2 || 0;
+        details.y_offset = (y - details.height)/2 || 0;
+        return details;
+
+    },
 
     getRenderWidth: function () {
         return osu.ui.renderer.renderWidth;
@@ -323,27 +349,28 @@ osu.ui.interface.osugame = {
      */
     calculate_x: function (x) {
         x = parseInt(x);
-        var result = (this.getRenderWidth() / 640) * (x + 64);
+        var result = ((this.offSetDetails.width / 640) * (x + 64)) +this.offSetDetails.x_offset ;
         return result;
     },
     calculate_y: function (y) {
         y = parseInt(y);
-        return (this.getRenderHeight() / 480) * (y + 48);
+        return ((this.offSetDetails.height / 480) * (y + 48)) +this.offSetDetails.y_offset;
     },
     calculate_original_x: function (x) {
-        x = parseInt(x);
-        return (x + 64) / (this.getRenderWidth() / 640) ;
+        x = parseInt(x) - this.offSetDetails.x_offset;
+        return (x + 64) / (this.offSetDetails.width / 640) ;
 
     },
     calculate_original_y: function (y) {
-        y = parseInt(y);
+        y = parseInt(y) - this.offSetDetails.y_offset;
         return   (y + 48) / (this.getRenderHeight() / 480);
     },
 
     initGame: function () {
         event_handler.off(event_handler.EVENTS.RENDER, "replay_text"); //unsubscrbe incase another replay closed early
-        osu.ui.renderer.fixed_aspect = true;
+        //osu.ui.renderer.fixed_aspect = true;
         osu.ui.renderer.start();
+        this.offSetDetails = this.calculateLetterBox();
         this.create_master_container();
         osu.ui.renderer.clearStage();
         osu.ui.renderer.addChild(this.master_container);
@@ -405,7 +432,7 @@ osu.ui.interface.osugame = {
         if (this.is_hardrock && difficultyCircleSize < 7) difficultyCircleSize += 1;
         if (this.is_easy && difficultyCircleSize > 1) difficultyCircleSize -= 1; //TODO: work out if that's correct
         var unScaledDiameter = (108.848 - (difficultyCircleSize * 8.9646));
-        var circleSize = (this.getRenderWidth() / 640) * unScaledDiameter;
+        var circleSize = (this.offSetDetails.width / 640) * unScaledDiameter;
 
         this.approachTime = 0;
         if (approachRate < 5) {

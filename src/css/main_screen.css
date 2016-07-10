@@ -138,6 +138,7 @@ body {
     height:100%;
     height: 100%;
     overflow-x: hidden;
+    overflow-y: hidden;
 }
 #container {
     min-height:100%;

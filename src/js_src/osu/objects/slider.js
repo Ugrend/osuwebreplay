@@ -29,7 +29,7 @@ osu.objects.Slider = class Slider{
         for(var i = 0 ; i < points.length ; i++){
             points[i].x = this.hitObject.game.calculate_x(points[i].x);
             if(this.hitObject.game.is_hardrock) points[i].y = osu.helpers.constants.OSU_GAME_HEIGHT - points[i].y;
-            points[i].y = this.hitObject.game.calculate_x(points[i].y);
+            points[i].y = this.hitObject.game.calculate_y(points[i].y);
 
         }
         sliderGraphics.beginFill(this.hitObject.colour);

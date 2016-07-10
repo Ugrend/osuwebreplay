@@ -10,8 +10,8 @@ osu.ui.renderer = {
 
 
 
-    renderWidth: window.innerWidth *.98,
-    renderHeight: window.innerHeight *.98,
+    renderWidth: window.innerWidth,
+    renderHeight: window.innerHeight,
     renderer: null,
     masterStage: new PIXI.Container(),
     render_zone: document.getElementById("render_zone"),
@@ -38,11 +38,11 @@ osu.ui.renderer = {
         requestAnimationFrame(this.animate.bind(this));
     },
     resize: function(){
-        var x = window.innerWidth *.98;
-        var y = window.innerHeight *.98;
+        var x = window.innerWidth;
+        var y = window.innerHeight;
 
         //just to make my life easier fix the render ratio for game play
-        if(this.fixed_aspect) {
+        if(this.fixed_aspect && false) {
             var fixed_ratio_y = (3 / 4) * x;
             var fixed_ratio_x = (4 / 3) * y;
 

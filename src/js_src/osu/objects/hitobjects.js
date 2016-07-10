@@ -168,7 +168,6 @@ osu.objects.HitObjectParser = {
 
     //https://gist.github.com/peppy/1167470
     create_stacks: function (hitobjects, stackLeniency, circleSize, hardrock) {
-
         for (var i = hitobjects.length - 1; i > 0; i--) {
             var hitObjectI = hitobjects[i];
             if (hitObjectI.stack != 0 || hitObjectI.type == osu.objects.HitObjectParser.TYPES.SPINNER) continue;
@@ -221,7 +220,7 @@ osu.objects.HitObjectParser = {
             var startX = game.calculate_original_x(hitObject1.endX || hitObject1.x);
             var startY = game.calculate_original_x(hitObject1.endY || hitObject1.y);
             var endX = game.calculate_original_x(hitObject2.x);
-            var endY = game.calculate_original_x(hitObject2.y);
+            var endY = game.calculate_original_y(hitObject2.y);
             var distance = osu.helpers.math.distance(startX,startY,endX,endY);
             if(distance > 50){
                 hitObject1.followPoint = new osu.objects.FollowPoint(hitObject1, hitObject2);
