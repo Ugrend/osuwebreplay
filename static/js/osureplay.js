@@ -3457,6 +3457,8 @@ osu.ui.interface.osugame = {
         this.master_container.addChild(this.settingIconContainer);
     },
     create_master_container: function () {
+
+        this.master_container.removeChildren();
         this.hit_object_container = new PIXI.Container();
 
         this.create_background();
@@ -4242,7 +4244,7 @@ osu.ui.interface.scorescreen = {
 
 
     create_master_container: function () {
-
+        this.master_container.removeChildren();
         this.create_background_container();
         this.create_map_details_container();
         this.create_total_score_details_container();

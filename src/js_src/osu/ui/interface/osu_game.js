@@ -303,6 +303,8 @@ osu.ui.interface.osugame = {
         this.master_container.addChild(this.settingIconContainer);
     },
     create_master_container: function () {
+
+        this.master_container.removeChildren();
         this.hit_object_container = new PIXI.Container();
 
         this.create_background();
