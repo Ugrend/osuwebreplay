@@ -8,6 +8,7 @@ var osu = osu || {};
 osu.ui = osu.ui || {};
 osu.ui.interface = osu.ui.interface || {};
 osu.ui.interface.scorescreen = {
+    replayStarted: false,
     background: "",
     made_by: "",
     played_by: "",
@@ -342,6 +343,8 @@ osu.ui.interface.scorescreen = {
     },
 
     start_replay: function(){
+        if(this.replayStarted) return; // prevent multi clicks
+        this.replayStarted = true;
         osu.audio.sound.play_sound(osu.audio.sound.MENUHIT);
         var self = this;
         setTimeout(function () {
@@ -378,6 +381,7 @@ osu.ui.interface.scorescreen = {
     },
 
     renderScoreScreen: function(){
+        this.replayStarted = false;
         osu.ui.renderer.fixed_aspect = false;
         osu.ui.renderer.start();
         this.create_master_container();
