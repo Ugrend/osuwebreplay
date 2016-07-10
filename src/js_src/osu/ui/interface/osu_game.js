@@ -672,7 +672,7 @@ osu.ui.interface.osugame = {
 
         }
         this.render_replay_frame();
-        if(!this.finished) setTimeout(this.game_loop.bind(this), 0);
+        if(!this.finished) setTimeout(this.game_loop.bind(this), 1);
 
     }
 
