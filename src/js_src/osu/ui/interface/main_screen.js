@@ -61,7 +61,7 @@ osu.ui.interface.mainscreen = {
             this.map_object_type_counts = document.getElementById("map_object_type_counts");
             this.map_difficulty = document.getElementById("map_difficulty");
             this.map_name = document.getElementById("map_name");
-
+            this.$footer = $("#footer");
             this.$beatmap_search_field = $("#filter_maps_search");
             this.$replay_search_field = $("#filter_players_search");
 
@@ -319,7 +319,11 @@ osu.ui.interface.mainscreen = {
         document.getElementById("loading").className = "hidden";
         document.getElementById("no_beatmaps_replays").className = "hidden";
         document.getElementById("container").className = "";
+        document.getElementById("main_menu").className = "";
         document.getElementById("render_zone").className = "hidden";
+        this.$footer.attr('style','');
+        this.$footer.find('#skin_settings').attr('style','');
+        this.$footer.find('#skin_select_field').attr('style','');
         this.loaded = true;
         this.displaying_main_screen = true;
         if(!this.current_selection){
@@ -331,7 +335,7 @@ osu.ui.interface.mainscreen = {
         this.$beatmap_search_field.focus();
     },
     hide_main_screen: function () {
-        document.getElementById("container").className = "hidden";
+        document.getElementById("main_menu").className = "hidden";
         this.displaying_main_screen = false;
         this.remove_background();
     },

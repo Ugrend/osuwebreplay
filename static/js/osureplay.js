@@ -2826,7 +2826,7 @@ osu.ui.interface.mainscreen = {
             this.map_object_type_counts = document.getElementById("map_object_type_counts");
             this.map_difficulty = document.getElementById("map_difficulty");
             this.map_name = document.getElementById("map_name");
-
+            this.$footer = $("#footer");
             this.$beatmap_search_field = $("#filter_maps_search");
             this.$replay_search_field = $("#filter_players_search");
 
@@ -3084,7 +3084,11 @@ osu.ui.interface.mainscreen = {
         document.getElementById("loading").className = "hidden";
         document.getElementById("no_beatmaps_replays").className = "hidden";
         document.getElementById("container").className = "";
+        document.getElementById("main_menu").className = "";
         document.getElementById("render_zone").className = "hidden";
+        this.$footer.attr('style','');
+        this.$footer.find('#skin_settings').attr('style','');
+        this.$footer.find('#skin_select_field').attr('style','');
         this.loaded = true;
         this.displaying_main_screen = true;
         if(!this.current_selection){
@@ -3096,7 +3100,7 @@ osu.ui.interface.mainscreen = {
         this.$beatmap_search_field.focus();
     },
     hide_main_screen: function () {
-        document.getElementById("container").className = "hidden";
+        document.getElementById("main_menu").className = "hidden";
         this.displaying_main_screen = false;
         this.remove_background();
     },
@@ -3438,6 +3442,20 @@ osu.ui.interface.osugame = {
             }
         }
     },
+    create_settings_icon_container: function () {
+        this.settingIconContainer = new PIXI.Container();
+        var settingsTexture = new PIXI.Texture.fromImage("data/settings.png");
+        var settingsSprite = new PIXI.Sprite(settingsTexture);
+        settingsSprite.anchor.set(1);
+        settingsSprite.x = this.getRenderWidth();
+        settingsSprite.y = this.getRenderHeight();
+        settingsSprite.alpha = 0.9;
+        settingsSprite.interactive = true;
+        settingsSprite.on("mouseup", this.toggle_settings.bind(this));
+        this.settingIconContainer.addChild(settingsSprite);
+
+        this.master_container.addChild(this.settingIconContainer);
+    },
     create_master_container: function () {
         this.hit_object_container = new PIXI.Container();
 
@@ -3451,6 +3469,7 @@ osu.ui.interface.osugame = {
         this.create_fail_container();
         this.create_play_warn_arrows_container();
         this.create_cursor();
+        this.create_settings_icon_container();
 
     },
     flash_warning_arrows: function () {
@@ -3516,9 +3535,24 @@ osu.ui.interface.osugame = {
         return   (y + 48) / (this.getRenderHeight() / 480);
     },
 
+    toggle_settings(){
+        this.$footer.find('#skin_settings').css('display','none');
+        this.$footer.find('#skin_select_field').css('display','none');
+        this.$footer.css('background', 'rgba(0,0,0,0.6');
+        this.$footer.slideToggle();
+
+    },
+    hide_settings(){
+        if(this.$footer.css('display') == "none"){
+            this.$footer.slideToggle();
+        }
+    },
+
     initGame: function () {
         event_handler.off(event_handler.EVENTS.RENDER, "replay_text"); //unsubscrbe incase another replay closed early
-        //osu.ui.renderer.fixed_aspect = true;
+        this.$footer = osu.ui.interface.mainscreen.$footer || $("#footer");
+        this.$footer.attr('style','');
+        this.$footer.css('display', 'none');
         osu.ui.renderer.start();
         this.offSetDetails = this.calculateLetterBox();
         this.create_master_container();
@@ -4225,6 +4259,9 @@ osu.ui.interface.scorescreen = {
     },
 
     renderScoreScreen: function(){
+        this.$footer = osu.ui.interface.mainscreen.$footer || $("#footer");
+        this.$footer.attr('style','');
+        this.$footer.css('display', 'none');
         this.replayStarted = false;
         osu.ui.renderer.fixed_aspect = false;
         osu.ui.renderer.start();

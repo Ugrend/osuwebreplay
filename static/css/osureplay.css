@@ -144,6 +144,10 @@ body {
     min-height:100%;
     position:relative;
 }
+#render_zone {
+    min-height:100%;
+    position:relative;
+}
 #header {
     background:#ff0;
     padding:10px;
@@ -159,6 +163,9 @@ body {
     height:80px;
     color: #9f9f9f;
     vertical-align: bottom;
-    background: rgb(0,0,0);
+    background: rgba(0,0,0,1);
 
+}
+#close_settings{
+    float: right;
 }

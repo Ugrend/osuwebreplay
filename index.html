@@ -63,12 +63,13 @@
     {{/beatmaps}}
 
 </script>
-<div id="render_zone"></div>
 <div id="loading">loading...</div>
 <div class="hidden" id="no_beatmaps_replays"><p class="h3">Drag in some beatmaps and replays to begin!</p></div>
 
 <div id="container" class="hidden">
-        <div class="row search">
+    <div id="render_zone"></div>
+    <div id="main_menu">
+    <div class="row search">
 
             <div class="col-xs-8" id="map_name">
                 DEFAULT_SONG_NAME
@@ -100,6 +101,7 @@
         <div id="song_selection_area">
             <!-- beatmap data goes here -->
         </div>
+        </div>
         <div id="footer">
             <div class="col-xs-3">
                 <label for="background_dim">Background Dim</label>
@@ -119,20 +121,26 @@
                 <input type="range" id="sound_volume" value="50">
             </div>
             <div class="col-xs-offset-1 col-xs-2 ">
-                <label for="use_beatmap_skin">Use beatmap Skins</label>
-                <input id="use_beatmap_skin" type="checkbox">
+                <div id="skin_settings">
+                    <label for="use_beatmap_skin">Use beatmap Skins</label>
+                    <input id="use_beatmap_skin" type="checkbox">
 
-                <label for="use_beatmap_hitsounds">Use beatmap hitsounds</label>
-                <input id="use_beatmap_hitsounds" type="checkbox">
+                    <label for="use_beatmap_hitsounds">Use beatmap hitsounds</label>
+                    <input id="use_beatmap_hitsounds" type="checkbox">
+                </div>
+
             </div>
 
             <div class="col-xs-2 remove_padding">
-                <label for="skin_select">Select Skin</label>
-                <select id="skin_select" class="form-control">
-                    <option>Default</option>
+                <div id="skin_select_field">
+                    <label for="skin_select">Select Skin</label>
+                    <select id="skin_select" class="form-control">
+                        <option>Default</option>
 
-                </select>
+                    </select>
+                </div>
             </div>
+
 
         </div>
     </div>

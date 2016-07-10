@@ -381,6 +381,9 @@ osu.ui.interface.scorescreen = {
     },
 
     renderScoreScreen: function(){
+        this.$footer = osu.ui.interface.mainscreen.$footer || $("#footer");
+        this.$footer.attr('style','');
+        this.$footer.css('display', 'none');
         this.replayStarted = false;
         osu.ui.renderer.fixed_aspect = false;
         osu.ui.renderer.start();
