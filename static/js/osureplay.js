@@ -3507,12 +3507,12 @@ osu.ui.interface.osugame = {
         return ((this.offSetDetails.height / 480) * (y + 48)) +this.offSetDetails.y_offset;
     },
     calculate_original_x: function (x) {
-        x = parseInt(x) - this.offSetDetails.x_offset;
+        x = parseInt(x);
         return (x + 64) / (this.offSetDetails.width / 640) ;
 
     },
     calculate_original_y: function (y) {
-        y = parseInt(y) - this.offSetDetails.y_offset;
+        y = parseInt(y);
         return   (y + 48) / (this.getRenderHeight() / 480);
     },
 
