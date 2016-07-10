@@ -3693,7 +3693,7 @@ osu.ui.interface.osugame = {
     },
 
     skip_intro: function () {
-        if(this.skipTime){
+        if(this.skipTime && this.curMapTime < this.skipTime){
             osu.audio.sound.play_sound(osu.audio.sound.MENUHIT);
             osu.audio.music.set_position(this.skipTime / 1000);
             this.curMapTime = this.skipTime;
