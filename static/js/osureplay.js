@@ -2537,11 +2537,15 @@ osu.objects.Slider = class Slider{
         sliderGraphics.beginFill(this.hitObject.colour);
         for(i = 0 ; i < this.curves.points.length; i++){
             //draw inside
+            //TODO: masking might handle the border better so that it is not transparent
             var drawPoint = this.curves.points[i];
             sliderGraphics.drawCircle(drawPoint.x, drawPoint.y, (this.hitObject.size - 10) / 2);
         }
 
-        //convert to texture so it doesnt look ugly :D
+        // convert to texture so it doesnt look ugly :D
+        // Note: reason why Im not using cache instead is because my slider generation is stupid
+        // and it will struggle rendering the 100s of circles even when cached as bitmap
+
         var t = sliderGraphics.generateTexture();
         var sprite = new PIXI.Sprite(t);
         sprite.position.x = sliderGraphics.getBounds().x;
