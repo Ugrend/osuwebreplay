@@ -324,12 +324,12 @@ osu.ui.interface.mainscreen = {
         document.getElementById("container").className = "";
         document.getElementById("main_menu").className = "";
         document.getElementById("render_zone").className = "hidden";
+
+
         if(this.$footer.css('display') =='none'){
             this.$footer.toggle("slide", {direction: "down"});
         }
-        if(this.$beatmap_section_html.css('display') == "none"){
-            this.$beatmap_section_html.toggle("slide", {direction: "right"});
-        }
+
         if(this.$replay_section_html.css('display') == "none"){
             this.$replay_section_html.toggle("slide", {direction: "left"});
         }
@@ -339,9 +339,9 @@ osu.ui.interface.mainscreen = {
         if(this.$details_replay_search.css('display') == "none"){
             this.$details_replay_search.toggle("slide", {direction: "up"});
         }
-
-
-
+        if(this.$beatmap_section_html.css('display') == "none"){
+            this.$beatmap_section_html.toggle("slide", {direction: "right"}); //right looks broken
+        }
 
 
 
