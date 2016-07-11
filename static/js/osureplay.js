@@ -2026,20 +2026,85 @@ osu.objects.Circle = class Circle{
 
 osu = osu || {};
 osu.objects = osu.objects || {};
+osu.objects.curves = osu.objects.curves || {};
+osu.objects.curves.TYPES = Object.freeze({
+    BEZIER: "B",
+    LINEAR: "L",
+    PASSTHROUGH: "P",
+    CATMULL: "C"
+});
+
 osu.objects.Curve = class Curve {
 
-    constructor(type,points){
+    constructor(hitObject){
+        this.startPoint ={x: hitObject.x, y: hitObject.y };
+        this.controllPoints = hitObject.points;
+        this.type = hitObject.sliderType;
+        this.points = [];
+        switch(this.type){
+            case osu.objects.curves.TYPES.LINEAR:
+                this.__generate_linear();
+                break;
+            case osu.objects.curves.TYPES.BEZIER:
+                this.__generate_beizer();
+                break;
+            case osu.objects.curves.TYPES.PASSTHROUGH:
+                this.__generate_passthrough();
+                break;
+            default:
+                console.log("Unknown slider type")
+        }
 
 
+    }
 
+    /*
+     * Gets point at given percentage/time;
+     */
+    get_point(t) {
+
+    }
+
+
+    __generate_linear(){
+        this.controllPoints.unshift(this.startPoint);
+        this.__generate_beizer();
     }
 
     __generate_beizer(){
+        var beziers = [];
+        var cP = [];
+        var lastP = false;
+        for(var i = -1; i < this.controllPoints.length; i++){
+            var tPos;
+            if(i==-1){
+                tPos = this.startPoint;
+            }else{
+                tPos = this.controllPoints[i];
+            }
+            if(lastP && tPos.x == lastP.x && tPos.y == lastP.y){
+                if(cP.length >=2){
+                    beziers.push(new Bezier(cP))
+                }
+                cP.splice(0);
+            }
+            cP.push(tPos);
+            lastP = tPos;
+        }
+        if(cP.length >1){
+            beziers.push(new Bezier(cP));
+        }
+
+        for(i = 0; i< beziers.length; i++){
+            var p = beziers[i].getLUT(); //100 is overkill but w/e
+            this.points = this.points.concat(p);
+        }
 
 
     }
-    __generate_straight(){
 
+    __generate_passthrough(){
+        this.__generate_beizer();
     }
 
 
@@ -2457,64 +2522,24 @@ osu.objects.Slider = class Slider{
         this.hitObject.endX = final_x;
         this.hitObject.endY =final_y;
         sliderGraphics.drawCircle(final_x, final_y, (this.hitObject.size -5 )/2);
-
-        //ghetto sliders o baby
-        if(this.hitObject.sliderType == osu.objects.sliders.TYPES.LINEAR){
-            //Creates border on slider
-            sliderGraphics.lineStyle(this.hitObject.size,0xFFFFFF);
-            sliderGraphics.moveTo(this.hitObject.x, this.hitObject.y);
-            sliderGraphics.lineTo(final_x, final_y);
-            //Creates fill on slider
-            sliderGraphics.lineStyle(this.hitObject.size-10, this.hitObject.colour);
-            sliderGraphics.moveTo(this.hitObject.x, this.hitObject.y);
-            sliderGraphics.lineTo(final_x, final_y);
-        }
-
-        if(this.hitObject.sliderType == osu.objects.sliders.TYPES.BEZIER || osu.objects.sliders.TYPES.PASSTHROUGH){
-            var beziers = [];
-            var controlPoints = [];
-            var lastP = false;
-            for(var i=-1; i< this.hitObject.points.length ; i++){
-                var tPos;
-                if(i==-1){
-                    tPos = {x: this.hitObject.x, y: this.hitObject.y}
-                }else{
-                    tPos = this.hitObject.points[i];
-                }
-                if(lastP && tPos.x == lastP.x && tPos.y == lastP.y){
-                    if(controlPoints.length >=2){
-                        beziers.push(new Bezier(controlPoints))
-                    }
-                    controlPoints.splice(0);
-                }
-                controlPoints.push(tPos);
-                lastP = tPos;
-            }
-            if(controlPoints.length >1){
-                beziers.push(new Bezier(controlPoints));
-            }
-
+        sliderGraphics.endFill();
+        this.curves = new osu.objects.Curve(this.hitObject);
+        //ghetto sliders o babbby!
+        sliderGraphics.lineStyle(5,0xFFFFFF);
+        sliderGraphics.beginFill(0xFFFFFF);
+        for(i = 0; i < this.curves.points.length; i++){
             //draw border
-            sliderGraphics.lineStyle(5,0xFFFFFF);
-            var drawPoints = [];
-            for(var i = 0;i < beziers.length; i++){
-                var drawPoint = beziers[i].getLUT();
-                drawPoints.push(drawPoint);
-                for(var j =0; j < drawPoint.length;  j++){
-                    sliderGraphics.drawCircle(drawPoint[j].x,drawPoint[j].y, (this.hitObject.size)/2);
-                }
-            }
-            //draw inside
-            sliderGraphics.lineStyle(5,this.hitObject.colour);
-            for(var i = 0;i < drawPoints.length; i++){
-                var drawPoint = drawPoints[i];
-                for(var j =0; j < drawPoint.length;  j++) {
-                    sliderGraphics.drawCircle(drawPoint[j].x, drawPoint[j].y, (this.hitObject.size - 10) / 2);
-                }
-            }
+            var drawPoint = this.curves.points[i];
+            sliderGraphics.drawCircle(drawPoint.x,drawPoint.y, (this.hitObject.size)/2);
+
         }
-
-
+        sliderGraphics.lineStyle(5,this.hitObject.colour);
+        sliderGraphics.beginFill(this.hitObject.colour);
+        for(i = 0 ; i < this.curves.points.length; i++){
+            //draw inside
+            var drawPoint = this.curves.points[i];
+            sliderGraphics.drawCircle(drawPoint.x, drawPoint.y, (this.hitObject.size - 10) / 2);
+        }
 
         //convert to texture so it doesnt look ugly :D
         var t = sliderGraphics.generateTexture();
@@ -2586,7 +2611,8 @@ osu.objects.sliders = {
     TYPES: Object.freeze({
         BEZIER: "B",
         LINEAR: "L",
-        PASSTHROUGH: "P"
+        PASSTHROUGH: "P",
+        CATMULL: "C"
     })
 
 
