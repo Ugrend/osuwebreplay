@@ -46,23 +46,33 @@ osu.objects.Curve = class Curve {
 
 
     __generate_linear(){
+        //generate linear with bezier, add the startpoints as a controll point which will cause a straight line
         this.controllPoints.unshift(this.startPoint);
         this.__generate_beizer();
     }
-
+    /*
+     * Generates a bezier curve slider (also used for linear sliders)
+     *
+     * How the Bezier sliders seem to work is that it will split them into seperate curves
+     * This split is indicated by a duplicate value
+     */
     __generate_beizer(){
         var beziers = [];
         var cP = [];
         var lastP = false;
         for(var i = -1; i < this.controllPoints.length; i++){
             var tPos;
-            if(i==-1){
+            if(i==-1) {
+                //The starter point is not in the initial point array so we start manually from it
                 tPos = this.startPoint;
             }else{
                 tPos = this.controllPoints[i];
             }
+            //this checks if the last point is same as the next point
+            //if it is the same it indicates the end of controll points for the bezier
+            //If there are less than two in the controllpoints we just drop it completly
             if(lastP && tPos.x == lastP.x && tPos.y == lastP.y){
-                if(cP.length >=2){
+                if(cP.length >1){
                     beziers.push(new Bezier(cP))
                 }
                 cP.splice(0);
