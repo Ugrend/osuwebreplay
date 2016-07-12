@@ -2534,10 +2534,17 @@ osu.objects.Slider = class Slider{
 
     }
     init(){
+        this.nextRepeatTime = 0;
+        this.sliderDirectionBackwards = false;
+
         this.startCircle = new osu.objects.Circle(this.hitObject);
         this.startCircle.init();
+        this.drawnFollow = false;
+        this.drawn = false;
+        this.destroyed = false;
+        this.last_draw_time  =0;
 
-
+        if(this.initialised) return;
 
         var sliderGraphics = new PIXI.Graphics();
         var points = this.hitObject.points;
