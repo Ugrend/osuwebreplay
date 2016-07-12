@@ -26,13 +26,7 @@ osu.objects.HitObjectParser = {
         SOFT: 2,
         DRUM: 3,
     },
-
-    SLIDER_TYPES: {
-        CATMULL: "C",
-        BEZIER: "B",
-        LINEAR: "L",
-        PASSTHROUGH: "P"
-    },
+    
 
     parse_type: function (hitObjectInt) {
         var newCombo = false;

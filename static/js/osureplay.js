@@ -1696,7 +1696,7 @@ osu.helpers.constants = {
     OSU_GAME_HEIGHT: 384,
     OSU_GAME_WIDTH: 512,
     DOUBLE_TIME_MULTI: .667,
-
+    SLIDER_STEP_DISTANCE: 5,
 
 };
 /**
@@ -2067,23 +2067,33 @@ osu.objects.Curve = class Curve {
 
 
     __generate_linear(){
+        //generate linear with bezier, add the startpoints as a controll point which will cause a straight line
         this.controllPoints.unshift(this.startPoint);
         this.__generate_beizer();
     }
-
+    /*
+     * Generates a bezier curve slider (also used for linear sliders)
+     *
+     * How the Bezier sliders seem to work is that it will split them into seperate curves
+     * This split is indicated by a duplicate value
+     */
     __generate_beizer(){
         var beziers = [];
         var cP = [];
         var lastP = false;
         for(var i = -1; i < this.controllPoints.length; i++){
             var tPos;
-            if(i==-1){
+            if(i==-1) {
+                //The starter point is not in the initial point array so we start manually from it
                 tPos = this.startPoint;
             }else{
                 tPos = this.controllPoints[i];
             }
+            //this checks if the last point is same as the next point
+            //if it is the same it indicates the end of controll points for the bezier
+            //If there are less than two in the controllpoints we just drop it completly
             if(lastP && tPos.x == lastP.x && tPos.y == lastP.y){
-                if(cP.length >=2){
+                if(cP.length >1){
                     beziers.push(new Bezier(cP))
                 }
                 cP.splice(0);
@@ -2096,7 +2106,24 @@ osu.objects.Curve = class Curve {
         }
 
         for(i = 0; i< beziers.length; i++){
-            var p = beziers[i].getLUT(); //100 is overkill but w/e
+            var distance = 0;
+            var compute_value = 0;
+            var startingPoint = beziers[i].compute(0);
+            var p = [startingPoint];
+            while(distance < osu.helpers.constants.SLIDER_STEP_DISTANCE){
+                compute_value += 0.00001;
+                var point = beziers[i].compute(compute_value);
+                distance = osu.helpers.math.distance(startingPoint.x, startingPoint.y, point.x,point.y);
+
+            }
+            var t = compute_value;
+            while(t <= 1){
+                p.push(beziers[i].compute(t));
+                t += compute_value;
+            }
+            if(t>1){
+                p.push(beziers[i].compute(1));
+            }
             this.points = this.points.concat(p);
         }
 
@@ -2210,13 +2237,7 @@ osu.objects.HitObjectParser = {
         SOFT: 2,
         DRUM: 3,
     },
-
-    SLIDER_TYPES: {
-        CATMULL: "C",
-        BEZIER: "B",
-        LINEAR: "L",
-        PASSTHROUGH: "P"
-    },
+    
 
     parse_type: function (hitObjectInt) {
         var newCombo = false;
@@ -2607,17 +2628,6 @@ osu.objects.Slider = class Slider{
         this.hitObject.game.hit_object_container.removeChild(this.sliderGraphicsContainer);
 
     }
-
-
-
-};
-osu.objects.sliders = {
-    TYPES: Object.freeze({
-        BEZIER: "B",
-        LINEAR: "L",
-        PASSTHROUGH: "P",
-        CATMULL: "C"
-    })
 
 
 

@@ -132,16 +132,5 @@ osu.objects.Slider = class Slider{
 
 
 };
-osu.objects.sliders = {
-    TYPES: Object.freeze({
-        BEZIER: "B",
-        LINEAR: "L",
-        PASSTHROUGH: "P",
-        CATMULL: "C"
-    })
-
-
-
-};
 
 

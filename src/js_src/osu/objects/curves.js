@@ -85,7 +85,24 @@ osu.objects.Curve = class Curve {
         }
 
         for(i = 0; i< beziers.length; i++){
-            var p = beziers[i].getLUT(); //100 is overkill but w/e
+            var distance = 0;
+            var compute_value = 0;
+            var startingPoint = beziers[i].compute(0);
+            var p = [startingPoint];
+            while(distance < osu.helpers.constants.SLIDER_STEP_DISTANCE){
+                compute_value += 0.00001;
+                var point = beziers[i].compute(compute_value);
+                distance = osu.helpers.math.distance(startingPoint.x, startingPoint.y, point.x,point.y);
+
+            }
+            var t = compute_value;
+            while(t <= 1){
+                p.push(beziers[i].compute(t));
+                t += compute_value;
+            }
+            if(t>1){
+                p.push(beziers[i].compute(1));
+            }
             this.points = this.points.concat(p);
         }
 
