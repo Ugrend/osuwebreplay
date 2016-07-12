@@ -41,7 +41,11 @@ osu.objects.Curve = class Curve {
      * Gets point at given percentage/time;
      */
     get_point(t) {
-
+        var point = Math.round((this.points.length-1) * t);
+        if(point >= this.points.length){
+            return this.points[this.points.length-1]
+        }
+        return this.points[point];
     }
 
 

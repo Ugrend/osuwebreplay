@@ -26,7 +26,7 @@ osu.objects.HitObjectParser = {
         SOFT: 2,
         DRUM: 3,
     },
-    
+
 
     parse_type: function (hitObjectInt) {
         var newCombo = false;

@@ -2,6 +2,9 @@
  * slider.js
  * Created by Ugrend on 11/06/2016.
  */
+
+
+
 osu = osu || {};
 osu.objects = osu.objects || {};
 osu.objects.Slider = class Slider{
@@ -18,11 +21,16 @@ osu.objects.Slider = class Slider{
         this.originalX = this.hitObject.x;
         this.originalY = this.hitObject.y;
         this.hidden_time = this.hitObject.approachRate / 3.3;
+        this.sliderDirectionBackwards = false;
+        this.drawnFollow = false;
+        this.totalTime = this.hitObject.endTime - this.hitObject.startTime;
 
     }
     init(){
         this.startCircle = new osu.objects.Circle(this.hitObject);
         this.startCircle.init();
+
+
 
         var sliderGraphics = new PIXI.Graphics();
         var points = this.hitObject.points;
@@ -35,14 +43,14 @@ osu.objects.Slider = class Slider{
         sliderGraphics.beginFill(this.hitObject.colour);
         sliderGraphics.lineStyle(5,0xFFFFFF);
         //startpoint
-        sliderGraphics.drawCircle(this.hitObject.x, this.hitObject.y, (this.hitObject.size -5 )/2);
+       // sliderGraphics.drawCircle(this.hitObject.x, this.hitObject.y, (this.hitObject.size -5 )/2);
 
         //endpoint (technically this is wrong but i no like math)
         var final_x = points[points.length-1].x;
         var final_y = points[points.length-1].y;
         this.hitObject.endX = final_x;
         this.hitObject.endY =final_y;
-        sliderGraphics.drawCircle(final_x, final_y, (this.hitObject.size -5 )/2);
+      //  sliderGraphics.drawCircle(final_x, final_y, (this.hitObject.size -5 )/2);
         sliderGraphics.endFill();
         this.curves = new osu.objects.Curve(this.hitObject);
         //ghetto sliders o babbby!
@@ -60,7 +68,7 @@ osu.objects.Slider = class Slider{
             //draw inside
             //TODO: masking might handle the border better so that it is not transparent
             var drawPoint = this.curves.points[i];
-            sliderGraphics.drawCircle(drawPoint.x, drawPoint.y, (this.hitObject.size - 10) / 2);
+            sliderGraphics.drawCircle(drawPoint.x, drawPoint.y, (this.hitObject.size * .9) / 2);
         }
 
         // convert to texture so it doesnt look ugly :D
@@ -74,6 +82,15 @@ osu.objects.Slider = class Slider{
         sprite.alpha = 0.6;
         this.sliderGraphicsContainer = new PIXI.Container();
         this.sliderGraphicsContainer.addChild(sprite);
+
+        var sliderFollowTexture = PIXI.Texture.fromImage(osu.skins.sliderfollowcircle);
+        this.sliderFollowSprite = new PIXI.Sprite(sliderFollowTexture);
+
+        this.sliderFollowSprite.height = this.hitObject.size *2;
+        this.sliderFollowSprite.width = this.hitObject.size *2;
+        this.sliderFollowSprite.anchor.set(0.5);
+        this.sliderFollowSprite.position.x = this.hitObject.x;
+        this.sliderFollowSprite.position.y = this.hitObject.y;
         this.initialised = true;
     }
 
@@ -96,18 +113,40 @@ osu.objects.Slider = class Slider{
         var drawCircle = this.startCircle.draw(cur_time);
         //object is no longer rendered but still might have some logic (eg being missed, is hidden etc)
         if(this.destroyed && !drawCircle){
-            if(cur_time < this.hitObject.endTime + 500){
-                return true;
+            if(cur_time > this.hitObject.endTime + 500){
+                return false;
             }
-            return false;
         }
         //TODO: should this be at the slider endtime, or use start time?
-        if(this.drawn && this.hitObject.game.is_hidden && cur_time > this.hitObject.endTime - this.hidden_time){
+        if(this.drawn && this.hitObject.game.is_hidden && cur_time > this.hitObject.startTime - this.hidden_time){
             this.destroy();
             this.destroyed = true;
         }
 
-        if(!drawCircle){
+        if(cur_time >= this.hitObject.startTime){
+            if(!this.drawnFollow){
+                this.hitObject.game.hit_object_container.addChild(this.sliderFollowSprite);
+            }
+            if(this.hitObject.repeatCount > 0){
+                var elpased_time = cur_time - this.hitObject.startTime;
+                var t = (elpased_time / this.totalTime) * this.hitObject.repeatCount;
+                if(t >= 1){
+                    this.hitObject.repeatCount -=1;
+                    this.sliderDirectionBackwards = !this.sliderDirectionBackwards;
+                    t = 1;
+                }
+                if(this.sliderDirectionBackwards){
+                    t = 1-t;
+                }
+                var moveTo = this.curves.get_point(t)
+
+                this.sliderFollowSprite.position.x = moveTo.x;
+                this.sliderFollowSprite.position.y = moveTo.y;
+
+            }else{
+                this.hitObject.game.hit_object_container.removeChild(this.sliderFollowSprite);
+            }
+
             //animate slider ?
         }
 
