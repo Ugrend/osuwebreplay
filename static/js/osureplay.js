@@ -2428,7 +2428,7 @@ osu.objects.HitObjectParser = {
             if(hitObject2.newCombo) continue;
 
             var startX = game.calculate_original_x(hitObject1.endX || hitObject1.x);
-            var startY = game.calculate_original_x(hitObject1.endY || hitObject1.y);
+            var startY = game.calculate_original_y(hitObject1.endY || hitObject1.y);
             var endX = game.calculate_original_x(hitObject2.x);
             var endY = game.calculate_original_y(hitObject2.y);
             var distance = osu.helpers.math.distance(startX,startY,endX,endY);
@@ -2635,7 +2635,7 @@ osu.objects.Slider = class Slider{
                 this.hitObject.game.hit_object_container.addChild(this.sliderFollowSprite);
             }
             if(this.hitObject.repeatCount > 0){
-                //TODO: i feel like this is wrong and im overcomplicating it but im tired and this works 
+                //TODO: i feel like this is wrong and im overcomplicating it but im tired and this works
                 var elpased_time = (cur_time-this.nextRepeatTime) - this.hitObject.startTime;
 
                 var t = (elpased_time / this.timePerRepeat);

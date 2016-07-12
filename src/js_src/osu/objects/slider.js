@@ -130,7 +130,7 @@ osu.objects.Slider = class Slider{
                 this.hitObject.game.hit_object_container.addChild(this.sliderFollowSprite);
             }
             if(this.hitObject.repeatCount > 0){
-                //TODO: i feel like this is wrong and im overcomplicating it but im tired and this works 
+                //TODO: i feel like this is wrong and im overcomplicating it but im tired and this works
                 var elpased_time = (cur_time-this.nextRepeatTime) - this.hitObject.startTime;
 
                 var t = (elpased_time / this.timePerRepeat);

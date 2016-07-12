@@ -212,7 +212,7 @@ osu.objects.HitObjectParser = {
             if(hitObject2.newCombo) continue;
 
             var startX = game.calculate_original_x(hitObject1.endX || hitObject1.x);
-            var startY = game.calculate_original_x(hitObject1.endY || hitObject1.y);
+            var startY = game.calculate_original_y(hitObject1.endY || hitObject1.y);
             var endX = game.calculate_original_x(hitObject2.x);
             var endY = game.calculate_original_y(hitObject2.y);
             var distance = osu.helpers.math.distance(startX,startY,endX,endY);
