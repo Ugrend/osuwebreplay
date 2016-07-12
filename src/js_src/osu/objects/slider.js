@@ -23,7 +23,9 @@ osu.objects.Slider = class Slider{
         this.hidden_time = this.hitObject.approachRate / 3.3;
         this.sliderDirectionBackwards = false;
         this.drawnFollow = false;
-        this.totalTime = this.hitObject.endTime - this.hitObject.startTime;
+        this.totalTime = (this.hitObject.endTime - this.hitObject.startTime);
+        this.timePerRepeat = this.totalTime / this.hitObject.repeatCount;
+        this.nextRepeatTime = 0;
 
     }
     init(){
@@ -128,16 +130,20 @@ osu.objects.Slider = class Slider{
                 this.hitObject.game.hit_object_container.addChild(this.sliderFollowSprite);
             }
             if(this.hitObject.repeatCount > 0){
-                var elpased_time = cur_time - this.hitObject.startTime;
-                var t = (elpased_time / this.totalTime) * this.hitObject.repeatCount;
-                if(t >= 1){
-                    this.hitObject.repeatCount -=1;
-                    this.sliderDirectionBackwards = !this.sliderDirectionBackwards;
-                    t = 1;
-                }
+                //TODO: i feel like this is wrong and im overcomplicating it but im tired and this works 
+                var elpased_time = (cur_time-this.nextRepeatTime) - this.hitObject.startTime;
+
+                var t = (elpased_time / this.timePerRepeat);
                 if(this.sliderDirectionBackwards){
                     t = 1-t;
                 }
+                if(t >= 1 || t < 0){
+                    this.hitObject.repeatCount -=1;
+                    this.nextRepeatTime += this.timePerRepeat;
+                    this.sliderDirectionBackwards = !this.sliderDirectionBackwards;
+                    t = 1;
+                }
+
                 var moveTo = this.curves.get_point(t)
 
                 this.sliderFollowSprite.position.x = moveTo.x;
