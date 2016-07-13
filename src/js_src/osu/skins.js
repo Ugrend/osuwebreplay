@@ -63,6 +63,18 @@ osu.skins = {
     followpoint: "data/followpoint.png",
     sliderfollowcircle: "data/sliderfollowcircle.png",
 
+    sliderb: [
+    "data/sliderb0.png",
+    "data/sliderb1.png",
+    "data/sliderb2.png",
+    "data/sliderb3.png",
+    "data/sliderb4.png",
+    "data/sliderb5.png",
+    "data/sliderb6.png",
+    "data/sliderb7.png",
+    "data/sliderb8.png",
+    "data/sliderb9.png"
+    ],
 
     default_0: "data/default-0.png",
     default_1: "data/default-1.png",
@@ -87,6 +99,8 @@ osu.skins = {
     selection_mod_perfect: "data/selection-mod-perfect.png",
     selection_mod_spunout: "data/selection-mod-spunout.png",
     selection_mod_suddendeath: "data/selection-mod-suddendeath.png",
+
+
 
 
 

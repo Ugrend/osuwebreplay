@@ -4,6 +4,12 @@
  */
 
 
+//TODO: this needs to be placed in skins once coded
+var ballTextures = [];
+for(var i = 0; i< osu.skins.sliderb.length; i++){
+    ballTextures.push(PIXI.Texture.fromImage(osu.skins.sliderb[i]));
+}
+var sliderFollowTexture = PIXI.Texture.fromImage(osu.skins.sliderfollowcircle);
 
 osu = osu || {};
 osu.objects = osu.objects || {};
@@ -92,14 +98,25 @@ osu.objects.Slider = class Slider{
         this.sliderGraphicsContainer = new PIXI.Container();
         this.sliderGraphicsContainer.addChild(sprite);
 
-        var sliderFollowTexture = PIXI.Texture.fromImage(osu.skins.sliderfollowcircle);
-        this.sliderFollowSprite = new PIXI.Sprite(sliderFollowTexture);
 
-        this.sliderFollowSprite.height = this.hitObject.size *2;
-        this.sliderFollowSprite.width = this.hitObject.size *2;
-        this.sliderFollowSprite.anchor.set(0.5);
-        this.sliderFollowSprite.position.x = this.hitObject.x;
-        this.sliderFollowSprite.position.y = this.hitObject.y;
+        //create follow circle and ball TODO: THIS
+        this.sliderFollowContainer = new PIXI.Container();
+
+        var sliderFollowSprite = new PIXI.Sprite(sliderFollowTexture);
+        sliderFollowSprite.height = this.hitObject.size *2;
+        sliderFollowSprite.width = this.hitObject.size *2;
+        sliderFollowSprite.anchor.set(0.5);
+
+        var sliderBall = new PIXI.extras.MovieClip(ballTextures);
+        sliderBall.animationSpeed = 0.5;
+        sliderBall.anchor.set(0.5);
+        sliderBall.width = this.hitObject.size;
+        sliderBall.height = this.hitObject.size;
+        sliderBall.play();
+        this.sliderFollowContainer.addChild(sliderFollowSprite);
+        this.sliderFollowContainer.addChild(sliderBall);
+        this.sliderFollowContainer.position.x = this.hitObject.x;
+        this.sliderFollowContainer.position.y = this.hitObject.y;
         this.initialised = true;
     }
 
@@ -134,7 +151,7 @@ osu.objects.Slider = class Slider{
 
         if(cur_time >= this.hitObject.startTime){
             if(!this.drawnFollow){
-                this.hitObject.game.hit_object_container.addChild(this.sliderFollowSprite);
+                this.hitObject.game.hit_object_container.addChild(this.sliderFollowContainer);
             }
             if(this.hitObject.repeatCount > 0){
                 //TODO: i feel like this is wrong and im overcomplicating it but im tired and this works
@@ -153,11 +170,11 @@ osu.objects.Slider = class Slider{
 
                 var moveTo = this.curves.get_point(t)
 
-                this.sliderFollowSprite.position.x = moveTo.x;
-                this.sliderFollowSprite.position.y = moveTo.y;
+                this.sliderFollowContainer.position.x = moveTo.x;
+                this.sliderFollowContainer.position.y = moveTo.y;
 
             }else{
-                this.hitObject.game.hit_object_container.removeChild(this.sliderFollowSprite);
+                this.hitObject.game.hit_object_container.removeChild(this.sliderFollowContainer);
             }
 
             //animate slider ?
