@@ -2163,6 +2163,39 @@ osu.objects.Curve = class Curve {
     }
 
     __generate_passthrough(){
+        var  circumcircle = function(p1, p2, p3) {
+            var x,y,r;
+            var A = p2.x - p1.x,
+                B = p2.y - p1.y,
+                C = p3.x - p1.x,
+                D = p3.y - p1.y,
+                E = A * (p1.x + p2.x) + B * (p1.y + p2.y),
+                F = C * (p1.x + p3.x) + D * (p1.y + p3.y),
+                G = 2 * (A * (p3.y - p2.y) - B * (p3.x - p2.x)),
+                minx, miny, dx, dy;
+            if(Math.abs(G) < 0.000001) {
+                minx = Math.min(p1.x, p2.x, p3.x);
+                miny = Math.min(p1.y, p2.y, p3.y);
+                dx   = (Math.max(p1.x, p2.x, p3.x) - minx) * 0.5;
+                dy   = (Math.max(p1.y, p2.y, p3.y) - miny) * 0.5;
+                x = minx + dx;
+                y = miny + dy;
+                r = Math.sqrt(dx * dx + dy * dy);
+            }
+            else {
+                x = (D*E - B*F) / G;
+                y = (A*F - C*E) / G;
+                dx = x - p1.x;
+                dy = y - p1.y;
+                r = Math.sqrt(dx * dx + dy * dy);
+            }
+            return {x: x, y:y, r: r};
+        };
+
+        var centerCircle = circumcircle(this.startPoint,
+            this.controllPoints[0],this.controllPoints[1]);
+        
+        
         this.__generate_beizer();
     }
 
