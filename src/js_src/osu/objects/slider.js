@@ -108,7 +108,7 @@ osu.objects.Slider = class Slider{
         sliderFollowSprite.anchor.set(0.5);
 
         var sliderBall = new PIXI.extras.MovieClip(ballTextures);
-        sliderBall.animationSpeed = 0.5;
+        sliderBall.animationSpeed = 1.2;
         sliderBall.anchor.set(0.5);
         sliderBall.width = this.hitObject.size;
         sliderBall.height = this.hitObject.size;
@@ -168,10 +168,11 @@ osu.objects.Slider = class Slider{
                     t = 1;
                 }
 
-                var moveTo = this.curves.get_point(t)
+                var moveTo = this.curves.get_point(t);
 
                 this.sliderFollowContainer.position.x = moveTo.x;
                 this.sliderFollowContainer.position.y = moveTo.y;
+                this.sliderFollowContainer.rotation = moveTo.angle;
 
             }else{
                 this.hitObject.game.hit_object_container.removeChild(this.sliderFollowContainer);

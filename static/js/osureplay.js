@@ -2067,7 +2067,20 @@ osu.objects.Curve = class Curve {
                 this.__generate_passthrough();
                 break;
             default:
+                this.__generate_beizer();
                 console.log("Unknown slider type")
+        }
+
+        for(var i = 0; i < this.points.length-1;i++){
+            var currentPoint = this.points[i];
+            var nextPoint = this.points[i+1];
+            var xDiff = nextPoint.x - currentPoint.x;
+            var yDiff = nextPoint.y - currentPoint.y;
+            var angle = Math.atan2(yDiff, xDiff);
+            this.points[i].angle = angle;
+            if(i+1 == this.points.length-1){
+                this.points[i+1].angle = angle;
+            }
         }
 
 
@@ -2627,7 +2640,7 @@ osu.objects.Slider = class Slider{
         sliderFollowSprite.anchor.set(0.5);
 
         var sliderBall = new PIXI.extras.MovieClip(ballTextures);
-        sliderBall.animationSpeed = 0.5;
+        sliderBall.animationSpeed = 1.2;
         sliderBall.anchor.set(0.5);
         sliderBall.width = this.hitObject.size;
         sliderBall.height = this.hitObject.size;
@@ -2687,10 +2700,11 @@ osu.objects.Slider = class Slider{
                     t = 1;
                 }
 
-                var moveTo = this.curves.get_point(t)
+                var moveTo = this.curves.get_point(t);
 
                 this.sliderFollowContainer.position.x = moveTo.x;
                 this.sliderFollowContainer.position.y = moveTo.y;
+                this.sliderFollowContainer.rotation = moveTo.angle;
 
             }else{
                 this.hitObject.game.hit_object_container.removeChild(this.sliderFollowContainer);

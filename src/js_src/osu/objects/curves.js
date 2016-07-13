@@ -31,7 +31,20 @@ osu.objects.Curve = class Curve {
                 this.__generate_passthrough();
                 break;
             default:
+                this.__generate_beizer();
                 console.log("Unknown slider type")
+        }
+
+        for(var i = 0; i < this.points.length-1;i++){
+            var currentPoint = this.points[i];
+            var nextPoint = this.points[i+1];
+            var xDiff = nextPoint.x - currentPoint.x;
+            var yDiff = nextPoint.y - currentPoint.y;
+            var angle = Math.atan2(yDiff, xDiff);
+            this.points[i].angle = angle;
+            if(i+1 == this.points.length-1){
+                this.points[i+1].angle = angle;
+            }
         }
 
 
