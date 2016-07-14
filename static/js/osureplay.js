@@ -1729,7 +1729,7 @@ osu.helpers.math = {
         var v2 = Math.abs(y1 - y2);
         return Math.sqrt((v1 * v1) + (v2 * v2));
     },
-    
+
 };
 
 
@@ -2653,7 +2653,7 @@ osu.objects.Slider = class Slider{
         for(i = 0; i < this.curves.points.length; i++){
             //draw border
             var drawPoint = this.curves.points[i];
-            sliderGraphics.drawCircle(drawPoint.x,drawPoint.y, (this.hitObject.size)/2);
+            sliderGraphics.drawCircle(drawPoint.x,drawPoint.y, (this.hitObject.size)/2.15);
 
         }
         sliderGraphics.lineStyle(5,this.hitObject.colour);
@@ -2662,7 +2662,7 @@ osu.objects.Slider = class Slider{
             //draw inside
             //TODO: masking might handle the border better so that it is not transparent
             var drawPoint = this.curves.points[i];
-            sliderGraphics.drawCircle(drawPoint.x, drawPoint.y, (this.hitObject.size * .9) / 2);
+            sliderGraphics.drawCircle(drawPoint.x, drawPoint.y, (this.hitObject.size * .9) / 2.15);
         }
 
         // convert to texture so it doesnt look ugly :D
