@@ -1729,45 +1729,7 @@ osu.helpers.math = {
         var v2 = Math.abs(y1 - y2);
         return Math.sqrt((v1 * v1) + (v2 * v2));
     },
-
-    slope: function(x1,y1,x2,y2){
-        if(x1 == x2){
-            return null;
-        }
-        return (y2 - y1) / (x2 - x1);
-    },
-
-    intercept: function(x, y, slope){
-        if(slope === null){
-            return x;
-        }
-        return y - slope * x;
-    },
-
-    getLiniearPoints(x1, y1, x2, y2, minDistance){
-        minDistance = minDistance || null;
-        var m = this.slope(x1,y1,x2,y2);
-        var b = this.intercept(x1, y1, m);
-
-        var lastPoint = null;
-        var coordinates = [];
-        for (var x = x1; x <= x2; x++) {
-            var y = m * x + b;
-            var point = {x:x,y:y};
-            if(minDistance){
-                if(lastPoint){
-                    if(this.distance(lastPoint.x,lastPoint.y,point.x,point.y) < minDistance){
-                        continue;
-                    }
-
-                }
-
-            }
-            lastPoint = point;
-            coordinates.push(point);
-        }
-        return coordinates;
-    }
+    
 };
 
 
@@ -2090,6 +2052,7 @@ osu.objects.Curve = class Curve {
      * Gets point at given percentage/time;
      */
     get_point(t) {
+        //TODO: could do passthrough/circle curves more accurately
         var point = Math.round((this.points.length-1) * t);
         if(point >= this.points.length){
             return this.points[this.points.length-1]
@@ -2163,6 +2126,19 @@ osu.objects.Curve = class Curve {
     }
 
     __generate_passthrough(){
+
+        var getPoint = function (angle,radius) {
+            var x = (Math.cos(angle) * radius);
+            var y = (Math.sin(angle) * radius);
+            return {x:x,y:y}
+        };
+        var lerp = function(ang1,ang2,t){
+            return ang1 * (1 - t) + ang2 * t;
+        };
+        var isMidBetween = function (a,b,c) {
+            return (b > a && b < c) || (b < a && b > c);
+        };
+
         var  circumcircle = function(p1, p2, p3) {
             var x,y,r;
             var A = p2.x - p1.x,
@@ -2192,11 +2168,49 @@ osu.objects.Curve = class Curve {
             return {x: x, y:y, r: r};
         };
 
+
+
         var centerCircle = circumcircle(this.startPoint,
             this.controllPoints[0],this.controllPoints[1]);
-        
-        
-        this.__generate_beizer();
+
+        var xDiff = this.startPoint.x - centerCircle.x;
+        var yDiff = this.startPoint.y - centerCircle.y;
+        var startAngle = Math.atan2(yDiff, xDiff);
+        xDiff = this.controllPoints[0].x - centerCircle.x;
+        yDiff = this.controllPoints[0].y - centerCircle.y;
+        var middleAngle = Math.atan2(yDiff, xDiff);
+        xDiff = this.controllPoints[1].x - centerCircle.x;
+        yDiff = this.controllPoints[1].y - centerCircle.y;
+        var endAngle = Math.atan2(yDiff, xDiff);
+
+
+        //code from opsu https://github.com/itdelatrisu/opsu
+        //https://github.com/itdelatrisu/opsu/blob/master/src/itdelatrisu/opsu/objects/curves/CircumscribedCircle.java#L90
+        var TWO_PI  =  Math.PI * 2;
+        if (!isMidBetween(startAngle, middleAngle, endAngle)) {
+            if (Math.abs(startAngle + TWO_PI - endAngle) < TWO_PI && isMidBetween(startAngle + (TWO_PI), middleAngle, endAngle))
+                startAngle += TWO_PI;
+            else if (Math.abs(startAngle - (endAngle + TWO_PI)) < TWO_PI && isMidBetween(startAngle, middleAngle, endAngle + (TWO_PI)))
+                endAngle += TWO_PI;
+            else if (Math.abs(startAngle - TWO_PI - endAngle) < TWO_PI && isMidBetween(startAngle - (TWO_PI), middleAngle, endAngle))
+                startAngle -= TWO_PI;
+            else if (Math.abs(startAngle - (endAngle - TWO_PI)) < TWO_PI && isMidBetween(startAngle, middleAngle, endAngle - (TWO_PI)))
+                endAngle -= TWO_PI;
+            else
+                console.log('Cannot find angles between midAng '+ startAngle + " " + middleAngle +" " + endAngle);
+        }
+
+
+
+        var t = 0;
+        while(t<=1){
+            var angle = lerp(startAngle,endAngle,t);
+            var point = getPoint(angle,centerCircle.r)
+            point.x += centerCircle.x;
+            point.y += centerCircle.y;
+            this.points.push(point);
+            t+=0.01;
+        }
     }
 
 
