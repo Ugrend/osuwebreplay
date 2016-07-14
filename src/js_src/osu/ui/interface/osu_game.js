@@ -319,19 +319,19 @@ osu.ui.interface.osugame = {
         baseCircleSprite.anchor.set(0.5);
 
         this.timerMask = new PIXI.Graphics();
-        var pie = new PIXI.Graphics();
-        pie.mask = this.timerMask;
-        pie.beginFill(0xB4B4B2,0.8);
-        pie.drawCircle(this.timerX, this.timerY,25);
-        pie.endFill();
+        this.timerPie = new PIXI.Graphics();
+        this.timerPie.mask = this.timerMask;
+        this.timerPie.beginFill(0xB4B4B2,0.8);
+        this.timerPie.drawCircle(this.timerX, this.timerY,25);
+        this.timerPie.endFill();
 
-        timerContainer.addChild(pie);
+        timerContainer.addChild(this.timerPie);
         timerContainer.addChild(baseCircleSprite);
         this.master_container.addChild(timerContainer);
 
     },
 
-    update_timer_percentage(percentage){
+    update_timer_percentage(percentage, colour){
         //http://jsfiddle.net/asoyaqud/17/
         var createPoint = function(x,y) { return {x:x,y:y}; };
         var rotateXY = function(x,y,angle) {
@@ -360,6 +360,11 @@ osu.ui.interface.osugame = {
 
             return pts;
         };
+        this.timerPie.clear();
+        this.timerPie.beginFill(colour,0.8);
+        this.timerPie.drawCircle(this.timerX, this.timerY,25);
+        this.timerPie.endFill();
+
         this.timerMask.clear();
         var angle = percentage*360;
         if(angle >= 360) angle = 359.9;
@@ -668,9 +673,10 @@ osu.ui.interface.osugame = {
         }
 
 
-
-        this.update_timer_percentage(this.curMapTime/this.beatmap.map_data.time_length);
-
+        if(this.curMapTime - this.skipTime > 0){
+            this.update_timer_percentage(this.curMapTime/this.beatmap.map_data.time_length, osu.helpers.constants.TIMER_SONG_COLOUR);
+        }
+        
         if(this.oldest_object_position == this.hit_objects.length -1){
            if(this.curMapTime >= this.delayEnd){
                this.finished = true;
@@ -736,12 +742,14 @@ osu.ui.interface.osugame = {
         } else {
             if (!this.countdown_started) {
                 var self = this;
+                this.date_started = Date.now();
                 setTimeout(function () {
                     self.audioLeadIn = 0;
                 }, this.audioLeadIn);
                 this.countdown_started = true;
             }
-
+            var curTime = Date.now() - this.date_started;
+            this.update_timer_percentage(curTime/this.audioLeadIn, osu.helpers.constants.TIMER_INTRO_COLOUR);
         }
         var time = Date.now();
         if (this.has_started) {
@@ -749,6 +757,7 @@ osu.ui.interface.osugame = {
             if (this.skipTime ==-1 || this.skipTime > -1 && this.skipTime < this.curMapTime) {
                 this.skip_container.visible = false;
             }else{
+                this.update_timer_percentage(this.curMapTime/this.skipTime, osu.helpers.constants.TIMER_INTRO_COLOUR);
                 this.skip_container.visible = true;
             }
             this.render_object();
