@@ -1202,21 +1202,33 @@ osu.audio.HitSound = {
         DRUM: "DRUM_"
     },
 
-    getHitSounds: function (hitSoundArray, additions) {
+    getHitSounds: function (hitSoundArray, timing,noNormals) {
+        noNormals = noNormals || false;
         var soundArray = [];
-        soundArray.push(osu.audio.sound[this.HIT_ADDITIONS.NORMAL+this.HIT_SOUNDS.SOUND_NORMAL]);
+        var hitAdditons = this.HIT_ADDITIONS.NORMAL;
+        switch(timing.sampleType){
+            case osu.objects.HitObjectParser.HIT_ADDITIONS.DRUM:
+                hitAdditons = this.HIT_ADDITIONS.DRUM;
+                break;
+            case osu.objects.HitObjectParser.HIT_ADDITIONS.SOFT:
+                hitAdditons = this.HIT_ADDITIONS.SOFT;
+        }
+        if(!noNormals){
+            soundArray.push(osu.audio.sound[this.HIT_ADDITIONS.NORMAL+this.HIT_SOUNDS.SOUND_NORMAL]);
+        }
+
         for(var i = 0 ; i < hitSoundArray.length; i ++){
             switch(hitSoundArray[i]){
                 case osu.objects.HitObjectParser.HIT_SOUNDS.SOUND_NORMAL:
                     break;
                 case osu.objects.HitObjectParser.HIT_SOUNDS.SOUND_WHISTLE:
-                    soundArray.push(osu.audio.sound[this.HIT_ADDITIONS.NORMAL+this.HIT_SOUNDS.SOUND_WHISTLE]);
+                    soundArray.push(osu.audio.sound[hitAdditons+this.HIT_SOUNDS.SOUND_WHISTLE]);
                     break;
                 case osu.objects.HitObjectParser.HIT_SOUNDS.SOUND_FINISH:
-                    soundArray.push(osu.audio.sound[this.HIT_ADDITIONS.NORMAL+this.HIT_SOUNDS.SOUND_FINISH]);
+                    soundArray.push(osu.audio.sound[hitAdditons+this.HIT_SOUNDS.SOUND_FINISH]);
                     break;
                 case osu.objects.HitObjectParser.HIT_SOUNDS.SOUND_CLAP:
-                    soundArray.push(osu.audio.sound[this.HIT_ADDITIONS.NORMAL+this.HIT_SOUNDS.SOUND_CLAP]);
+                    soundArray.push(osu.audio.sound[hitAdditons+this.HIT_SOUNDS.SOUND_CLAP]);
                     break;
             }
 
@@ -1945,7 +1957,7 @@ osu.objects.Circle = class Circle{
         this.circleContainer.x = this.hitObject.x;
         this.circleContainer.y =  this.hitObject.y;
 
-        this.hitSounds = osu.audio.HitSound.getHitSounds(this.hitObject.hitSounds)
+        this.hitSounds = osu.audio.HitSound.getHitSounds(this.hitObject.hitSounds,this.hitObject.timing)
     }
 
     updatePositions(){
@@ -1997,7 +2009,7 @@ osu.objects.Circle = class Circle{
         if(time >= this.hitObject.startTime){
             if(!this.beenHit){
                 for(var i = 0 ; i < this.hitSounds.length ; i++){
-                    osu.audio.sound.play_sound(this.hitSounds[i], this.hitObject.timing.volume/100);
+                   osu.audio.sound.play_sound(this.hitSounds[i], this.hitObject.timing.volume/100);
                 }
                 this.beenHit = true;
             }
@@ -2627,12 +2639,13 @@ osu.objects.Slider = class Slider{
         this.totalTime = (this.hitObject.endTime - this.hitObject.startTime);
         this.timePerRepeat = this.totalTime / this.hitObject.repeatCount;
         this.nextRepeatTime = 0;
-
+        this.hitSounds = [];
+        this.repeatCount = this.hitObject.repeatCount;
     }
     init(){
         this.nextRepeatTime = 0;
         this.sliderDirectionBackwards = false;
-
+        this.repeatCount = this.hitObject.repeatCount;
         this.startCircle = new osu.objects.Circle(this.hitObject);
         this.startCircle.init();
         this.drawnFollow = false;
@@ -2716,7 +2729,6 @@ osu.objects.Slider = class Slider{
         this.arrowSliderEnd.anchor.set(0.5);
         this.arrowSliderEnd.position.x = final_x;
         this.arrowSliderEnd.position.y = final_y;
-        console.log(this.curves.points[this.curves.points.length -1]);
         var angle = osu.helpers.math.angleVector(this.curves.points[this.curves.points.length -1],
             this.curves.points[this.curves.points.length-2]);
         this.arrowSliderEnd.rotation = angle;
@@ -2752,6 +2764,10 @@ osu.objects.Slider = class Slider{
         this.sliderFollowContainer.addChild(sliderBall);
         this.sliderFollowContainer.position.x = this.hitObject.x;
         this.sliderFollowContainer.position.y = this.hitObject.y;
+
+        for(i = 0 ; i < this.hitObject.edges.length;i++){
+            this.hitSounds.push(osu.audio.HitSound.getHitSounds(this.hitObject.edges[i].sounds, this.hitObject.timing, (i==0)));
+        }
         this.initialised = true;
     }
 
@@ -2769,10 +2785,34 @@ osu.objects.Slider = class Slider{
         this.originalY = this.hitObject.y;
     }
     hit(time){
+        var playSound = false;
+        if(time >= this.hitObject.startTime && this.hitSounds.length == this.hitObject.edges.length){
+            playSound = true;
+        }
+        if(this.nextRepeatTime == 0){
+            if(time >= this.hitObject.endTime){
+                playSound = true;
+            }
+        }else{
+            if(time >= this.nextRepeatTime + this.hitObject.startTime){
+                playSound = true;
+            }
+        }
+
+
+        if(playSound && this.hitSounds.length > 0){
+            var sounds = this.hitSounds.shift();
+            for(var i = 0 ; i < sounds.length ; i++){
+                osu.audio.sound.play_sound(sounds[i], this.hitObject.timing.volume/100);
+            }
+        }
+
+
 
     }
 
     draw(cur_time){
+        this.hit(cur_time);
         var drawCircle = this.startCircle.draw(cur_time);
         //object is no longer rendered but still might have some logic (eg being missed, is hidden etc)
         if(this.destroyed && !drawCircle){

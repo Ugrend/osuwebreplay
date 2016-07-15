@@ -17,21 +17,33 @@ osu.audio.HitSound = {
         DRUM: "DRUM_"
     },
 
-    getHitSounds: function (hitSoundArray, additions) {
+    getHitSounds: function (hitSoundArray, timing,noNormals) {
+        noNormals = noNormals || false;
         var soundArray = [];
-        soundArray.push(osu.audio.sound[this.HIT_ADDITIONS.NORMAL+this.HIT_SOUNDS.SOUND_NORMAL]);
+        var hitAdditons = this.HIT_ADDITIONS.NORMAL;
+        switch(timing.sampleType){
+            case osu.objects.HitObjectParser.HIT_ADDITIONS.DRUM:
+                hitAdditons = this.HIT_ADDITIONS.DRUM;
+                break;
+            case osu.objects.HitObjectParser.HIT_ADDITIONS.SOFT:
+                hitAdditons = this.HIT_ADDITIONS.SOFT;
+        }
+        if(!noNormals){
+            soundArray.push(osu.audio.sound[this.HIT_ADDITIONS.NORMAL+this.HIT_SOUNDS.SOUND_NORMAL]);
+        }
+
         for(var i = 0 ; i < hitSoundArray.length; i ++){
             switch(hitSoundArray[i]){
                 case osu.objects.HitObjectParser.HIT_SOUNDS.SOUND_NORMAL:
                     break;
                 case osu.objects.HitObjectParser.HIT_SOUNDS.SOUND_WHISTLE:
-                    soundArray.push(osu.audio.sound[this.HIT_ADDITIONS.NORMAL+this.HIT_SOUNDS.SOUND_WHISTLE]);
+                    soundArray.push(osu.audio.sound[hitAdditons+this.HIT_SOUNDS.SOUND_WHISTLE]);
                     break;
                 case osu.objects.HitObjectParser.HIT_SOUNDS.SOUND_FINISH:
-                    soundArray.push(osu.audio.sound[this.HIT_ADDITIONS.NORMAL+this.HIT_SOUNDS.SOUND_FINISH]);
+                    soundArray.push(osu.audio.sound[hitAdditons+this.HIT_SOUNDS.SOUND_FINISH]);
                     break;
                 case osu.objects.HitObjectParser.HIT_SOUNDS.SOUND_CLAP:
-                    soundArray.push(osu.audio.sound[this.HIT_ADDITIONS.NORMAL+this.HIT_SOUNDS.SOUND_CLAP]);
+                    soundArray.push(osu.audio.sound[hitAdditons+this.HIT_SOUNDS.SOUND_CLAP]);
                     break;
             }
 
