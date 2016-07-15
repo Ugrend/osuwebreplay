@@ -35,11 +35,11 @@ osu.objects.Circle = class Circle{
     }
     init(){
         this.circleContainer = new PIXI.Container();
-        this.circleSprite =  new PIXI.Sprite(hit_circle_texture);
-        this.circleSprite.tint = this.hitObject.colour;
-        this.circleSprite.anchor.set(0.5);
-        this.circleSprite.height = this.hitObject.size;
-        this.circleSprite.width = this.hitObject.size;
+        this.endCircleSprite =  new PIXI.Sprite(hit_circle_texture);
+        this.endCircleSprite.tint = this.hitObject.colour;
+        this.endCircleSprite.anchor.set(0.5);
+        this.endCircleSprite.height = this.hitObject.size;
+        this.endCircleSprite.width = this.hitObject.size;
 
         if(!this.hitObject.game.is_hidden) {
             this.approchCircleSprite = new PIXI.Sprite(approach_circle_texture);
@@ -55,7 +55,7 @@ osu.objects.Circle = class Circle{
         this.circleOverlaySprite.height = this.hitObject.size;
         this.circleOverlaySprite.width = this.hitObject.size;
         this.circleOverlaySprite.anchor.set(0.5);
-        this.circleContainer.addChild(this.circleSprite);
+        this.circleContainer.addChild(this.endCircleSprite);
         this.circleContainer.addChild(this.circleOverlaySprite);
 
         var comboString = this.hitObject.combo.toString();

@@ -14,6 +14,16 @@ osu.helpers.math = {
         return Math.sqrt((v1 * v1) + (v2 * v2));
     },
 
+    /*
+        Get angle between two vectors;
+     */
+    angleVector: function (p1,p2) {
+
+        var xDiff = p2.x - p1.x;
+        var yDiff = p2.y - p1.y;
+        return Math.atan2(yDiff, xDiff);
+    }
+
 };
 
 

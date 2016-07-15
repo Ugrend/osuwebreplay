@@ -74,6 +74,8 @@ osu.skins = {
     approachcircle: "data/approachcircle.png",
     followpoint: "data/followpoint.png",
     sliderfollowcircle: "data/sliderfollowcircle.png",
+    reversearrow: "data/reversearrow.png",
+
 
     sliderb: [
     "data/sliderb0.png",
@@ -1733,6 +1735,16 @@ osu.helpers.math = {
         return Math.sqrt((v1 * v1) + (v2 * v2));
     },
 
+    /*
+        Get angle between two vectors;
+     */
+    angleVector: function (p1,p2) {
+
+        var xDiff = p2.x - p1.x;
+        var yDiff = p2.y - p1.y;
+        return Math.atan2(yDiff, xDiff);
+    }
+
 };
 
 
@@ -1887,11 +1899,11 @@ osu.objects.Circle = class Circle{
     }
     init(){
         this.circleContainer = new PIXI.Container();
-        this.circleSprite =  new PIXI.Sprite(hit_circle_texture);
-        this.circleSprite.tint = this.hitObject.colour;
-        this.circleSprite.anchor.set(0.5);
-        this.circleSprite.height = this.hitObject.size;
-        this.circleSprite.width = this.hitObject.size;
+        this.endCircleSprite =  new PIXI.Sprite(hit_circle_texture);
+        this.endCircleSprite.tint = this.hitObject.colour;
+        this.endCircleSprite.anchor.set(0.5);
+        this.endCircleSprite.height = this.hitObject.size;
+        this.endCircleSprite.width = this.hitObject.size;
 
         if(!this.hitObject.game.is_hidden) {
             this.approchCircleSprite = new PIXI.Sprite(approach_circle_texture);
@@ -1907,7 +1919,7 @@ osu.objects.Circle = class Circle{
         this.circleOverlaySprite.height = this.hitObject.size;
         this.circleOverlaySprite.width = this.hitObject.size;
         this.circleOverlaySprite.anchor.set(0.5);
-        this.circleContainer.addChild(this.circleSprite);
+        this.circleContainer.addChild(this.endCircleSprite);
         this.circleContainer.addChild(this.circleOverlaySprite);
 
         var comboString = this.hitObject.combo.toString();
@@ -2592,6 +2604,7 @@ for(var i = 0; i< osu.skins.sliderb.length; i++){
     ballTextures.push(PIXI.Texture.fromImage(osu.skins.sliderb[i]));
 }
 var sliderFollowTexture = PIXI.Texture.fromImage(osu.skins.sliderfollowcircle);
+var reverseArrowTexture = PIXI.Texture.fromImage(osu.skins.reversearrow);
 
 osu = osu || {};
 osu.objects = osu.objects || {};
@@ -2639,15 +2652,13 @@ osu.objects.Slider = class Slider{
         }
         sliderGraphics.beginFill(this.hitObject.colour);
         sliderGraphics.lineStyle(5,0xFFFFFF);
-        //startpoint
-       // sliderGraphics.drawCircle(this.hitObject.x, this.hitObject.y, (this.hitObject.size -5 )/2);
-
-        //endpoint (technically this is wrong but i no like math)
         var final_x = points[points.length-1].x;
         var final_y = points[points.length-1].y;
         this.hitObject.endX = final_x;
         this.hitObject.endY =final_y;
-      //  sliderGraphics.drawCircle(final_x, final_y, (this.hitObject.size -5 )/2);
+
+
+
         sliderGraphics.endFill();
         this.curves = new osu.objects.Curve(this.hitObject);
         //ghetto sliders o babbby!
@@ -2681,7 +2692,49 @@ osu.objects.Slider = class Slider{
         this.sliderGraphicsContainer.addChild(sprite);
 
 
-        //create follow circle and ball TODO: THIS
+        //Add end circle TODO: check if theres a override skin
+        this.endCircleSprite =  new PIXI.Sprite(hit_circle_overlay);
+        this.endCircleSprite.anchor.set(0.5);
+        this.endCircleSprite.height = this.hitObject.size;
+        this.endCircleSprite.width = this.hitObject.size;
+        this.endCircleSprite.position.x = final_x;
+        this.endCircleSprite.position.y = final_y;
+
+        this.sliderGraphicsContainer.addChild(this.endCircleSprite);
+
+        this.startCircleSprite =  new PIXI.Sprite(hit_circle_overlay);
+        this.startCircleSprite.anchor.set(0.5);
+        this.startCircleSprite.height = this.hitObject.size;
+        this.startCircleSprite.width = this.hitObject.size;
+        this.startCircleSprite.position.x = this.hitObject.x;
+        this.startCircleSprite.position.y = this.hitObject.y;
+        this.sliderGraphicsContainer.addChild(this.startCircleSprite);
+
+        this.arrowSliderEnd = new PIXI.Sprite(reverseArrowTexture);
+        this.arrowSliderEnd.height = (this.hitObject.size *2)/5;
+        this.arrowSliderEnd.width = (this.hitObject.size *2)/5;
+        this.arrowSliderEnd.anchor.set(0.5);
+        this.arrowSliderEnd.position.x = final_x;
+        this.arrowSliderEnd.position.y = final_y;
+        console.log(this.curves.points[this.curves.points.length -1]);
+        var angle = osu.helpers.math.angleVector(this.curves.points[this.curves.points.length -1],
+            this.curves.points[this.curves.points.length-2]);
+        this.arrowSliderEnd.rotation = angle;
+        this.arrowSliderEnd.visible = false;
+
+        this.arrowSliderStart = new PIXI.Sprite(reverseArrowTexture);
+        this.arrowSliderStart.height = (this.hitObject.size *2) /5;
+        this.arrowSliderStart.width = (this.hitObject.size *2) /5 ;
+        this.arrowSliderStart.anchor.set(0.5);
+        this.arrowSliderStart.position.x = this.hitObject.x;
+        this.arrowSliderStart.position.y = this.hitObject.y;
+        angle = osu.helpers.math.angleVector(this.curves.points[0], this.curves.points[1]);
+        this.arrowSliderStart.rotation = angle;
+        this.arrowSliderStart.visible = false;
+
+        this.sliderGraphicsContainer.addChild(this.arrowSliderStart);
+        this.sliderGraphicsContainer.addChild(this.arrowSliderEnd);
+
         this.sliderFollowContainer = new PIXI.Container();
 
         var sliderFollowSprite = new PIXI.Sprite(sliderFollowTexture);
@@ -2701,6 +2754,8 @@ osu.objects.Slider = class Slider{
         this.sliderFollowContainer.position.y = this.hitObject.y;
         this.initialised = true;
     }
+
+
 
     updatePositions(){
         this.startCircle.updatePositions();
@@ -2738,6 +2793,16 @@ osu.objects.Slider = class Slider{
             if(this.hitObject.repeatCount > 0){
                 //TODO: i feel like this is wrong and im overcomplicating it but im tired and this works
                 var elpased_time = (cur_time-this.nextRepeatTime) - this.hitObject.startTime;
+
+                if(this.hitObject.repeatCount % 2 == 0){
+                    this.arrowSliderEnd.visible = true;
+                    this.arrowSliderStart.visible = false;
+                }else{
+                    this.arrowSliderEnd.visible = false;
+                    if(this.hitObject.repeatCount != 1){
+                        this.arrowSliderStart.visible = true;
+                    }
+                }
 
                 var t = (elpased_time / this.timePerRepeat);
                 if(this.sliderDirectionBackwards){

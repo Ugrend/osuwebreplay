@@ -62,6 +62,8 @@ osu.skins = {
     approachcircle: "data/approachcircle.png",
     followpoint: "data/followpoint.png",
     sliderfollowcircle: "data/sliderfollowcircle.png",
+    reversearrow: "data/reversearrow.png",
+
 
     sliderb: [
     "data/sliderb0.png",
