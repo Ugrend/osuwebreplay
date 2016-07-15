@@ -112,7 +112,7 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
                         }
                         else{
                             var multiplier = Math.abs(100/timingPoint.millisecondsPerBeat);
-                            timingPoint.millisecondsPerBeat = parentBPMS * multiplier;
+                            timingPoint.millisecondsPerBeat = parentBPMS / multiplier;
                         }
                     }
                     beatmap_config.minBPM = Math.round(60000 / beatmap_config.minBPM);
