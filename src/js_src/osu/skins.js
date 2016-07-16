@@ -50,6 +50,7 @@ osu.skins = {
 
 
     inputoverlay_key: "data/inputoverlay-key.png",
+    star: "data/star.png",
 
     //Playfield
     section_fail: "data/section-fail.png",

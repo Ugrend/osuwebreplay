@@ -70,6 +70,34 @@ osu.beatmaps.BeatmapPreview = class BeatmapPreview {
             self.sliders = beatmap.parsed.sliders || 0;
             self.spinners = beatmap.parsed.spinners || 0;
             self.objects = self.circles + self.sliders + self.spinners;
+            self.stars = beatmap.stars;
+            self.display_stars = [];
+            var stars = self.stars;
+            for(var i = 0; i <= Math.ceil(self.stars); i++){
+                if(i > 9) break; //only display 10stars max
+
+
+                if(stars > 1){
+                    self.display_stars.push(
+                        {
+                            h: 52,
+                            w: 50,
+                            star_img: osu.skins.star
+                        }
+                    )
+                }else{
+                    if(stars >= 0){
+                        self.display_stars.push(                        {
+                            h: 52 * stars,
+                            w: 50 * stars,
+                            star_img: osu.skins.star
+                        })
+                    }
+
+                }
+                stars -= 1;
+
+            }
 
             var milliseconds = beatmap.parsed.time_length;
             var seconds = parseInt((milliseconds / 1000) % 60 );

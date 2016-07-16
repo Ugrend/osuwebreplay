@@ -75,7 +75,7 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
                 case "[difficulty]":
                     var settings = line.split(":");
                     if (settings.length == 2) {
-                        beatmap_config.difficulty[settings[0]] = settings[1];
+                        beatmap_config.difficulty[settings[0]] = parseFloat(settings[1]);
                     }
                     break;
                 case "[events]":
@@ -218,7 +218,8 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
                 }
                 var thumbnail_md5sum = md5(thumbnail);
                 beatmap.thumbnail = thumbnail_md5sum;
-                beatmap.stars = osu.beatmaps.DifficultyCalculator.calculate_stars(beatmap);
+                var difficultyCalc = new osu.beatmaps.DifficultyCalculator(beatmap.parsed);
+                beatmap.stars = difficultyCalc.calculate();;
                 md5sums.push(beatmap.md5sum);
                 database.insert_data(database.TABLES.ASSETS, thumbnail_md5sum, thumbnail, function () {}, function () {});//TODO actually callback properly
                 database.insert_data(database.TABLES.BEATMAPS, beatmap.md5sum, beatmap, function () {

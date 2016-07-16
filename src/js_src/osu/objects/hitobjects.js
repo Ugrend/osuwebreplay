@@ -88,6 +88,9 @@ osu.objects.HitObjectParser = {
         hitObject.newCombo = type.new_combo;
         hitObject.hitSounds = [];
         hitObject.timing = get_timing_point(hitObject.startTime);
+        hitObject.is_slider = false;
+        hitObject.is_circle = false;
+        hitObject.is_spinner = false;
 
         var soundByte = +hitArray[4];
         if ((soundByte & this.HIT_SOUNDS.SOUND_WHISTLE) == this.HIT_SOUNDS.SOUND_WHISTLE)
@@ -101,13 +104,16 @@ osu.objects.HitObjectParser = {
 
 
         if (hitObject.type == this.TYPES.CIRCLE) {
+            hitObject.is_circle = true;
             hitObject.additions = parse_additions(hitArray[5]);
         }
         if (hitObject.type == this.TYPES.SPINNER) {
+            hitObject.is_spinner = true;
             hitObject.endTime = +hitArray[5];
             hitObject.additions = +hitArray[6];
         }
         if (hitObject.type == this.TYPES.SLIDER) {
+            hitObject.is_slider = true;
             var sliderData = hitArray[5].split("|");
             hitObject.sliderType = sliderData[0];
             hitObject.repeatCount = +hitArray[6];
@@ -229,7 +235,7 @@ osu.objects.HitObject = class HitObject{
     constructor(hitObjectData, size, approachRate, game){
         this._x = 0;
         this._y = 0;
-        this.game = game;
+        this.game = game || false;
         this.combo = 1;
         this.colour = 0xFFFFFF;
         this.stack = 0;
@@ -238,7 +244,7 @@ osu.objects.HitObject = class HitObject{
         this.followPoint = false;
 
         $.extend(this, hitObjectData);
-        if(this.game.is_hardrock) this._y = 384 - this._y;
+        if(this.game && this.game.is_hardrock) this._y = 384 - this._y;
         switch (this.type){
             case osu.objects.HitObjectParser.TYPES.CIRCLE:
                 this.object = new osu.objects.Circle(this);
@@ -263,6 +269,9 @@ osu.objects.HitObject = class HitObject{
     get y() { return this._y}
 
     init(){
+        if(!this.game){
+            throw "Cannot Intialise object without game object!";
+        }
         this.x = this.game.calculate_x(this.x);
         this.y = this.game.calculate_y(this.y);
         if(this.game.is_doubletime){
