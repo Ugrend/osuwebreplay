@@ -74,8 +74,8 @@
 
 
 .song_preview_selected{
-    background: rgb(117, 131, 231);
-    background: rgba(117, 131, 231,0.8);
+    background: rgb(25, 59, 117);
+    background: rgba(25, 59, 117,0.8);
     border-bottom: 1px solid;
 }
 .song_preview_selected > img{
