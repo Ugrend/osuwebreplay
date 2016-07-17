@@ -1519,7 +1519,7 @@ osu.beatmaps.BeatmapPreview = class BeatmapPreview {
             self.sliders = beatmap.parsed.sliders || 0;
             self.spinners = beatmap.parsed.spinners || 0;
             self.objects = self.circles + self.sliders + self.spinners;
-            self.stars = beatmap.stars;
+            self.stars = parseFloat(beatmap.stars);
             self.display_stars = [];
             var stars = self.stars;
             for(var i = 0; i <= Math.ceil(self.stars); i++){
