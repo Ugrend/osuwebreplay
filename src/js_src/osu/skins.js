@@ -79,6 +79,23 @@ osu.skins = {
     "data/sliderb9.png"
     ],
 
+    spinner_approachcircle: "data/spinner-approachcircle.png",
+    spinner_background: "data/spinner-background.png",
+    spinner_bottom: "data/spinner-bottom.png",
+    spinner_circle: "data/spinner-circle.png",
+    spinner_clear: "data/spinner-clear.png",
+    spinner_glow: "data/spinner-glow.png",
+    spinner_metre: "data/spinner-metre.png",
+    spinner_middle: "data/spinner-middle.png",
+    spinner_middle2: "data/spinner-middle2.png",
+    spinner_osu: "data/spinner-osu.png",
+    spinner_rpm: "data/spinner-rpm.png",
+    spinner_spin: "data/spinner-spin.png",
+    spinner_top: "data/spinner-top.png",
+    spinner_warning: "data/spinner-warning.png",
+
+
+
     default_0: "data/default-0.png",
     default_1: "data/default-1.png",
     default_2: "data/default-2.png",

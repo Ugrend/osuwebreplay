@@ -87,11 +87,12 @@ osu.beatmaps.BeatmapPreview = class BeatmapPreview {
                     )
                 }else{
                     if(stars >= 0){
-                        self.display_stars.push(                        {
-                            h: 52 * stars,
-                            w: 50 * stars,
-                            star_img: osu.skins.star
-                        })
+                        self.display_stars.push(
+                            {
+                                h: 52 * stars,
+                                w: 50 * stars,
+                                star_img: osu.skins.star
+                            })
                     }
 
                 }
