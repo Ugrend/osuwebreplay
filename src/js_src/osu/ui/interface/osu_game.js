@@ -531,11 +531,20 @@ osu.ui.interface.osugame = {
         var comboNum = 0;
         var comboColour = 0;
         var approachRate = parseInt(this.beatmap.map_data.difficulty.ApproachRate);
+        var overallDifficulty = this.beatmap.map_data.difficulty.OverallDifficulty;
+        console.log(overallDifficulty);
         if (this.is_hardrock) {
-            approachRate = approachRate * 1.4;
-            if (approachRate > 10) approachRate = 10;
+            approachRate *=  1.4;
+            overallDifficulty *= 1.4;
         }
-        if (this.is_easy) approachRate = approachRate / 2;
+        if (this.is_easy){
+            approachRate *=0.5;
+            overallDifficulty *= 0.5;
+        }
+        approachRate = Math.min(approachRate,10);
+        overallDifficulty = Math.min(overallDifficulty,10);
+
+
 
 
         var difficultyCircleSize = parseInt(this.beatmap.map_data.difficulty.CircleSize);
@@ -553,6 +562,7 @@ osu.ui.interface.osugame = {
         if (this.is_doubletime) this.approachTime = this.approachTime - (this.approachTime * .33);
 
         for (i = 0; i < this.beatmap.map_data.hit_objects.length; i++){
+
             var hitObject = new osu.objects.HitObject(this.beatmap.map_data.hit_objects[i], circleSize, this.approachTime, this);
             if (comboNum == 0 || hitObject.newCombo) {
                 comboNum = 1;
@@ -567,6 +577,14 @@ osu.ui.interface.osugame = {
             }
             hitObject.colour = osu.skins.COMBO_COLOURS[comboColour];
             hitObject.combo = comboNum;
+            //https://osu.ppy.sh/wiki/Song_Setup#Overall_Difficulty
+
+            hitObject.hitOffset = {
+                HIT_300: 79.5 - (overallDifficulty * 6),
+                HIT_100: 139.5 - (overallDifficulty * 8),
+                HIT_50: 199.5 - (overallDifficulty * 10),
+                HIT_MISS: 500 - (overallDifficulty * 10)
+            };
 
             this.hit_objects.push(hitObject);
         }
@@ -696,6 +714,13 @@ osu.ui.interface.osugame = {
             this.date_started -= (this.skipTime - elapsed_time);
         }
 
+    },
+
+    getCursorPos: function () {
+        return {
+            x: this.cursor.x,
+            y:this.cursor.y
+        }
     },
 
     render_replay_frame(){

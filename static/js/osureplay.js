@@ -2226,6 +2226,7 @@ osu.objects.Circle = class Circle{
         this.destroyed = false;
         this.hidden_time = this.hitObject.approachRate / 3.3;
         this.beenHit = false;
+        this.isScoreAble = true; //just prevents the point animation from appearing
     }
     init(){
         this.circleContainer = new PIXI.Container();
@@ -2285,10 +2286,17 @@ osu.objects.Circle = class Circle{
 
 
     draw(cur_time){
-        this.hit(cur_time);
+        if(cur_time >= (this.hitObject.startTime -15)){
+            this.hit(cur_time);
+        }
         if(this.destroyed){
-            //object is no longer rendered but still might have some logic (eg being missed, is hidden etc)
-            if(cur_time < this.hitObject.startTime + 500){
+            if(!this.beenHit){
+                //never been hit
+                if(this.isScoreAble) this.hitObject.ScorePoint.displayMiss();
+                this.beenHit = true;
+            }
+            //object is no longer rendered but point sprite will be destroyed once this object is finished
+            if(cur_time < this.hitObject.startTime + 1000){
                 return true;
             }
             return false;
@@ -2323,15 +2331,54 @@ osu.objects.Circle = class Circle{
         return true;
     }
 
-    hit(time){
+    playHitSound(){
+        for(var i = 0 ; i < this.hitSounds.length ; i++){
+            osu.audio.sound.play_sound(this.hitSounds[i], this.hitObject.timing.volume/100);
+        }
+    }
+
+    hit(time, pos){
+
+        if(this.beenHit) {
+            return;
+        }
+        var difference = this.hitObject.startTime - time;
+        if(difference > this.hitObject.hitOffset.HIT_MISS){
+            return;
+        }
+        if(difference < this.hitObject.hitOffset.HIT_MISS && difference > this.hitObject.hitOffset.HIT_50){
+            //miss
+            if(this.isScoreAble) this.hitObject.ScorePoint.displayMiss();
+            this.beenHit = true;
+        }
+        if(difference < this.hitObject.hitOffset.HIT_50 && difference > this.hitObject.hitOffset.HIT_100){
+            //hit50
+            if(this.isScoreAble) this.hitObject.ScorePoint.display50();
+            this.playHitSound();
+            this.beenHit = true;
+        }
+        if(difference < this.hitObject.hitOffset.HIT_100 && difference > this.hitObject.hitOffset.HIT_300){
+            //hit100
+            if(this.isScoreAble) this.hitObject.ScorePoint.display100();
+            this.playHitSound();
+            this.beenHit = true;
+        }
+        if(difference < this.hitObject.hitOffset.HIT_300 && time <= this.hitObject.startTime){
+            //hit300
+            if(this.isScoreAble) this.hitObject.ScorePoint.display300();
+            this.playHitSound();
+            this.beenHit = true;
+        }
+
         if(time >= this.hitObject.startTime){
             if(!this.beenHit){
-                for(var i = 0 ; i < this.hitSounds.length ; i++){
-                   osu.audio.sound.play_sound(this.hitSounds[i], this.hitObject.timing.volume/100);
-                }
+                if(this.isScoreAble) this.hitObject.ScorePoint.displayMiss();
                 this.beenHit = true;
             }
 
+        }
+        if(this.beenHit){
+          //  this.destroy();
         }
     }
 
@@ -2634,13 +2681,12 @@ osu.objects.FollowPoint = class FollowPoint{
 
 
 /**
- * hitobjects.js
- * Created by Ugrend on 17/06/2016.
+ *
+ *
+ * Created by Ugrend on 18/07/2016.
  */
-
 osu = osu || {};
 osu.objects = osu.objects || {};
-
 
 osu.objects.HitObjectParser = {
     TYPES: {
@@ -2866,6 +2912,14 @@ osu.objects.HitObjectParser = {
     }
 
 };
+/**
+ * hitobjects.js
+ * Created by Ugrend on 17/06/2016.
+ */
+
+osu = osu || {};
+osu.objects = osu.objects || {};
+
 osu.objects.HitObject = class HitObject{
     constructor(hitObjectData, size, approachRate, game){
         this._x = 0;
@@ -2877,6 +2931,14 @@ osu.objects.HitObject = class HitObject{
         this.size = size;
         this.approachRate = approachRate;
         this.followPoint = false;
+        this.drawn = false;
+        //these are defaults that should be overridden by the game
+        this.hitOffset = {
+            HIT_300: 79.5,
+            HIT_100: 139.5,
+            HIT_50: 199.5,
+            HIT_MISS: 500
+        };
 
         $.extend(this, hitObjectData);
         if(this.game && this.game.is_hardrock) this._y = 384 - this._y;
@@ -2909,27 +2971,101 @@ osu.objects.HitObject = class HitObject{
         }
         this.x = this.game.calculate_x(this.x);
         this.y = this.game.calculate_y(this.y);
+        this.drawn = false;
+
+
+
+
         if(this.game.is_doubletime){
             this.startTime *= osu.helpers.constants.DOUBLE_TIME_MULTI;
             if(this.endTime) this.endTime *= osu.helpers.constants.DOUBLE_TIME_MULTI;
         }
         this.object.init();
+        //endX/Y will get intiatied by a slider else just use hitObject x
+        this.ScorePoint = new osu.objects.ScorePoint(this.endX||this.x,this.endY||this.y);
+
+
         this.initialised = true;
     }
 
     draw(cur_time){
+        if(!this.drawn){
+            this.game.hit_object_container.addChild(this.ScorePoint.getContainer());
+            this.drawn = true;
+        }
+
         var followResult = false;
         if(this.followPoint){
             followResult = this.followPoint.draw(cur_time);
         }
-        return this.object.draw(cur_time) ||  followResult;
+        var drawResult = this.object.draw(cur_time);
+        if(!drawResult){
+            this.game.hit_object_container.removeChild(this.ScorePoint.getContainer());
+        }
+
+        return drawResult ||  followResult;
     }
 
-    hit(cur_time){
-        return this.object.hit(cur_time);
+    hit(cur_time, pos){
+        return this.object.hit(cur_time, pos);
     }
 
 
+};
+/**
+ *
+ *
+ * Created by Ugrend on 18/07/2016.
+ */
+
+//TODO: THIS WILL MOVE ONCE SKIN SECTION IS DONE
+//TODO: support animation
+var hit300Texture = PIXI.Texture.fromImage(osu.skins.hit300);
+var hit100Texture = PIXI.Texture.fromImage(osu.skins.hit100);
+var hit50Texture = PIXI.Texture.fromImage(osu.skins.hit50);
+var hitMissTexure = PIXI.Texture.fromImage(osu.skins.hit0);
+
+osu = osu || {};
+osu.objects = osu.objects || {};
+osu.objects.ScorePoint = class ScorePoint {
+
+    constructor(x,y,size){
+        this.hit300Sprite = new PIXI.Sprite(hit300Texture);
+        this.hit100Sprite = new PIXI.Sprite(hit100Texture);
+        this.hit50Sprite = new PIXI.Sprite(hit50Texture);
+        this.hitMissSprite = new PIXI.Sprite(hitMissTexure);
+
+        this.hit300Sprite.visible = false;
+        this.hit100Sprite.visible = false;
+        this.hit50Sprite.visible = false;
+        this.hitMissSprite.visible = false;
+
+        this.hitContainer = new PIXI.Container();
+        this.hitContainer.addChild(this.hit300Sprite);
+        this.hitContainer.addChild(this.hit100Sprite);
+        this.hitContainer.addChild(this.hit50Sprite);
+        this.hitContainer.addChild(this.hitMissSprite);
+
+        this.hitContainer.position.x = x;
+        this.hitContainer.position.y = y;
+    }
+
+    getContainer(){
+        return this.hitContainer;
+    }
+
+    display300(){
+        this.hit300Sprite.visible = true;
+    }
+    display100(){
+        this.hit100Sprite.visible = true;
+    }
+    display50(){
+        this.hit100Sprite.visible = true;
+    }
+    displayMiss(){
+        this.hitMissSprite.visible = true;
+    }
 };
 /**
  * slider.js
@@ -2974,6 +3110,7 @@ osu.objects.Slider = class Slider{
         this.sliderDirectionBackwards = false;
         this.repeatCount = this.hitObject.repeatCount;
         this.startCircle = new osu.objects.Circle(this.hitObject);
+        this.startCircle.isScoreAble = false;
         this.startCircle.init();
         this.drawnFollow = false;
         this.drawn = false;
@@ -4433,11 +4570,20 @@ osu.ui.interface.osugame = {
         var comboNum = 0;
         var comboColour = 0;
         var approachRate = parseInt(this.beatmap.map_data.difficulty.ApproachRate);
+        var overallDifficulty = this.beatmap.map_data.difficulty.OverallDifficulty;
+        console.log(overallDifficulty);
         if (this.is_hardrock) {
-            approachRate = approachRate * 1.4;
-            if (approachRate > 10) approachRate = 10;
+            approachRate *=  1.4;
+            overallDifficulty *= 1.4;
         }
-        if (this.is_easy) approachRate = approachRate / 2;
+        if (this.is_easy){
+            approachRate *=0.5;
+            overallDifficulty *= 0.5;
+        }
+        approachRate = Math.min(approachRate,10);
+        overallDifficulty = Math.min(overallDifficulty,10);
+
+
 
 
         var difficultyCircleSize = parseInt(this.beatmap.map_data.difficulty.CircleSize);
@@ -4455,6 +4601,7 @@ osu.ui.interface.osugame = {
         if (this.is_doubletime) this.approachTime = this.approachTime - (this.approachTime * .33);
 
         for (i = 0; i < this.beatmap.map_data.hit_objects.length; i++){
+
             var hitObject = new osu.objects.HitObject(this.beatmap.map_data.hit_objects[i], circleSize, this.approachTime, this);
             if (comboNum == 0 || hitObject.newCombo) {
                 comboNum = 1;
@@ -4469,6 +4616,14 @@ osu.ui.interface.osugame = {
             }
             hitObject.colour = osu.skins.COMBO_COLOURS[comboColour];
             hitObject.combo = comboNum;
+            //https://osu.ppy.sh/wiki/Song_Setup#Overall_Difficulty
+
+            hitObject.hitOffset = {
+                HIT_300: 79.5 - (overallDifficulty * 6),
+                HIT_100: 139.5 - (overallDifficulty * 8),
+                HIT_50: 199.5 - (overallDifficulty * 10),
+                HIT_MISS: 500 - (overallDifficulty * 10)
+            };
 
             this.hit_objects.push(hitObject);
         }
@@ -4598,6 +4753,13 @@ osu.ui.interface.osugame = {
             this.date_started -= (this.skipTime - elapsed_time);
         }
 
+    },
+
+    getCursorPos: function () {
+        return {
+            x: this.cursor.x,
+            y:this.cursor.y
+        }
     },
 
     render_replay_frame(){

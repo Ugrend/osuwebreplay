@@ -32,6 +32,7 @@ osu.objects.Circle = class Circle{
         this.destroyed = false;
         this.hidden_time = this.hitObject.approachRate / 3.3;
         this.beenHit = false;
+        this.isScoreAble = true; //just prevents the point animation from appearing
     }
     init(){
         this.circleContainer = new PIXI.Container();
@@ -91,10 +92,17 @@ osu.objects.Circle = class Circle{
 
 
     draw(cur_time){
-        this.hit(cur_time);
+        if(cur_time >= (this.hitObject.startTime -15)){
+            this.hit(cur_time);
+        }
         if(this.destroyed){
-            //object is no longer rendered but still might have some logic (eg being missed, is hidden etc)
-            if(cur_time < this.hitObject.startTime + 500){
+            if(!this.beenHit){
+                //never been hit
+                if(this.isScoreAble) this.hitObject.ScorePoint.displayMiss();
+                this.beenHit = true;
+            }
+            //object is no longer rendered but point sprite will be destroyed once this object is finished
+            if(cur_time < this.hitObject.startTime + 1000){
                 return true;
             }
             return false;
@@ -129,15 +137,54 @@ osu.objects.Circle = class Circle{
         return true;
     }
 
-    hit(time){
+    playHitSound(){
+        for(var i = 0 ; i < this.hitSounds.length ; i++){
+            osu.audio.sound.play_sound(this.hitSounds[i], this.hitObject.timing.volume/100);
+        }
+    }
+
+    hit(time, pos){
+
+        if(this.beenHit) {
+            return;
+        }
+        var difference = this.hitObject.startTime - time;
+        if(difference > this.hitObject.hitOffset.HIT_MISS){
+            return;
+        }
+        if(difference < this.hitObject.hitOffset.HIT_MISS && difference > this.hitObject.hitOffset.HIT_50){
+            //miss
+            if(this.isScoreAble) this.hitObject.ScorePoint.displayMiss();
+            this.beenHit = true;
+        }
+        if(difference < this.hitObject.hitOffset.HIT_50 && difference > this.hitObject.hitOffset.HIT_100){
+            //hit50
+            if(this.isScoreAble) this.hitObject.ScorePoint.display50();
+            this.playHitSound();
+            this.beenHit = true;
+        }
+        if(difference < this.hitObject.hitOffset.HIT_100 && difference > this.hitObject.hitOffset.HIT_300){
+            //hit100
+            if(this.isScoreAble) this.hitObject.ScorePoint.display100();
+            this.playHitSound();
+            this.beenHit = true;
+        }
+        if(difference < this.hitObject.hitOffset.HIT_300 && time <= this.hitObject.startTime){
+            //hit300
+            if(this.isScoreAble) this.hitObject.ScorePoint.display300();
+            this.playHitSound();
+            this.beenHit = true;
+        }
+
         if(time >= this.hitObject.startTime){
             if(!this.beenHit){
-                for(var i = 0 ; i < this.hitSounds.length ; i++){
-                   osu.audio.sound.play_sound(this.hitSounds[i], this.hitObject.timing.volume/100);
-                }
+                if(this.isScoreAble) this.hitObject.ScorePoint.displayMiss();
                 this.beenHit = true;
             }
 
+        }
+        if(this.beenHit){
+          //  this.destroy();
         }
     }
 

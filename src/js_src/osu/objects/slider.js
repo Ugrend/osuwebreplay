@@ -41,6 +41,7 @@ osu.objects.Slider = class Slider{
         this.sliderDirectionBackwards = false;
         this.repeatCount = this.hitObject.repeatCount;
         this.startCircle = new osu.objects.Circle(this.hitObject);
+        this.startCircle.isScoreAble = false;
         this.startCircle.init();
         this.drawnFollow = false;
         this.drawn = false;
