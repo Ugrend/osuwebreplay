@@ -47,7 +47,7 @@ osu.objects.ScorePoint = class ScorePoint {
         this.hit100Sprite.visible = true;
     }
     display50(){
-        this.hit100Sprite.visible = true;
+        this.hit50Sprite.visible = true;
     }
     displayMiss(){
         this.hitMissSprite.visible = true;

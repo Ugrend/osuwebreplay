@@ -2231,14 +2231,18 @@ osu.objects.Circle = class Circle{
         this.hidden_time = this.hitObject.approachRate / 3.3;
         this.beenHit = false;
         this.isScoreAble = true; //just prevents the point animation from appearing
+        this.radius = 0;
+        this.missArray = [];
     }
     init(){
+        this.radius = this.hitObject.size/2;
         this.circleContainer = new PIXI.Container();
         this.endCircleSprite =  new PIXI.Sprite(hit_circle_texture);
         this.endCircleSprite.tint = this.hitObject.colour;
         this.endCircleSprite.anchor.set(0.5);
         this.endCircleSprite.height = this.hitObject.size;
         this.endCircleSprite.width = this.hitObject.size;
+        this.radius = this.hitObject.size /2;
 
         if(!this.hitObject.game.is_hidden) {
             this.approchCircleSprite = new PIXI.Sprite(approach_circle_texture);
@@ -2280,6 +2284,7 @@ osu.objects.Circle = class Circle{
         this.circleContainer.x = this.hitObject.x;
         this.circleContainer.y =  this.hitObject.y;
 
+
         this.hitSounds = osu.audio.HitSound.getHitSounds(this.hitObject.hitSounds,this.hitObject.timing)
     }
 
@@ -2290,13 +2295,14 @@ osu.objects.Circle = class Circle{
 
 
     draw(cur_time){
-        if(cur_time >= (this.hitObject.startTime -15)){
+        if(cur_time >= (this.hitObject.startTime -this.hitObject.hitOffset.HIT_50)){
             this.hit(cur_time);
         }
         if(this.destroyed){
-            if(!this.beenHit){
+            if(!this.beenHit && cur_time > this.hitObject.startTime){
                 //never been hit
                 if(this.isScoreAble) this.hitObject.ScorePoint.displayMiss();
+                console.log(this.missArray[this.missArray.length-1]);
                 this.beenHit = true;
             }
             //object is no longer rendered but point sprite will be destroyed once this object is finished
@@ -2335,6 +2341,19 @@ osu.objects.Circle = class Circle{
         return true;
     }
 
+    isInCircle(pos){
+
+        var hitCirclePos = {
+            x: this.hitObject.x,
+            y: this.hitObject.y
+        };
+        var distance = osu.helpers.math.vectorDistance(hitCirclePos,pos);
+        var result = distance <= this.radius;
+        if(!result && DEBUG) this.missArray.push("DISTANCE: " + distance + "RADIUS: " +this.radius + "DIFFERENCE: " + (distance-this.radius) + "STARTIME: "+this.hitObject.startTime
+            + " X: " + hitCirclePos.x + " Y: " + hitCirclePos.y);
+        return result
+    }
+
     playHitSound(){
         for(var i = 0 ; i < this.hitSounds.length ; i++){
             osu.audio.sound.play_sound(this.hitSounds[i], this.hitObject.timing.volume/100);
@@ -2343,44 +2362,43 @@ osu.objects.Circle = class Circle{
 
     hit(time, pos){
 
+
+
         if(this.beenHit) {
             return;
         }
-        var difference = this.hitObject.startTime - time;
-        if(difference > this.hitObject.hitOffset.HIT_MISS){
-            return;
-        }
-        if(difference < this.hitObject.hitOffset.HIT_MISS && difference > this.hitObject.hitOffset.HIT_50){
-            //miss
-            if(this.isScoreAble) this.hitObject.ScorePoint.displayMiss();
-            this.beenHit = true;
-        }
-        if(difference < this.hitObject.hitOffset.HIT_50 && difference > this.hitObject.hitOffset.HIT_100){
-            //hit50
-            if(this.isScoreAble) this.hitObject.ScorePoint.display50();
-            this.playHitSound();
-            this.beenHit = true;
-        }
-        if(difference < this.hitObject.hitOffset.HIT_100 && difference > this.hitObject.hitOffset.HIT_300){
-            //hit100
-            if(this.isScoreAble) this.hitObject.ScorePoint.display100();
-            this.playHitSound();
-            this.beenHit = true;
-        }
-        if(difference < this.hitObject.hitOffset.HIT_300 && time <= this.hitObject.startTime){
-            //hit300
-            if(this.isScoreAble) this.hitObject.ScorePoint.display300();
-            this.playHitSound();
-            this.beenHit = true;
-        }
 
-        if(time >= this.hitObject.startTime){
-            if(!this.beenHit){
-                if(this.isScoreAble) this.hitObject.ScorePoint.displayMiss();
+        var difference = this.hitObject.startTime - time;
+        if(this.isInCircle(this.hitObject.game.getCursorPos())) {
+            if (difference > this.hitObject.hitOffset.HIT_MISS) {
+                return;
+            }
+            if (difference < this.hitObject.hitOffset.HIT_MISS && difference > this.hitObject.hitOffset.HIT_50) {
+                //miss
+                if (this.isScoreAble) this.hitObject.ScorePoint.displayMiss();
                 this.beenHit = true;
             }
+            if (difference < this.hitObject.hitOffset.HIT_50 && difference > this.hitObject.hitOffset.HIT_100) {
+                //hit50
+                if (this.isScoreAble) this.hitObject.ScorePoint.display50();
+                this.playHitSound();
+                this.beenHit = true;
+            }
+            if (difference < this.hitObject.hitOffset.HIT_100 && difference > this.hitObject.hitOffset.HIT_300) {
+                //hit100
+                if (this.isScoreAble) this.hitObject.ScorePoint.display100();
+                this.playHitSound();
+                this.beenHit = true;
+            }
+            if (difference < this.hitObject.hitOffset.HIT_300 && time <= this.hitObject.startTime) {
+                //hit300
+                if (this.isScoreAble) this.hitObject.ScorePoint.display300();
+                this.playHitSound();
+                this.beenHit = true;
 
+            }
         }
+
         if(this.beenHit){
           //  this.destroy();
         }
@@ -3065,7 +3083,7 @@ osu.objects.ScorePoint = class ScorePoint {
         this.hit100Sprite.visible = true;
     }
     display50(){
-        this.hit100Sprite.visible = true;
+        this.hit50Sprite.visible = true;
     }
     displayMiss(){
         this.hitMissSprite.visible = true;

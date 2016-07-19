@@ -1,0 +1,73 @@
+TESTING NOTES:
+
+Highscore Gameover played by cookiezi
+
+EXAMPLE THAT MISSES
+
+
+264,32,47428,1,0,0:0:0:0:
+
+
+DISTANCE: 174.63717969335738RADIUS: 110.04296874999999DIFFERENCE: 64.5942109433574STARTIME: 47428 X: 1449.5 Y: 1375
+
+
+T= 47428
+
+replay.replayData[1].t
+6927
+
+
+THEREFORE:
+	T= 54355
+
+OD= 8.4 SO max hit time is 115ms for 50
+
+for(var i=0; i < replay.replayData.length;i++){
+
+if(replay.replayData[i].t > 54000 && replay.replayData[i].t < 54655){
+	console.log(replay.replayData[i]);
+}
+
+}
+
+
+Object         {t: 54237, x: 1370.4375, y: 426.25, keys: Array[2]}
+VM342:5 Object {t: 54251, x: 1377.3125, y: 415.9375, keys: Array[2]}
+VM342:5 Object {t: 54269, x: 1377.3125, y: 436.5625, keys: Array[1]}
+VM342:5 Object {t: 54270, x: 1373.875, y: 464.0625, keys: Array[1]}
+VM342:5 Object {t: 54286, x: 1363.5625, y: 560.3125, keys: Array[1]}
+VM342:5 Object {t: 54301, x: 1363.5625, y: 715, keys: Array[1]}
+VM342:5 Object {t: 54320, x: 1373.875, y: 914.375, keys: Array[1]}
+VM342:5 Object {t: 54336, x: 1418.5625, y: 1203.125, keys: Array[1]}keys: Array[1]t: 54336x: 1418.5625y: 1203.125__proto__: Object
+VM342:5 Object {t: 54351, x: 1435.75, y: 1306.25, keys: Array[1]}
+
+
+var replayData = [
+
+{x: 1370.4375, y: 426.25},
+{x: 1377.3125, y: 415.9375},
+{x: 1377.3125, y: 436.5625},
+{x: 1373.875, y: 464.0625},
+{x: 1363.5625, y: 560.3125},
+{x: 1363.5625, y: 715, },
+{x: 1373.875, y: 914.375},
+{x: 1418.5625, y: 1203.125},
+{x: 1435.75, y: 1306.25}
+
+
+]
+
+var isInCircle = function(pos){
+        var hitCirclePos = {
+            x: 1449.5,
+            y: 1375
+        };
+        var distance = osu.helpers.math.vectorDistance(hitCirclePos,pos);
+        console.log(distance - 110.0429687499999);
+        var result = distance <= 110.0429687499999;
+        return result
+}
+
+for(var i = 0 ; i < replayData.length; i++){
+	console.log(isInCircle(replayData[i]));
+}
