@@ -71,3 +71,11 @@ var isInCircle = function(pos){
 for(var i = 0 ; i < replayData.length; i++){
 	console.log(isInCircle(replayData[i]));
 }
+
+This indicates that circle was infact hit but with only 4ms to spare
+
+VM342:5 Object {t: 54351, x: 1435.75, y: 1306.25, keys: Array[1]}
+
+POSSIBLE SOLUTIONS:
+    precalculate the hits on the object with replay data before map starts
+    Dont instantly destroy the object, and wait for replay frames to calculate when being hit, which may cause the score point to be delayed very slightly
