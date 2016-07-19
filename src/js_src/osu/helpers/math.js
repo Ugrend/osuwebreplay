@@ -17,6 +17,10 @@ osu.helpers.math = {
     /*
         Get angle between two vectors;
      */
+    vectorDistance: function (v1,v2) {
+        return osu.helpers.math.distance(v1.x,v1.y,v2.x,v2.y);
+    },
+
     angleVector: function (p1,p2) {
 
         var xDiff = p2.x - p1.x;

@@ -72,30 +72,53 @@ osu.objects.Slider = class Slider{
         //ghetto sliders o babbby!
         sliderGraphics.lineStyle(5,0xFFFFFF);
         sliderGraphics.beginFill(0xFFFFFF);
-        for(i = 0; i < this.curves.points.length; i++){
-            //draw border
-            var drawPoint = this.curves.points[i];
-            sliderGraphics.drawCircle(drawPoint.x,drawPoint.y, (this.hitObject.size)/2.15);
 
+
+        //ghetto limit circle count to improve performance;
+
+
+        var lastPoint = this.curves.points[0];
+        sliderGraphics.drawCircle(lastPoint.x,lastPoint.y, (this.hitObject.size)/2.15);
+        var distance = osu.helpers.math.vectorDistance;
+        for(var i = 1; i< this.curves.points.length; i++){
+            var drawPoint = this.curves.points[i];
+            if(distance(lastPoint,drawPoint) > this.hitObject.size/10){
+                lastPoint = drawPoint;
+                sliderGraphics.drawCircle(drawPoint.x,drawPoint.y, (this.hitObject.size)/2.15);
+            }
         }
+        var finalPoint = this.curves.points[this.curves.points.length-1];
+        sliderGraphics.drawCircle(finalPoint.x,finalPoint.y, (this.hitObject.size)/2.15);
+
         sliderGraphics.lineStyle(5,this.hitObject.colour);
         sliderGraphics.beginFill(this.hitObject.colour);
-        for(i = 0 ; i < this.curves.points.length; i++){
-            //draw inside
-            //TODO: masking might handle the border better so that it is not transparent
-            var drawPoint = this.curves.points[i];
-            sliderGraphics.drawCircle(drawPoint.x, drawPoint.y, (this.hitObject.size * .9) / 2.15);
-        }
 
-        // convert to texture so it doesnt look ugly :D
-        // Note: reason why Im not using cache instead is because my slider generation is stupid
-        // and it will struggle rendering the 100s of circles even when cached as bitmap
+
+        //draw inside
+        //TODO: masking might handle the border better so that it is not transparent
+        lastPoint = this.curves.points[0];
+        sliderGraphics.drawCircle(lastPoint.x,lastPoint.y, (this.hitObject.size*.9)/2.15);
+        for(var i = 1; i< this.curves.points.length; i++){
+            drawPoint = this.curves.points[i];
+            if(distance(lastPoint,drawPoint) > this.hitObject.size/10){
+                lastPoint = drawPoint;
+                sliderGraphics.drawCircle(drawPoint.x,drawPoint.y, (this.hitObject.size *.9)/2.15);
+            }
+        }
+        finalPoint = this.curves.points[this.curves.points.length-1];
+        sliderGraphics.drawCircle(finalPoint.x,finalPoint.y, (this.hitObject.size*.9)/2.15);
+
+
 
         var t = sliderGraphics.generateTexture();
+
         var sprite = new PIXI.Sprite(t);
         sprite.position.x = sliderGraphics.getBounds().x;
         sprite.position.y = sliderGraphics.getBounds().y;
         sprite.alpha = 0.6;
+        sprite.cacheAsBitmap = true;
+        sliderGraphics.clear();
+        sliderGraphics.destroy(); //no longer need this might a well destroy it
         this.sliderGraphicsContainer = new PIXI.Container();
         this.sliderGraphicsContainer.addChild(sprite);
 
