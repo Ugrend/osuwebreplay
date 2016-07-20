@@ -759,6 +759,7 @@ osu.ui.interface.osugame = {
     },
 
     game_loop: function () {
+        this.render_replay_frame();
         if (!this.has_started && this.audioLeadIn == 0) {
             if (this.is_doubletime) osu.audio.music.set_playback_speed(1.5);
             osu.audio.music.start();
@@ -788,7 +789,7 @@ osu.ui.interface.osugame = {
             this.render_object();
 
         }
-        this.render_replay_frame();
+
         if(!this.finished) setTimeout(this.game_loop.bind(this), 1);
 
     }

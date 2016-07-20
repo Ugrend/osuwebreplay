@@ -3173,7 +3173,7 @@ osu.objects.Slider = class Slider{
         var distance = osu.helpers.math.vectorDistance;
         for(var i = 1; i< this.curves.points.length; i++){
             var drawPoint = this.curves.points[i];
-            if(distance(lastPoint,drawPoint) > this.hitObject.size/10){
+            if(distance(lastPoint,drawPoint) > this.hitObject.size/15){
                 lastPoint = drawPoint;
                 sliderGraphics.drawCircle(drawPoint.x,drawPoint.y, (this.hitObject.size)/2.15);
             }
@@ -3191,7 +3191,7 @@ osu.objects.Slider = class Slider{
         sliderGraphics.drawCircle(lastPoint.x,lastPoint.y, (this.hitObject.size*.9)/2.15);
         for(var i = 1; i< this.curves.points.length; i++){
             drawPoint = this.curves.points[i];
-            if(distance(lastPoint,drawPoint) > this.hitObject.size/10){
+            if(distance(lastPoint,drawPoint) > this.hitObject.size/15){
                 lastPoint = drawPoint;
                 sliderGraphics.drawCircle(drawPoint.x,drawPoint.y, (this.hitObject.size *.9)/2.15);
             }
@@ -3474,6 +3474,46 @@ osu.objects.Spinner = class Spinner{
 
 };
 
+/*
+ * replaycalc.js
+ * Created by Ugrend on 20/07/2016.
+ *
+ */
+
+ var osu = osu || {};
+ osu.replay = {
+
+     /*
+       This will precalculate if a hitobject is hit and at what time;
+      */
+    replayCalc: function (replayData,hitObjects) {
+        var offset = replayData[1].t; //how far ahead the replay is of the beatmap
+        var keyDOWN = false;
+        var keyUP = false;
+        var keyPRESS = false;
+        var lastReplayFrame = 0;
+
+        for(var i = 0; i < hitObjects.length; i++){
+            var hitObject = hitObjects[i];
+
+            while(lastReplayFrame < replayData.length){
+
+
+
+            }
+        }
+
+
+
+
+
+
+
+
+    }
+
+
+ };
 /**
  * score.js
  * Created by ugrend on 2/06/2016.
@@ -4843,6 +4883,7 @@ osu.ui.interface.osugame = {
     },
 
     game_loop: function () {
+        this.render_replay_frame();
         if (!this.has_started && this.audioLeadIn == 0) {
             if (this.is_doubletime) osu.audio.music.set_playback_speed(1.5);
             osu.audio.music.start();
@@ -4872,7 +4913,7 @@ osu.ui.interface.osugame = {
             this.render_object();
 
         }
-        this.render_replay_frame();
+
         if(!this.finished) setTimeout(this.game_loop.bind(this), 1);
 
     }

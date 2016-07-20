@@ -82,7 +82,7 @@ osu.objects.Slider = class Slider{
         var distance = osu.helpers.math.vectorDistance;
         for(var i = 1; i< this.curves.points.length; i++){
             var drawPoint = this.curves.points[i];
-            if(distance(lastPoint,drawPoint) > this.hitObject.size/10){
+            if(distance(lastPoint,drawPoint) > this.hitObject.size/15){
                 lastPoint = drawPoint;
                 sliderGraphics.drawCircle(drawPoint.x,drawPoint.y, (this.hitObject.size)/2.15);
             }
@@ -100,7 +100,7 @@ osu.objects.Slider = class Slider{
         sliderGraphics.drawCircle(lastPoint.x,lastPoint.y, (this.hitObject.size*.9)/2.15);
         for(var i = 1; i< this.curves.points.length; i++){
             drawPoint = this.curves.points[i];
-            if(distance(lastPoint,drawPoint) > this.hitObject.size/10){
+            if(distance(lastPoint,drawPoint) > this.hitObject.size/15){
                 lastPoint = drawPoint;
                 sliderGraphics.drawCircle(drawPoint.x,drawPoint.y, (this.hitObject.size *.9)/2.15);
             }
