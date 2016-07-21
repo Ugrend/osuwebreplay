@@ -550,7 +550,8 @@ osu.ui.interface.osugame = {
         var difficultyCircleSize = parseInt(this.beatmap.map_data.difficulty.CircleSize);
         if (this.is_hardrock && difficultyCircleSize < 7) difficultyCircleSize += 1;
         if (this.is_easy && difficultyCircleSize > 1) difficultyCircleSize -= 1; //TODO: work out if that's correct
-        var unScaledDiameter = (108.848 - (difficultyCircleSize * 8.9646));
+        //TODO: try work this out, osu is registering hits but this size i get misses, so my circles must be slightly smaller or some other calculation (this calc is from opsu)
+        var unScaledDiameter = (108.848 - (difficultyCircleSize * 8.9646)) ;
         var circleSize = (this.offSetDetails.width / 640) * unScaledDiameter;
 
         this.approachTime = 0;
@@ -578,7 +579,6 @@ osu.ui.interface.osugame = {
             hitObject.colour = osu.skins.COMBO_COLOURS[comboColour];
             hitObject.combo = comboNum;
             //https://osu.ppy.sh/wiki/Song_Setup#Overall_Difficulty
-
             hitObject.hitOffset = {
                 HIT_300: 79.5 - (overallDifficulty * 6),
                 HIT_100: 139.5 - (overallDifficulty * 8),
@@ -590,6 +590,9 @@ osu.ui.interface.osugame = {
         }
 
         osu.objects.HitObjectParser.create_stacks(this.hit_objects, parseFloat(this.beatmap.map_data.general.StackLeniency) || 0.7, unScaledDiameter, this.is_hardrock);
+        osu.calculateReplay(this.hit_objects,this.replay_data, unScaledDiameter);
+
+        osu.objects.HitObjectParser.initialiseHitObjects(this.hit_objects);
         osu.objects.HitObjectParser.calculate_follow_points(this.hit_objects, this);
 
         this.audioLeadIn = parseInt(this.beatmap.map_data.general.AudioLeadIn);

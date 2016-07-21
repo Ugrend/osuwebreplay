@@ -200,10 +200,16 @@ osu.objects.HitObjectParser = {
 
             hitObject.x = x;
             hitObject.y = y;
-            hitObject.init();
         }
 
 
+
+    },
+
+    initialiseHitObjects: function (hitobjects) {
+        for(var i = 0; i < hitobjects.length; i++){
+            hitobjects[i].init();
+        }
 
     },
 

@@ -21,24 +21,36 @@ osu.keypress = Object.freeze({
         NONE : 0,
         M1: 1,
         M2: 2,
-        K1: 5,
-        K2: 10,
+        K1: 4,
+        K2: 8,
         C: 16
     },
 
-    //TODO: need to work out how this works, its returning wrong keys i think
+    //TODO: make this code less yuck
     get_keys: function(keys_int){
         var keys = [];
         if (keys_int == 0) {
             keys.push(this.KEYS.NONE);
             return keys;
         }
+        //seems k1/m1 etc are 'both' hit when k1/k2 are pressed so we need to ingore m1/m2 in that event
         for (var k in this.KEYS) {
             var bit = keys_int & this.KEYS[k];
             if (bit == this.KEYS[k] && bit != 0) {
                 keys.push(this.KEYS[k]);
             }
         }
+
+
+        //remove M1/M2 if K1/K2 are present
+        if(keys.indexOf(this.KEYS.M1) > -1 && keys.indexOf(this.KEYS.K1) > -1){
+                keys.splice(keys.indexOf(this.KEYS.M1),1);
+        }
+        if(keys.indexOf(this.KEYS.M2) > -1 && keys.indexOf(this.KEYS.K2) > -1){
+            keys.splice(keys.indexOf(this.KEYS.M2),1);
+        }
+
+
         return keys;
     }
 

@@ -97,14 +97,13 @@ osu.objects.Circle = class Circle{
 
 
     draw(cur_time){
-        if(cur_time >= (this.hitObject.startTime -this.hitObject.hitOffset.HIT_50)){
+        if(cur_time >= (this.hitObject.hitTime)){
             this.hit(cur_time);
         }
         if(this.destroyed){
             if(!this.beenHit && cur_time > this.hitObject.startTime){
                 //never been hit
                 if(this.isScoreAble) this.hitObject.ScorePoint.displayMiss();
-                console.log(this.missArray[this.missArray.length-1]);
                 this.beenHit = true;
             }
             //object is no longer rendered but point sprite will be destroyed once this object is finished
@@ -164,12 +163,35 @@ osu.objects.Circle = class Circle{
 
     hit(time, pos){
 
-
-
         if(this.beenHit) {
             return;
         }
 
+        switch(this.hitObject.hitType){
+            case 'HIT_MISS':
+                if(this.isScoreAble) this.hitObject.ScorePoint.displayMiss();
+                this.beenHit = true;
+                break;
+            case 'HIT_50':
+                if (this.isScoreAble) this.hitObject.ScorePoint.display50();
+                this.playHitSound();
+                this.beenHit = true;
+                break;
+            case 'HIT_100':
+                if (this.isScoreAble) this.hitObject.ScorePoint.display100();
+                this.playHitSound();
+                this.beenHit = true;
+                break;
+            case 'HIT_300':
+                if (this.isScoreAble) this.hitObject.ScorePoint.display300();
+                this.playHitSound();
+                this.beenHit = true;
+                break;
+        }
+
+
+
+/*
         var difference = this.hitObject.startTime - time;
         if(this.isInCircle(this.hitObject.game.getCursorPos())) {
             if (difference > this.hitObject.hitOffset.HIT_MISS) {
@@ -204,6 +226,7 @@ osu.objects.Circle = class Circle{
         if(this.beenHit){
           //  this.destroy();
         }
+        */
     }
 
     destroy(){

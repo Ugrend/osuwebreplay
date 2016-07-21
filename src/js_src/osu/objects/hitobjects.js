@@ -26,7 +26,12 @@ osu.objects.HitObject = class HitObject{
             HIT_MISS: 500
         };
 
+
         $.extend(this, hitObjectData);
+
+
+        this.hitType = 'HIT_MISS';
+        this.hitTime = this.startTime;
         if(this.game && this.game.is_hardrock) this._y = 384 - this._y;
         switch (this.type){
             case osu.objects.HitObjectParser.TYPES.CIRCLE:
