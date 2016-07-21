@@ -26,9 +26,9 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
     };
 
 
-    var replayOffset = replayframes[1].t;
+    var replayOffset = replayframes[2].t *-1;
     if(replayOffset < 0) replayOffset =1;
-    var lastFrame = 1;
+    var lastFrame = 2;
 
     var keyPresses = [];
     var keyDown = false;
@@ -46,11 +46,11 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
     for(var i = 0; i < hitobjects.length; i++){
         var hitObject = hitobjects[i];
 
-        var hitTime = hitObject.startTime + replayOffset;
+        var hitTime = hitObject.startTime;
         var IS_HIT = false;
         for(true; lastFrame < replayframes.length; lastFrame++){
             var replayFrame = replayframes[lastFrame];
-            var difference = hitTime - replayFrame.t;
+            var difference = hitTime - (replayFrame.t -replayOffset);
             if(difference < 0){
                 //we are ahead of the current hitobject we can skip to the next one
                 break;
