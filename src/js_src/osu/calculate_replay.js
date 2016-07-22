@@ -64,7 +64,6 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
             for(var j = 0 ; j < replayFrame.keys.length ; j++){
                 var key = replayFrame.keys[j];
                 if(key == osu.keypress.KEYS.M1 || key == osu.keypress.KEYS.K1){
-                    isClick = true;
                     if(K1M1Down == false){
                         isClick = true;
                         K1M1Down = true;
@@ -76,7 +75,6 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
                     K1M1Down = false;
                 }
                 if(key == osu.keypress.KEYS.M2 || key == osu.keypress.KEYS.K2){
-                    isClick = true;
                     if(K2M2Down == false){
                         isClick = true;
                         K2M2Down = true;
