@@ -25,7 +25,8 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
     var lastFrame = 2;
 
     var keyPresses = [];
-    var keyDown = false;
+    var K1M1Down = false;
+    var K2M2Down = false;
     var radius = (unscaledCircleSize /2);
     radius *= 1.5;//give some buffer space;
     var M1 = false;
@@ -39,10 +40,6 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
     for(var i = 0; i < hitobjects.length; i++){
         var hitObject = hitobjects[i];
 
-        if(i == 959){
-            true;
-        }
-
         var hitTime = hitObject.startTime;
         var IS_HIT = false;
         for(true; lastFrame < replayframes.length; lastFrame++){
@@ -51,8 +48,8 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
 
             //replay data seems to indicate objects got missed, yet are hit in the osu game,
             // im guessing there is some breathing room to hit the object? because i need to increase the radius of the circle way to much for it to 'hit'
-            if(difference < -40){
-                //replayFrame -= 10; //go back 3 frames
+            //though 60ms seems bit to high and it still seems off so im prob missing something
+            if(difference < -60){
                 if(replayFrame < 0 )replayFrame = 0;
                 break;
             }
@@ -67,20 +64,28 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
             for(var j = 0 ; j < replayFrame.keys.length ; j++){
                 var key = replayFrame.keys[j];
                 if(key == osu.keypress.KEYS.M1 || key == osu.keypress.KEYS.K1){
-                    if(keyDown == false){
+                    isClick = true;
+                    if(K1M1Down == false){
                         isClick = true;
-                        keyDown = true;
+                        K1M1Down = true;
                     }
                     M1 = (key == osu.keypress.KEYS.M1);
                     K1 = (key == osu.keypress.KEYS.K1);
                 }
+                else{
+                    K1M1Down = false;
+                }
                 if(key == osu.keypress.KEYS.M2 || key == osu.keypress.KEYS.K2){
-                    if(keyDown == false){
+                    isClick = true;
+                    if(K2M2Down == false){
                         isClick = true;
-                        keyDown = true;
+                        K2M2Down = true;
                     }
                     M2 = (key == osu.keypress.KEYS.M2);
                     K2 = (key == osu.keypress.KEYS.K2);
+                }
+                else{
+                    K2M2Down = false
                 }
                 if(key == osu.keypress.KEYS.SMOKE){
                     SMOKE = true;
@@ -89,39 +94,42 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
 
 
             if(!M1 && !M2 && !K1 && !K2){
-                keyDown = false;
+                K1M1Down = false;
+                K2M2Down = false;
             }
 
+
             //TODO: sliders/spiners
-            if(isIn(hitObject,replayFrame,radius)){
-                if(difference <= hitObject.hitOffset.HIT_MISS && difference > hitObject.hitOffset.HIT_50){
+            if(!IS_HIT && isClick && isIn(hitObject,replayFrame,radius)){
+                if(difference - 60 <= hitObject.hitOffset.HIT_MISS && difference - 60 > hitObject.hitOffset.HIT_50){
                     //Hit to early and is a miss
                     hitObject.hitType = 'HIT_MISS';
                     hitObject.hitTime = replayFrame.t - replayOffset;
                     IS_HIT = true;
                     REPLAYHIT = true;
                 }
-                if(difference <= hitObject.hitOffset.HIT_50 && difference > hitObject.hitOffset.HIT_100){
+                if(difference - 60 <= hitObject.hitOffset.HIT_50 && difference  - 60> hitObject.hitOffset.HIT_100){
                     //Hit is a 50
                     hitObject.hitType = 'HIT_50';
                     hitObject.hitTime = replayFrame.t - replayOffset;
                     IS_HIT = true;
                     REPLAYHIT = true;
                 }
-                if(difference <= hitObject.hitOffset.HIT_100 && difference > hitObject.hitOffset.HIT_300){
+                if(difference - 60 <= hitObject.hitOffset.HIT_100 && difference - 60 > hitObject.hitOffset.HIT_300){
                     //Hit is a 100
                     hitObject.hitType = 'HIT_100';
                     hitObject.hitTime = replayFrame.t - replayOffset;
                     IS_HIT = true;
                     REPLAYHIT = true;
                 }
-                if(difference <= hitObject.hitOffset.HIT_300){
+                if(difference- 60 <= hitObject.hitOffset.HIT_300){
                     //Hit is a 300
                     hitObject.hitType = 'HIT_300';
                     hitObject.hitTime = Math.min(replayFrame.t - replayOffset, hitObject.hitTime-1);
                     IS_HIT = true;
                     REPLAYHIT = true;
                 }
+
             }
 
 
@@ -137,6 +145,10 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
                 REPLAYHIT: REPLAYHIT
             });
 
+            if(REPLAYHIT){
+                replayFrame++;
+                break;
+            }
 
         }
 

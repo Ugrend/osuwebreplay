@@ -590,7 +590,7 @@ osu.ui.interface.osugame = {
         }
 
         osu.objects.HitObjectParser.create_stacks(this.hit_objects, parseFloat(this.beatmap.map_data.general.StackLeniency) || 0.7, unScaledDiameter, this.is_hardrock);
-        osu.calculateReplay(this.hit_objects,this.replay_data, unScaledDiameter);
+        this.keyPresses = osu.calculateReplay(this.hit_objects,this.replay_data, unScaledDiameter);
 
         osu.objects.HitObjectParser.initialiseHitObjects(this.hit_objects);
         osu.objects.HitObjectParser.calculate_follow_points(this.hit_objects, this);
