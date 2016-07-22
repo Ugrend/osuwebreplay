@@ -10,17 +10,11 @@ var osu  = osu || {};
 osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
     //Pre calculate replay hits on hitobjects
     //returns an array of when keys were pressed at what time and if it was a hit
-    //TODO: SOMETHING IS WRONG SOME MAPS MISS  WAY TOOO MUCH
-    var isIn = function(objectPos,curPos, radius,log){
+    var isIn = function(objectPos,curPos, radius){
         //check if vector is in circle/slider
 
 
         var distance = osu.helpers.math.vectorDistance(objectPos, curPos);
-        if(log){
-            console.log("X: "+objectPos.x);
-            console.log("Y: " + objectPos.y);
-
-        }
         var result = distance <= radius;
         return result
     };
@@ -33,8 +27,7 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
     var keyPresses = [];
     var keyDown = false;
     var radius = (unscaledCircleSize /2);
-    radius *= 1.35;//give some buffer space;
-    console.log(radius)
+    radius *= 1.5;//give some buffer space;
     var M1 = false;
     var M2 = false;
     var K1 = false;
@@ -46,13 +39,21 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
     for(var i = 0; i < hitobjects.length; i++){
         var hitObject = hitobjects[i];
 
+        if(i == 959){
+            true;
+        }
+
         var hitTime = hitObject.startTime;
         var IS_HIT = false;
         for(true; lastFrame < replayframes.length; lastFrame++){
             var replayFrame = replayframes[lastFrame];
             var difference = hitTime - (replayFrame.t -replayOffset);
-            if(difference < 0){
-                //we are ahead of the current hitobject we can skip to the next one
+
+            //replay data seems to indicate objects got missed, yet are hit in the osu game,
+            // im guessing there is some breathing room to hit the object? because i need to increase the radius of the circle way to much for it to 'hit'
+            if(difference < -40){
+                //replayFrame -= 10; //go back 3 frames
+                if(replayFrame < 0 )replayFrame = 0;
                 break;
             }
 
@@ -91,9 +92,6 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
                 keyDown = false;
             }
 
-            if(difference <= hitObject.hitOffset.HIT_300 && difference >= 0){
-                isIn(hitObject,replayFrame,radius,true)
-            }
             //TODO: sliders/spiners
             if(isIn(hitObject,replayFrame,radius)){
                 if(difference <= hitObject.hitOffset.HIT_MISS && difference > hitObject.hitOffset.HIT_50){
@@ -117,10 +115,10 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
                     IS_HIT = true;
                     REPLAYHIT = true;
                 }
-                if(difference <= hitObject.hitOffset.HIT_300 && difference >= 0){
+                if(difference <= hitObject.hitOffset.HIT_300){
                     //Hit is a 300
                     hitObject.hitType = 'HIT_300';
-                    hitObject.hitTime = replayFrame.t - replayOffset;
+                    hitObject.hitTime = Math.min(replayFrame.t - replayOffset, hitObject.hitTime-1);
                     IS_HIT = true;
                     REPLAYHIT = true;
                 }
@@ -143,7 +141,9 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
         }
 
 
-
+        if(hitObject.hitType == 'HIT_MISS'){
+            console.log(i);
+        }
 
 
     }
