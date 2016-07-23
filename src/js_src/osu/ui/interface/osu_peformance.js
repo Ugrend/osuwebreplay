@@ -34,7 +34,7 @@ osu.game.Perforamnce = class Performance{
     }
     add100(){
         this.addPoints(300);
-        this.h300++;
+        this.h100++;
     }
     add50(){
         this.addPoints(50);
