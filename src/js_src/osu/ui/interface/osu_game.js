@@ -734,6 +734,30 @@ osu.ui.interface.osugame = {
 
                 if(keyPress.SMOKE){
                     var pos = this.getCursorPos();
+                    //set pos in frame so we can check distance next frame;
+                    keyPress.x = pos.x;
+                    keyPress.y = pos.y;
+                    //draw smoke to current pos so that its not patchy
+                    if(i>0){
+                        var lastKey = this.keyPresses[i-1];
+                        if(lastKey.SMOKE){
+
+                            var xDiff = keyPress.x - lastKey.x;
+                            var yDiff = keyPress.y - lastKey.y;
+                            
+                            var distance = osu.helpers.math.distance(keyPress.x, keyPress.y, lastKey.x, lastKey.y);
+                            var numPoints = Math.round(distance / 20);
+                            var steps = 1/(numPoints+1);
+                            var nextStep = steps;
+                            for(var j = 0 ; j < numPoints; j++){
+                                var posX = keyPress.x + (xDiff * nextStep);
+                                var posY = keyPress.y + (yDiff * nextStep);
+                                var smoke = osu.objects.Smoke(posX,posY);
+                                this.smokeContainer.addChild(smoke);
+                                nextStep += steps;
+                            }
+                        }
+                    }
                     var smoke = osu.objects.Smoke(pos.x,pos.y);
                     //smoke will be set to invisible after 2.5seconds im not sure if its worth the effort to remove from container
                     this.smokeContainer.addChild(smoke);
