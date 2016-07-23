@@ -84,9 +84,7 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
                     M1 = (key == osu.keypress.KEYS.M1);
                     K1 = (key == osu.keypress.KEYS.K1);
                 }
-                else{
-                    K1M1Down = false;
-                }
+
                 if(key == osu.keypress.KEYS.M2 || key == osu.keypress.KEYS.K2){
                     if(K2M2Down == false){
                         isClick = true;
@@ -97,17 +95,17 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
                     M2 = (key == osu.keypress.KEYS.M2);
                     K2 = (key == osu.keypress.KEYS.K2);
                 }
-                else{
-                    K2M2Down = false
-                }
+
                 if(key == osu.keypress.KEYS.SMOKE){
                     SMOKE = true;
                 }
             }
 
 
-            if(!M1 && !M2 && !K1 && !K2){
+            if(!M1 && !K1){
                 K1M1Down = false;
+            }
+            if(!M2 && !K2){
                 K2M2Down = false;
             }
 

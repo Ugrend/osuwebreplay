@@ -481,6 +481,10 @@ osu.ui.interface.osugame = {
         event_handler.off(event_handler.EVENTS.RENDER, "replay_text"); //unsubscrbe incase another replay closed early
         this.keyPresses = [];
         this.currentKeyPress = 0;
+        this.key_1_count = 0;
+        this.key_2_count = 0;
+        this.key_3_count = 0;
+        this.key_4_count = 0;
         this.$footer = osu.ui.interface.mainscreen.$footer || $("#footer");
         this.$footer.attr('style','');
         this.$footer.css('display', 'none');
