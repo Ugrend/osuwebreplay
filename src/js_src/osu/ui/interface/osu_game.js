@@ -382,6 +382,11 @@ osu.ui.interface.osugame = {
         this.timerMask.endFill();
     },
 
+    createSmokeContainer: function () {
+        this.smokeContainer = new PIXI.Container();
+        this.master_container.addChild(this.smokeContainer);
+    },
+
     create_master_container: function () {
 
         this.master_container.removeChildren();
@@ -392,6 +397,7 @@ osu.ui.interface.osugame = {
         this.create_mod_container();
         this.create_replay_by_text();
         this.create_timer_container();
+        this.createSmokeContainer();
         this.master_container.addChild(this.hit_object_container);
         this.create_skip_container();
         this.create_success_container();
@@ -694,7 +700,12 @@ osu.ui.interface.osugame = {
                     this.keypress_4_Text.text = (this.key_4_count > 0 && this.key_4_count.toString() || "M2");
                 }
 
-
+                if(keyPress.SMOKE){
+                    var pos = this.getCursorPos();
+                    var smoke = osu.objects.Smoke(pos.x,pos.y);
+                    //smoke will be set to invisible after 2.5seconds im not sure if its worth the effort to remove from container
+                    this.smokeContainer.addChild(smoke);
+                }
             }else{
                 break;
             }

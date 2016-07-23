@@ -23,7 +23,7 @@ osu.keypress = Object.freeze({
         M2: 2,
         K1: 4,
         K2: 8,
-        C: 16
+        SMOKE: 16
     },
 
     //TODO: make this code less yuck

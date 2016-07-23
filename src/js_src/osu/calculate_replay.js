@@ -95,8 +95,7 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
                     M2 = (key == osu.keypress.KEYS.M2);
                     K2 = (key == osu.keypress.KEYS.K2);
                 }
-
-                if(key == osu.keypress.KEYS.SMOKE){
+                if(key == osu.keypress.KEYS.SMOKE ){
                     SMOKE = true;
                 }
             }
