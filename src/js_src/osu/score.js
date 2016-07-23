@@ -88,7 +88,6 @@ osu.score = {
     },
 
     getAccuracy: function(h300,h100,h50,hMisses){
-        //TODO: This calculation doesn't seem to get same results as game, i must be missing something
         var maxHits = h300 + h100 + h50 + hMisses;
         var percent = (h300 * 300 + h100* 100 + h50 * 50) / (maxHits * 300) * 100;
         return parseFloat(percent).toFixed(2);

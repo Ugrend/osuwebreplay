@@ -73,7 +73,7 @@ osu.objects.HitObject = class HitObject{
         }
         this.object.init();
         //endX/Y will get intiatied by a slider else just use hitObject x
-        this.ScorePoint = new osu.objects.ScorePoint(this.endX||this.x,this.endY||this.y);
+        this.ScorePoint = new osu.objects.ScorePoint(this.endX||this.x,this.endY||this.y, this.game);
 
 
         this.initialised = true;

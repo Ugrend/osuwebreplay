@@ -387,6 +387,30 @@ osu.ui.interface.osugame = {
         this.master_container.addChild(this.smokeContainer);
     },
 
+    createScoreContainer: function () {
+
+        var style = { font: 'bold 80px Arial', fill: '#FFFFFF', align: 'center', stroke: '#000000', strokeThickness: 6 };
+        this.scoreText = new PIXI.Text("0",style);
+        this.scoreText.anchor.set(1,0);
+        this.scoreText.y = 0 ;
+        this.scoreText.x = this.getRenderWidth()  ;
+        this.comboText = new PIXI.Text("0X",style);
+        this.comboText.anchor.set(0,1);
+        this.comboText.y = this.getRenderHeight() *.95;
+
+        var style = { font: 'bold 50px Arial', fill: '#FFFFFF', align: 'center', stroke: '#000000', strokeThickness: 6 };
+        this.accuracyText = new PIXI.Text("0.00%",style);
+        this.accuracyText.anchor.set(1,0.5);
+        this.accuracyText.y = this.getRenderHeight() * .1 ;
+        this.accuracyText.x = this.getRenderWidth()  ;
+
+        var scoreContainer = new PIXI.Container();
+        scoreContainer.addChild(this.scoreText);
+        scoreContainer.addChild(this.comboText);
+        scoreContainer.addChild(this.accuracyText);
+        this.master_container.addChild(scoreContainer);
+    },
+
     create_master_container: function () {
 
         this.master_container.removeChildren();
@@ -398,6 +422,7 @@ osu.ui.interface.osugame = {
         this.create_replay_by_text();
         this.create_timer_container();
         this.createSmokeContainer();
+        this.createScoreContainer();
         this.master_container.addChild(this.hit_object_container);
         this.create_skip_container();
         this.create_success_container();
@@ -494,6 +519,7 @@ osu.ui.interface.osugame = {
         this.$footer = osu.ui.interface.mainscreen.$footer || $("#footer");
         this.$footer.attr('style','');
         this.$footer.css('display', 'none');
+
         osu.ui.renderer.start();
         this.offSetDetails = this.calculateLetterBox();
         this.create_master_container();
@@ -519,8 +545,10 @@ osu.ui.interface.osugame = {
         this.warning_arrow_times =[];
         this.delayEnd = 0;
         this.finished = false;
+        var modMulti = 1;
         for (var i = 0; i < this.mods.length; i++) {
             var mod = this.mods[i].code;
+            modMulti *= this.mods[i].multi;
             if (mod == "HD") this.is_hidden = true;
             if (mod == "HR") this.is_hardrock = true;
             if (mod == "EZ") this.is_easy = true;
@@ -547,7 +575,11 @@ osu.ui.interface.osugame = {
         var comboColour = 0;
         var approachRate = parseInt(this.beatmap.map_data.difficulty.ApproachRate);
         var overallDifficulty = this.beatmap.map_data.difficulty.OverallDifficulty;
-        console.log(overallDifficulty);
+        var difficultyCircleSize = parseInt(this.beatmap.map_data.difficulty.CircleSize);
+        var hpDrain = parseInt(this.beatmap.map_data.difficulty.HPDrainRate);
+        this.performance = new osu.game.Perforamnce(overallDifficulty+difficultyCircleSize+hpDrain,modMulti,hpDrain);
+
+
         if (this.is_hardrock) {
             approachRate *=  1.4;
             overallDifficulty *= 1.4;
@@ -562,7 +594,7 @@ osu.ui.interface.osugame = {
 
 
 
-        var difficultyCircleSize = parseInt(this.beatmap.map_data.difficulty.CircleSize);
+
         if (this.is_hardrock && difficultyCircleSize < 7) difficultyCircleSize += 1;
         if (this.is_easy && difficultyCircleSize > 1) difficultyCircleSize -= 1; //TODO: work out if that's correct
         //TODO: try work this out, osu is registering hits but this size i get misses, so my circles must be slightly smaller or some other calculation (this calc is from opsu)
@@ -766,6 +798,11 @@ osu.ui.interface.osugame = {
                osu.ui.interface.scorescreen.renderScoreScreen();
            }
         }
+
+        this.comboText.text = this.performance.combo + "X";
+        this.accuracyText.text = this.performance.accuracy + "%";
+        this.scoreText.text = this.performance.score;
+
     },
 
     skip_intro: function () {

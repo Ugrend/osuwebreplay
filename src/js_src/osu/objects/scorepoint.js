@@ -15,7 +15,8 @@ osu = osu || {};
 osu.objects = osu.objects || {};
 osu.objects.ScorePoint = class ScorePoint {
 
-    constructor(x,y,size){
+    constructor(x,y,game){
+        this.game = game;
         this.hit300Sprite = new PIXI.Sprite(hit300Texture);
         this.hit100Sprite = new PIXI.Sprite(hit100Texture);
         this.hit50Sprite = new PIXI.Sprite(hit50Texture);
@@ -42,14 +43,18 @@ osu.objects.ScorePoint = class ScorePoint {
 
     display300(){
         this.hit300Sprite.visible = true;
+        this.game.performance.add300();
     }
     display100(){
         this.hit100Sprite.visible = true;
+        this.game.performance.add100();
     }
     display50(){
         this.hit50Sprite.visible = true;
+        this.game.performance.add50();
     }
     displayMiss(){
         this.hitMissSprite.visible = true;
+        this.game.performance.addMiss();
     }
 };

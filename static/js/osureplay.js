@@ -3228,7 +3228,7 @@ osu.objects.HitObject = class HitObject{
         }
         this.object.init();
         //endX/Y will get intiatied by a slider else just use hitObject x
-        this.ScorePoint = new osu.objects.ScorePoint(this.endX||this.x,this.endY||this.y);
+        this.ScorePoint = new osu.objects.ScorePoint(this.endX||this.x,this.endY||this.y, this.game);
 
 
         this.initialised = true;
@@ -3275,7 +3275,8 @@ osu = osu || {};
 osu.objects = osu.objects || {};
 osu.objects.ScorePoint = class ScorePoint {
 
-    constructor(x,y,size){
+    constructor(x,y,game){
+        this.game = game;
         this.hit300Sprite = new PIXI.Sprite(hit300Texture);
         this.hit100Sprite = new PIXI.Sprite(hit100Texture);
         this.hit50Sprite = new PIXI.Sprite(hit50Texture);
@@ -3302,15 +3303,19 @@ osu.objects.ScorePoint = class ScorePoint {
 
     display300(){
         this.hit300Sprite.visible = true;
+        this.game.performance.add300();
     }
     display100(){
         this.hit100Sprite.visible = true;
+        this.game.performance.add100();
     }
     display50(){
         this.hit50Sprite.visible = true;
+        this.game.performance.add50();
     }
     displayMiss(){
         this.hitMissSprite.visible = true;
+        this.game.performance.addMiss();
     }
 };
 /**
@@ -3813,7 +3818,6 @@ osu.score = {
     },
 
     getAccuracy: function(h300,h100,h50,hMisses){
-        //TODO: This calculation doesn't seem to get same results as game, i must be missing something
         var maxHits = h300 + h100 + h50 + hMisses;
         var percent = (h300 * 300 + h100* 100 + h50 * 50) / (maxHits * 300) * 100;
         return parseFloat(percent).toFixed(2);
@@ -4720,6 +4724,30 @@ osu.ui.interface.osugame = {
         this.master_container.addChild(this.smokeContainer);
     },
 
+    createScoreContainer: function () {
+
+        var style = { font: 'bold 80px Arial', fill: '#FFFFFF', align: 'center', stroke: '#000000', strokeThickness: 6 };
+        this.scoreText = new PIXI.Text("0",style);
+        this.scoreText.anchor.set(1,0);
+        this.scoreText.y = 0 ;
+        this.scoreText.x = this.getRenderWidth()  ;
+        this.comboText = new PIXI.Text("0X",style);
+        this.comboText.anchor.set(0,1);
+        this.comboText.y = this.getRenderHeight() *.95;
+
+        var style = { font: 'bold 50px Arial', fill: '#FFFFFF', align: 'center', stroke: '#000000', strokeThickness: 6 };
+        this.accuracyText = new PIXI.Text("0.00%",style);
+        this.accuracyText.anchor.set(1,0.5);
+        this.accuracyText.y = this.getRenderHeight() * .1 ;
+        this.accuracyText.x = this.getRenderWidth()  ;
+
+        var scoreContainer = new PIXI.Container();
+        scoreContainer.addChild(this.scoreText);
+        scoreContainer.addChild(this.comboText);
+        scoreContainer.addChild(this.accuracyText);
+        this.master_container.addChild(scoreContainer);
+    },
+
     create_master_container: function () {
 
         this.master_container.removeChildren();
@@ -4731,6 +4759,7 @@ osu.ui.interface.osugame = {
         this.create_replay_by_text();
         this.create_timer_container();
         this.createSmokeContainer();
+        this.createScoreContainer();
         this.master_container.addChild(this.hit_object_container);
         this.create_skip_container();
         this.create_success_container();
@@ -4827,6 +4856,7 @@ osu.ui.interface.osugame = {
         this.$footer = osu.ui.interface.mainscreen.$footer || $("#footer");
         this.$footer.attr('style','');
         this.$footer.css('display', 'none');
+
         osu.ui.renderer.start();
         this.offSetDetails = this.calculateLetterBox();
         this.create_master_container();
@@ -4852,8 +4882,10 @@ osu.ui.interface.osugame = {
         this.warning_arrow_times =[];
         this.delayEnd = 0;
         this.finished = false;
+        var modMulti = 1;
         for (var i = 0; i < this.mods.length; i++) {
             var mod = this.mods[i].code;
+            modMulti *= this.mods[i].multi;
             if (mod == "HD") this.is_hidden = true;
             if (mod == "HR") this.is_hardrock = true;
             if (mod == "EZ") this.is_easy = true;
@@ -4880,7 +4912,11 @@ osu.ui.interface.osugame = {
         var comboColour = 0;
         var approachRate = parseInt(this.beatmap.map_data.difficulty.ApproachRate);
         var overallDifficulty = this.beatmap.map_data.difficulty.OverallDifficulty;
-        console.log(overallDifficulty);
+        var difficultyCircleSize = parseInt(this.beatmap.map_data.difficulty.CircleSize);
+        var hpDrain = parseInt(this.beatmap.map_data.difficulty.HPDrainRate);
+        this.performance = new osu.game.Perforamnce(overallDifficulty+difficultyCircleSize+hpDrain,modMulti,hpDrain);
+
+
         if (this.is_hardrock) {
             approachRate *=  1.4;
             overallDifficulty *= 1.4;
@@ -4895,7 +4931,7 @@ osu.ui.interface.osugame = {
 
 
 
-        var difficultyCircleSize = parseInt(this.beatmap.map_data.difficulty.CircleSize);
+
         if (this.is_hardrock && difficultyCircleSize < 7) difficultyCircleSize += 1;
         if (this.is_easy && difficultyCircleSize > 1) difficultyCircleSize -= 1; //TODO: work out if that's correct
         //TODO: try work this out, osu is registering hits but this size i get misses, so my circles must be slightly smaller or some other calculation (this calc is from opsu)
@@ -5099,6 +5135,11 @@ osu.ui.interface.osugame = {
                osu.ui.interface.scorescreen.renderScoreScreen();
            }
         }
+
+        this.comboText.text = this.performance.combo + "X";
+        this.accuracyText.text = this.performance.accuracy + "%";
+        this.scoreText.text = this.performance.score;
+
     },
 
     skip_intro: function () {
@@ -5194,6 +5235,68 @@ osu.ui.interface.osugame = {
 
 };
 
+/**
+ * osu_performance.js
+ * Created by Ugrend on 23/07/2016.
+ */
+var osu = osu || {};
+osu.game = osu.game || {};
+osu.game.Perforamnce = class Performance{
+    //https://osu.ppy.sh/wiki/Score
+    //Score = Hit Value + Hit Value * (Combo multiplier * Difficulty multiplier * Mod multiplier) / 25
+    //Circle Size, HP Drain and Overall Difficulty are giving for each tick a "diffculty point";
+    // e.g. the maximum a map can give is 27 difficulty points with CS7, OD10 and HP10;
+    // the minimum a map can give is 2 difficulty points with CS2, OD0 and HP0. CS cannot normally go below 2 or above 7.
+    // Note that mods won't change the Difficulty multiplier. The original values are counting.
+    constructor(difficultyRating, modMulti, hpDrain){
+        this.combo = 0;
+        this.score = 0;
+        this.lifebar = 1;
+        this._difficultyRating = difficultyRating;
+        this._modMulti = modMulti;
+
+        console.log(this._difficultyRating);
+        console.log(this._modMulti);
+        this.totalHits = 0;
+        this.h300 = 0;
+        this.h100 =0;
+        this.h50 = 0;
+        this.hMiss  = 0;
+        this.accuracy = 0;
+    }
+
+    add300(){
+        this.addPoints(300);
+        this.h300++;
+    }
+    add100(){
+        this.addPoints(300);
+        this.h300++;
+    }
+    add50(){
+        this.addPoints(50);
+        this.h50++;
+    }
+    addMiss(){
+        this.hMiss++;
+        this.resetCombo();
+    }
+
+    addPoints(p){
+        this.score += Math.round(p + p * (this.combo * this._difficultyRating * this._modMulti) / 25);
+        this.accuracy = osu.score.getAccuracy(this.h300,this.h100,this.h50,this.hMiss);
+        this.combo++;
+    }
+    resetCombo(){
+        if(this.combo > 10){
+            //play miss sound?
+        }
+        this.combo = 0;
+        this.accuracy = osu.score.getAccuracy(this.h300,this.h100,this.h50,this.hMiss);
+    }
+
+
+};
 /**
  * scorescreen.js
  * Created by Ugrend on 4/06/2016.
