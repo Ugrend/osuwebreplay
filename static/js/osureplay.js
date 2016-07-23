@@ -1155,7 +1155,7 @@ var ReplayParser = function(replay_data, callback){
 
                 if(splitData.length !=4) continue;
                 var time = +splitData[0];
-                if(time > 0){
+                if(time >= 0){
                     time+= lastTimeFrame;
                     lastTimeFrame = time;
                 }
@@ -2035,9 +2035,7 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
     //returns an array of when keys were pressed at what time and if it was a hit
     var isIn = function(objectPos,curPos, radius){
         //check if vector is in circle/slider
-
-
-        var distance = osu.helpers.math.vectorDistance(objectPos, curPos);
+        var distance = Math.hypot(objectPos.x - curPos.x, objectPos.y - curPos.y)
         var result = distance <= radius;
         return result
     };
@@ -2051,7 +2049,6 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
     var K1M1Down = false;
     var K2M2Down = false;
     var radius = (unscaledCircleSize /2);
-    radius *= 1.5;//give some buffer space;
     var M1 = false;
     var M2 = false;
     var K1 = false;
@@ -2059,21 +2056,34 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
     var SMOKE = false;
 
 
-
+    var frameSkip = 0;
     for(var i = 0; i < hitobjects.length; i++){
         var hitObject = hitobjects[i];
 
         var hitTime = hitObject.startTime;
         var IS_HIT = false;
+
+        if(i == 104){
+            true;
+        }
+        //since im skiping frames to see if they hit the object it may cause the next object to get a miss
+        // so i will replay those frames to see if they hit the object
+
+        lastFrame -= frameSkip;
+        frameSkip = 0;
+
         for(true; lastFrame < replayframes.length; lastFrame++){
             var replayFrame = replayframes[lastFrame];
             var difference = hitTime - (replayFrame.t -replayOffset);
 
+
+            if(difference < -20){
+                frameSkip++;
+            }
             //replay data seems to indicate objects got missed, yet are hit in the osu game,
             // im guessing there is some breathing room to hit the object? because i need to increase the radius of the circle way to much for it to 'hit'
-            //though 60ms seems bit to high and it still seems off so im prob missing something
-            if(difference < -60){
-                if(replayFrame < 0 )replayFrame = 0;
+            // This is defently wrong but it seems to 'work' i must be doing something wrong elsewhere
+            if(difference < -40){
                 break;
             }
 
@@ -2081,16 +2091,19 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
             M1 = false;
             M2 = false;
             K1 = false;
-            M2 = false;
+            K2 = false;
             SMOKE = false;
             var REPLAYHIT = false;
+            var isClickTime = 0; // make click last 10+ms? As keys are missing the hitobject so maybe i need to click event to have a buffer?
             for(var j = 0 ; j < replayFrame.keys.length ; j++){
                 var key = replayFrame.keys[j];
                 if(key == osu.keypress.KEYS.M1 || key == osu.keypress.KEYS.K1){
                     if(K1M1Down == false){
                         isClick = true;
+                        isClickTime = replayFrame.t;
                         K1M1Down = true;
                     }
+
                     M1 = (key == osu.keypress.KEYS.M1);
                     K1 = (key == osu.keypress.KEYS.K1);
                 }
@@ -2100,8 +2113,10 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
                 if(key == osu.keypress.KEYS.M2 || key == osu.keypress.KEYS.K2){
                     if(K2M2Down == false){
                         isClick = true;
+                        isClickTime = replayFrame.t;
                         K2M2Down = true;
                     }
+
                     M2 = (key == osu.keypress.KEYS.M2);
                     K2 = (key == osu.keypress.KEYS.K2);
                 }
@@ -2119,31 +2134,31 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
                 K2M2Down = false;
             }
 
-
             //TODO: sliders/spiners
-            if(!IS_HIT && isClick && isIn(hitObject,replayFrame,radius)){
-                if(difference - 60 <= hitObject.hitOffset.HIT_MISS && difference - 60 > hitObject.hitOffset.HIT_50){
+            if(isClick && !IS_HIT && isIn(hitObject,replayFrame,radius)){
+                if(difference  <= hitObject.hitOffset.HIT_MISS && difference  > hitObject.hitOffset.HIT_50){
                     //Hit to early and is a miss
+                    console.log("MISS " + i);
                     hitObject.hitType = 'HIT_MISS';
                     hitObject.hitTime = replayFrame.t - replayOffset;
                     IS_HIT = true;
                     REPLAYHIT = true;
                 }
-                if(difference - 60 <= hitObject.hitOffset.HIT_50 && difference  - 60> hitObject.hitOffset.HIT_100){
+                if(difference  <= hitObject.hitOffset.HIT_50 && difference  > hitObject.hitOffset.HIT_100){
                     //Hit is a 50
                     hitObject.hitType = 'HIT_50';
                     hitObject.hitTime = replayFrame.t - replayOffset;
                     IS_HIT = true;
                     REPLAYHIT = true;
                 }
-                if(difference - 60 <= hitObject.hitOffset.HIT_100 && difference - 60 > hitObject.hitOffset.HIT_300){
+                if(difference <= hitObject.hitOffset.HIT_100 && difference  > hitObject.hitOffset.HIT_300){
                     //Hit is a 100
                     hitObject.hitType = 'HIT_100';
                     hitObject.hitTime = replayFrame.t - replayOffset;
                     IS_HIT = true;
                     REPLAYHIT = true;
                 }
-                if(difference- 60 <= hitObject.hitOffset.HIT_300){
+                if(difference <= hitObject.hitOffset.HIT_300){
                     //Hit is a 300
                     hitObject.hitType = 'HIT_300';
                     hitObject.hitTime = Math.min(replayFrame.t - replayOffset, hitObject.hitTime-1);
@@ -2163,7 +2178,8 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
                 K1: K1,
                 K2: K2,
                 SMOKE: SMOKE,
-                REPLAYHIT: REPLAYHIT
+                REPLAYHIT: REPLAYHIT,
+                t: replayFrame.t -replayOffset
             });
 
             if(REPLAYHIT){
@@ -2174,14 +2190,14 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
         }
 
 
-        if(hitObject.hitType == 'HIT_MISS'){
+        if(hitObject.hitType == 'HIT_MISS' && !hitObject.is_spinner){
             console.log(i);
         }
 
 
     }
 
-
+    return keyPresses;
 
 
 };
@@ -4301,7 +4317,7 @@ osu.ui.interface.mainscreen = {
 
 /*
 
- Main Game Window
+ Main Game Window AKA: Spaghetti Monster
 
  x ranges from 0 to 512 (inclusive) and y ranges from 0 to 384 (inclusive).
 
@@ -4350,6 +4366,8 @@ osu.ui.interface.osugame = {
     replayDiff:0,
     delayEnd: 0,
     finished: false,
+    keyPresses: [],
+    currentKeyPress: 0,
 
     calculateLetterBox: function () {
         var x = osu.ui.renderer.renderWidth;
@@ -4360,7 +4378,7 @@ osu.ui.interface.osugame = {
             width: x,
             height: y,
             x_offset: 0,
-            y_offset: 0,
+            y_offset: 0
         };
 
         if (fixed_ratio_y > y) {
@@ -4424,10 +4442,11 @@ osu.ui.interface.osugame = {
         this.keypress_3 = new PIXI.Sprite(keypress_texture);
         this.keypress_4 = new PIXI.Sprite(keypress_texture);
         //TODO: Style text
-        this.keypress_1_Text = new PIXI.Text(this.key_1_count > 0 && this.key_1_count.toString() || "K1");
-        this.keypress_2_Text = new PIXI.Text(this.key_2_count > 0 && this.key_2_count.toString() || "K2");
-        this.keypress_3_Text = new PIXI.Text(this.key_3_count > 0 && this.key_3_count.toString() || "M1");
-        this.keypress_4_Text = new PIXI.Text(this.key_4_count > 0 && this.key_4_count.toString() || "M2");
+        var style = {font : '14px Arial'}
+        this.keypress_1_Text = new PIXI.Text(this.key_1_count > 0 && this.key_1_count.toString() || "K1",style);
+        this.keypress_2_Text = new PIXI.Text(this.key_2_count > 0 && this.key_2_count.toString() || "K2",style);
+        this.keypress_3_Text = new PIXI.Text(this.key_3_count > 0 && this.key_3_count.toString() || "M1",style);
+        this.keypress_4_Text = new PIXI.Text(this.key_4_count > 0 && this.key_4_count.toString() || "M2",style);
 
         this.keypress_1.tint = 0xFFFF00;
 
@@ -4771,6 +4790,8 @@ osu.ui.interface.osugame = {
 
     initGame: function () {
         event_handler.off(event_handler.EVENTS.RENDER, "replay_text"); //unsubscrbe incase another replay closed early
+        this.keyPresses = [];
+        this.currentKeyPress = 0;
         this.$footer = osu.ui.interface.mainscreen.$footer || $("#footer");
         this.$footer.attr('style','');
         this.$footer.css('display', 'none');
@@ -4886,7 +4907,6 @@ osu.ui.interface.osugame = {
 
         osu.objects.HitObjectParser.create_stacks(this.hit_objects, parseFloat(this.beatmap.map_data.general.StackLeniency) || 0.7, unScaledDiameter, this.is_hardrock);
         this.keyPresses = osu.calculateReplay(this.hit_objects,this.replay_data, unScaledDiameter);
-
         osu.objects.HitObjectParser.initialiseHitObjects(this.hit_objects);
         osu.objects.HitObjectParser.calculate_follow_points(this.hit_objects, this);
 
@@ -4935,7 +4955,7 @@ osu.ui.interface.osugame = {
 
         }
 
-        this.delayEnd = this.beatmap.map_data.time_length + 5000;
+        this.delayEnd = this.beatmap.map_data.time_length + 2500;
         if(this.is_doubletime) this.delayEnd *= osu.helpers.constants.DOUBLE_TIME_MULTI;
 
         event_handler.on(event_handler.EVENTS.RENDER, this.move_replay_text.bind(this), "replay_text")
@@ -4947,6 +4967,47 @@ osu.ui.interface.osugame = {
             this.replay_text.x = this.getRenderWidth();
         }
         this.replay_text.x -= 2;
+    },
+
+    renderKeyPress: function () {
+        for(var i = this.currentKeyPress; i < this.keyPresses.length; i++){
+            var keyPress = this.keyPresses[i];
+            if(keyPress.t <= this.curMapTime){
+                var tint_1 = keyPress.K1;
+                var tint_2 = keyPress.K2;
+                var tint_3 = keyPress.M1;
+                var tint_4 = keyPress.M2;
+                this.tint_untint_key(this.keypress_1,tint_1);
+                this.tint_untint_key(this.keypress_2,tint_2);
+                this.tint_untint_key(this.keypress_3,tint_3);
+                this.tint_untint_key(this.keypress_4,tint_4);
+                this.currentKeyPress = i;
+                if(keyPress.REPLAYHIT){
+                    if(keyPress.K1){
+                        this.key_1_count++;
+                    }
+                    if(keyPress.K2){
+                        this.key_2_count++;
+                    }
+                    if(keyPress.M1){
+                        this.key_3_count++;
+                    }
+                    if(keyPress.M2){
+                        this.key_4_count++;
+                    }
+                    this.keypress_1_Text.text = (this.key_1_count > 0 && this.key_1_count.toString() || "K1");
+                    this.keypress_2_Text.text = (this.key_2_count > 0 && this.key_2_count.toString() || "K2");
+                    this.keypress_3_Text.text = (this.key_3_count > 0 && this.key_3_count.toString() || "M1");
+                    this.keypress_4_Text.text = (this.key_4_count > 0 && this.key_4_count.toString() || "M2");
+                }
+
+
+            }else{
+                break;
+            }
+
+        }
+
     },
 
 
@@ -5058,6 +5119,7 @@ osu.ui.interface.osugame = {
 
     game_loop: function () {
         this.render_replay_frame();
+        this.renderKeyPress();
         if (!this.has_started && this.audioLeadIn == 0) {
             if (this.is_doubletime) osu.audio.music.set_playback_speed(1.5);
             osu.audio.music.start();
@@ -5094,50 +5156,7 @@ osu.ui.interface.osugame = {
 
 
 };
-/**
- var keys_pressed = osu.keypress.getKeys(parseInt(next_movment[3]));
- var tint_1 = false;
- var tint_2 = false;
- var tint_3 = false;
- var tint_4 = false;
- //TODO: fix this
- for (var k in osu.keypress.KEYS) {
-                var key_int = osu.keypress.KEYS[k];
-                if(keys_pressed.indexOf(key_int) != -1){
-                    if(key_int == osu.keypress.KEYS.NONE){
-                        tint_1 = false;
-                        tint_2 = false;
-                        tint_3 = false;
-                        tint_4 = false;
-                    }
-                    if(key_int == osu.keypress.KEYS.K1){
-                        tint_1 = true;
-                    }
-                    if(key_int == osu.keypress.KEYS.K2){
-                        tint_2 = true;
-                    }
-                    if(key_int == osu.keypress.KEYS.M1){
-                        tint_3 = true;
-                    }
-                    if(key_int == osu.keypress.KEYS.M2){
-                        tint_4 = true;
-                    }
-                }
 
-            }
-
-
- this.tint_untint_key(this.keypress_1,tint_1);
- this.tint_untint_key(this.keypress_2,tint_2);
- this.tint_untint_key(this.keypress_3,tint_3);
- this.tint_untint_key(this.keypress_4,tint_4);
-
-
-
-
-
-
- **/
 /**
  * scorescreen.js
  * Created by Ugrend on 4/06/2016.

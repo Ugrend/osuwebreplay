@@ -123,7 +123,7 @@ var ReplayParser = function(replay_data, callback){
 
                 if(splitData.length !=4) continue;
                 var time = +splitData[0];
-                if(time > 0){
+                if(time >= 0){
                     time+= lastTimeFrame;
                     lastTimeFrame = time;
                 }

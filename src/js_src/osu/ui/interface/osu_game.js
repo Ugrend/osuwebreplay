@@ -6,7 +6,7 @@
 
 /*
 
- Main Game Window
+ Main Game Window AKA: Spaghetti Monster
 
  x ranges from 0 to 512 (inclusive) and y ranges from 0 to 384 (inclusive).
 
@@ -55,6 +55,8 @@ osu.ui.interface.osugame = {
     replayDiff:0,
     delayEnd: 0,
     finished: false,
+    keyPresses: [],
+    currentKeyPress: 0,
 
     calculateLetterBox: function () {
         var x = osu.ui.renderer.renderWidth;
@@ -65,7 +67,7 @@ osu.ui.interface.osugame = {
             width: x,
             height: y,
             x_offset: 0,
-            y_offset: 0,
+            y_offset: 0
         };
 
         if (fixed_ratio_y > y) {
@@ -129,10 +131,11 @@ osu.ui.interface.osugame = {
         this.keypress_3 = new PIXI.Sprite(keypress_texture);
         this.keypress_4 = new PIXI.Sprite(keypress_texture);
         //TODO: Style text
-        this.keypress_1_Text = new PIXI.Text(this.key_1_count > 0 && this.key_1_count.toString() || "K1");
-        this.keypress_2_Text = new PIXI.Text(this.key_2_count > 0 && this.key_2_count.toString() || "K2");
-        this.keypress_3_Text = new PIXI.Text(this.key_3_count > 0 && this.key_3_count.toString() || "M1");
-        this.keypress_4_Text = new PIXI.Text(this.key_4_count > 0 && this.key_4_count.toString() || "M2");
+        var style = {font : '14px Arial'}
+        this.keypress_1_Text = new PIXI.Text(this.key_1_count > 0 && this.key_1_count.toString() || "K1",style);
+        this.keypress_2_Text = new PIXI.Text(this.key_2_count > 0 && this.key_2_count.toString() || "K2",style);
+        this.keypress_3_Text = new PIXI.Text(this.key_3_count > 0 && this.key_3_count.toString() || "M1",style);
+        this.keypress_4_Text = new PIXI.Text(this.key_4_count > 0 && this.key_4_count.toString() || "M2",style);
 
         this.keypress_1.tint = 0xFFFF00;
 
@@ -476,6 +479,8 @@ osu.ui.interface.osugame = {
 
     initGame: function () {
         event_handler.off(event_handler.EVENTS.RENDER, "replay_text"); //unsubscrbe incase another replay closed early
+        this.keyPresses = [];
+        this.currentKeyPress = 0;
         this.$footer = osu.ui.interface.mainscreen.$footer || $("#footer");
         this.$footer.attr('style','');
         this.$footer.css('display', 'none');
@@ -591,7 +596,6 @@ osu.ui.interface.osugame = {
 
         osu.objects.HitObjectParser.create_stacks(this.hit_objects, parseFloat(this.beatmap.map_data.general.StackLeniency) || 0.7, unScaledDiameter, this.is_hardrock);
         this.keyPresses = osu.calculateReplay(this.hit_objects,this.replay_data, unScaledDiameter);
-
         osu.objects.HitObjectParser.initialiseHitObjects(this.hit_objects);
         osu.objects.HitObjectParser.calculate_follow_points(this.hit_objects, this);
 
@@ -640,7 +644,7 @@ osu.ui.interface.osugame = {
 
         }
 
-        this.delayEnd = this.beatmap.map_data.time_length + 5000;
+        this.delayEnd = this.beatmap.map_data.time_length + 2500;
         if(this.is_doubletime) this.delayEnd *= osu.helpers.constants.DOUBLE_TIME_MULTI;
 
         event_handler.on(event_handler.EVENTS.RENDER, this.move_replay_text.bind(this), "replay_text")
@@ -652,6 +656,47 @@ osu.ui.interface.osugame = {
             this.replay_text.x = this.getRenderWidth();
         }
         this.replay_text.x -= 2;
+    },
+
+    renderKeyPress: function () {
+        for(var i = this.currentKeyPress; i < this.keyPresses.length; i++){
+            var keyPress = this.keyPresses[i];
+            if(keyPress.t <= this.curMapTime){
+                var tint_1 = keyPress.K1;
+                var tint_2 = keyPress.K2;
+                var tint_3 = keyPress.M1;
+                var tint_4 = keyPress.M2;
+                this.tint_untint_key(this.keypress_1,tint_1);
+                this.tint_untint_key(this.keypress_2,tint_2);
+                this.tint_untint_key(this.keypress_3,tint_3);
+                this.tint_untint_key(this.keypress_4,tint_4);
+                this.currentKeyPress = i;
+                if(keyPress.REPLAYHIT){
+                    if(keyPress.K1){
+                        this.key_1_count++;
+                    }
+                    if(keyPress.K2){
+                        this.key_2_count++;
+                    }
+                    if(keyPress.M1){
+                        this.key_3_count++;
+                    }
+                    if(keyPress.M2){
+                        this.key_4_count++;
+                    }
+                    this.keypress_1_Text.text = (this.key_1_count > 0 && this.key_1_count.toString() || "K1");
+                    this.keypress_2_Text.text = (this.key_2_count > 0 && this.key_2_count.toString() || "K2");
+                    this.keypress_3_Text.text = (this.key_3_count > 0 && this.key_3_count.toString() || "M1");
+                    this.keypress_4_Text.text = (this.key_4_count > 0 && this.key_4_count.toString() || "M2");
+                }
+
+
+            }else{
+                break;
+            }
+
+        }
+
     },
 
 
@@ -763,6 +808,7 @@ osu.ui.interface.osugame = {
 
     game_loop: function () {
         this.render_replay_frame();
+        this.renderKeyPress();
         if (!this.has_started && this.audioLeadIn == 0) {
             if (this.is_doubletime) osu.audio.music.set_playback_speed(1.5);
             osu.audio.music.start();
@@ -799,47 +845,3 @@ osu.ui.interface.osugame = {
 
 
 };
-/**
- var keys_pressed = osu.keypress.getKeys(parseInt(next_movment[3]));
- var tint_1 = false;
- var tint_2 = false;
- var tint_3 = false;
- var tint_4 = false;
- //TODO: fix this
- for (var k in osu.keypress.KEYS) {
-                var key_int = osu.keypress.KEYS[k];
-                if(keys_pressed.indexOf(key_int) != -1){
-                    if(key_int == osu.keypress.KEYS.NONE){
-                        tint_1 = false;
-                        tint_2 = false;
-                        tint_3 = false;
-                        tint_4 = false;
-                    }
-                    if(key_int == osu.keypress.KEYS.K1){
-                        tint_1 = true;
-                    }
-                    if(key_int == osu.keypress.KEYS.K2){
-                        tint_2 = true;
-                    }
-                    if(key_int == osu.keypress.KEYS.M1){
-                        tint_3 = true;
-                    }
-                    if(key_int == osu.keypress.KEYS.M2){
-                        tint_4 = true;
-                    }
-                }
-
-            }
-
-
- this.tint_untint_key(this.keypress_1,tint_1);
- this.tint_untint_key(this.keypress_2,tint_2);
- this.tint_untint_key(this.keypress_3,tint_3);
- this.tint_untint_key(this.keypress_4,tint_4);
-
-
-
-
-
-
- **/
