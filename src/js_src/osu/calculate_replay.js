@@ -54,13 +54,9 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
             var difference = hitTime - (replayFrame.t -replayOffset);
 
 
-            if(difference < -20){
-                frameSkip++;
-            }
-            //replay data seems to indicate objects got missed, yet are hit in the osu game,
-            // im guessing there is some breathing room to hit the object? because i need to increase the radius of the circle way to much for it to 'hit'
-            // This is defently wrong but it seems to 'work' i must be doing something wrong elsewhere
-            if(difference < -40){
+
+
+            if(difference < hitObject.hitOffset.HIT_50*-1){
                 break;
             }
 
@@ -108,11 +104,13 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
                 K2M2Down = false;
             }
 
+            if(difference<0){
+                difference *-1;
+            }
             //TODO: sliders/spiners
             if(isClick && !IS_HIT && isIn(hitObject,replayFrame,radius)){
                 if(difference  <= hitObject.hitOffset.HIT_MISS && difference  > hitObject.hitOffset.HIT_50){
                     //Hit to early and is a miss
-                    console.log("MISS " + i);
                     hitObject.hitType = 'HIT_MISS';
                     hitObject.hitTime = replayFrame.t - replayOffset;
                     IS_HIT = true;
