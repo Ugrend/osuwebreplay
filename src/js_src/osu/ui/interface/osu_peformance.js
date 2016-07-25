@@ -28,16 +28,19 @@ osu.game.Perforamnce = class Performance{
     }
 
     add300(){
-        this.addPoints(300);
         this.h300++;
+        this.addPoints(300);
+
     }
     add100(){
-        this.addPoints(300);
         this.h100++;
+        this.addPoints(100);
+
     }
     add50(){
-        this.addPoints(50);
         this.h50++;
+        this.addPoints(50);
+
     }
     addMiss(){
         this.hMiss++;
