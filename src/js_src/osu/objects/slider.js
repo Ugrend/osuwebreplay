@@ -49,7 +49,6 @@ osu.objects.Slider = class Slider{
         var  tickLengthDiv = 100 * this.hitObject.game.sliderMultiplier / this.hitObject.game.sliderTickRate
         var  tickCount =  Math.ceil(this.hitObject.pixelLength / tickLengthDiv) - 1;
         if (tickCount > 0) {
-            console.log('ayy');
             var tickTOffset = 1 / (tickCount + 1);
             var  t = tickTOffset;
             for (i = 0; i < tickCount; i++, t += tickTOffset){

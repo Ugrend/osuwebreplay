@@ -3357,7 +3357,6 @@ osu.objects.Slider = class Slider{
         var  tickLengthDiv = 100 * this.hitObject.game.sliderMultiplier / this.hitObject.game.sliderTickRate
         var  tickCount =  Math.ceil(this.hitObject.pixelLength / tickLengthDiv) - 1;
         if (tickCount > 0) {
-            console.log('ayy');
             var tickTOffset = 1 / (tickCount + 1);
             var  t = tickTOffset;
             for (i = 0; i < tickCount; i++, t += tickTOffset){
@@ -4647,7 +4646,6 @@ osu.ui.interface.osugame = {
     create_mod_container: function () {
         for (var i = 0; i < this.mods.length; i++) {
             if (this.mods[i].icon != "") {
-                console.log(this.mods[i]);
                 var modpng = PIXI.Texture.fromImage(osu.skins[this.mods[i].icon]);
                 var modSprite = new PIXI.Sprite(modpng);
                 modSprite.position.y = this.getRenderHeight() / 5;
@@ -5310,8 +5308,7 @@ osu.game.Perforamnce = class Performance{
         this._difficultyRating = difficultyRating;
         this._modMulti = modMulti;
 
-        console.log(this._difficultyRating);
-        console.log(this._modMulti);
+
         this.totalHits = 0;
         this.h300 = 0;
         this.h100 =0;

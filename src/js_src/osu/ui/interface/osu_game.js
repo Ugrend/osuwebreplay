@@ -281,7 +281,6 @@ osu.ui.interface.osugame = {
     create_mod_container: function () {
         for (var i = 0; i < this.mods.length; i++) {
             if (this.mods[i].icon != "") {
-                console.log(this.mods[i]);
                 var modpng = PIXI.Texture.fromImage(osu.skins[this.mods[i].icon]);
                 var modSprite = new PIXI.Sprite(modpng);
                 modSprite.position.y = this.getRenderHeight() / 5;

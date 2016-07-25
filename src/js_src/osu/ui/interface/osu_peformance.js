@@ -18,8 +18,7 @@ osu.game.Perforamnce = class Performance{
         this._difficultyRating = difficultyRating;
         this._modMulti = modMulti;
 
-        console.log(this._difficultyRating);
-        console.log(this._modMulti);
+
         this.totalHits = 0;
         this.h300 = 0;
         this.h100 =0;
