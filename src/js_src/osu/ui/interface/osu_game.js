@@ -577,6 +577,8 @@ osu.ui.interface.osugame = {
         var overallDifficulty = this.beatmap.map_data.difficulty.OverallDifficulty;
         var difficultyCircleSize = parseInt(this.beatmap.map_data.difficulty.CircleSize);
         var hpDrain = parseInt(this.beatmap.map_data.difficulty.HPDrainRate);
+        this.sliderMultiplier = parseFloat(this.beatmap.map_data.difficulty.SliderMultiplier || 1);
+        this.sliderTickRate = parseFloat(this.beatmap.map_data.difficulty.SliderTickRate || 1);
         this.performance = new osu.game.Perforamnce(overallDifficulty+difficultyCircleSize+hpDrain,modMulti,hpDrain);
 
 

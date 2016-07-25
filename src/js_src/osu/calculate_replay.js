@@ -67,13 +67,11 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
             K2 = false;
             SMOKE = false;
             var REPLAYHIT = false;
-            var isClickTime = 0; // make click last 10+ms? As keys are missing the hitobject so maybe i need to click event to have a buffer?
             for(var j = 0 ; j < replayFrame.keys.length ; j++){
                 var key = replayFrame.keys[j];
                 if(key == osu.keypress.KEYS.M1 || key == osu.keypress.KEYS.K1){
                     if(K1M1Down == false){
                         isClick = true;
-                        isClickTime = replayFrame.t;
                         K1M1Down = true;
                     }
 
@@ -84,7 +82,6 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
                 if(key == osu.keypress.KEYS.M2 || key == osu.keypress.KEYS.K2){
                     if(K2M2Down == false){
                         isClick = true;
-                        isClickTime = replayFrame.t;
                         K2M2Down = true;
                     }
 
@@ -160,13 +157,6 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
             }
 
         }
-
-
-        if(hitObject.hitType == 'HIT_MISS' && !hitObject.is_spinner){
-            console.log(i);
-        }
-
-
     }
 
     return keyPresses;

@@ -11,6 +11,7 @@ for(var i = 0; i< osu.skins.sliderb.length; i++){
 }
 var sliderFollowTexture = PIXI.Texture.fromImage(osu.skins.sliderfollowcircle);
 var reverseArrowTexture = PIXI.Texture.fromImage(osu.skins.reversearrow);
+var sliderTickTexture = PIXI.Texture.fromImage(osu.skins.sliderscorepoint)
 
 osu = osu || {};
 osu.objects = osu.objects || {};
@@ -35,6 +36,33 @@ osu.objects.Slider = class Slider{
         this.nextRepeatTime = 0;
         this.hitSounds = [];
         this.repeatCount = this.hitObject.repeatCount;
+        var points = this.hitObject.points;
+        //for replay calcs
+        if(this.hitObject.game.is_hardrock){
+            for(var i = 0 ; i < points.length ; i++){
+                points[i].y = osu.helpers.constants.OSU_GAME_HEIGHT - points[i].y;
+            }
+        }
+        this.curves = new osu.objects.Curve(this.hitObject);
+        this.ticks = [];
+        this.tickPositions = [];
+        var  tickLengthDiv = 100 * this.hitObject.game.sliderMultiplier / this.hitObject.game.sliderTickRate
+        var  tickCount =  Math.ceil(this.hitObject.pixelLength / tickLengthDiv) - 1;
+        if (tickCount > 0) {
+            console.log('ayy');
+            var tickTOffset = 1 / (tickCount + 1);
+            var  t = tickTOffset;
+            for (i = 0; i < tickCount; i++, t += tickTOffset){
+                this.ticks.push(t)
+            }
+            for (i = 0; i < this.ticks.length; i++) {
+                var tickLoc = this.curves.get_point(this.ticks[i]);
+                this.tickPositions.push(tickLoc);
+            }
+
+        }
+
+
     }
     init(){
         this.nextRepeatTime = 0;
@@ -54,9 +82,7 @@ osu.objects.Slider = class Slider{
         var points = this.hitObject.points;
         for(var i = 0 ; i < points.length ; i++){
             points[i].x = this.hitObject.game.calculate_x(points[i].x);
-            if(this.hitObject.game.is_hardrock) points[i].y = osu.helpers.constants.OSU_GAME_HEIGHT - points[i].y;
             points[i].y = this.hitObject.game.calculate_y(points[i].y);
-
         }
         sliderGraphics.beginFill(this.hitObject.colour);
         sliderGraphics.lineStyle(5,0xFFFFFF);
@@ -164,6 +190,18 @@ osu.objects.Slider = class Slider{
 
         this.sliderGraphicsContainer.addChild(this.arrowSliderStart);
         this.sliderGraphicsContainer.addChild(this.arrowSliderEnd);
+        this.tickPositions = [];
+        for (i = 0; i < this.ticks.length; i++) {
+            var tickLoc = this.curves.get_point(this.ticks[i]);
+            this.tickPositions.push(tickLoc);
+            var tickSprite = new PIXI.Sprite(sliderTickTexture)
+            tickSprite.position.x = tickLoc.x;
+            tickSprite.position.y = tickLoc.y;
+            tickSprite.anchor.set(0.5);
+            this.sliderGraphicsContainer.addChild(tickSprite)
+        }
+
+
 
         this.sliderFollowContainer = new PIXI.Container();
 
@@ -186,6 +224,9 @@ osu.objects.Slider = class Slider{
         for(i = 0 ; i < this.hitObject.edges.length;i++){
             this.hitSounds.push(osu.audio.HitSound.getHitSounds(this.hitObject.edges[i].sounds, this.hitObject.timing, (i==0)));
         }
+
+
+
         this.initialised = true;
     }
 
