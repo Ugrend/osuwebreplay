@@ -46,8 +46,9 @@ osu.objects.Slider = class Slider{
         this.curves = new osu.objects.Curve(this.hitObject);
         this.ticks = [];
         this.tickPositions = [];
-        var  tickLengthDiv = 100 * this.hitObject.game.sliderMultiplier / this.hitObject.game.sliderTickRate
-        var  tickCount =  Math.ceil(this.hitObject.pixelLength / tickLengthDiv) - 1;
+        var  tickLengthDiv = this.hitObject.timing.millisecondsPerBeat / this.hitObject.game.sliderMultiplier / this.hitObject.game.sliderTickRate;
+        var sliderDuration = this.hitObject.duration / this.hitObject.repeatCount; //We only need to place the points once
+        var  tickCount =  Math.ceil(sliderDuration / tickLengthDiv) - 1;
         if (tickCount > 0) {
             var tickTOffset = 1 / (tickCount + 1);
             var  t = tickTOffset;
