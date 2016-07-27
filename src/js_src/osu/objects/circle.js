@@ -101,7 +101,7 @@ osu.objects.Circle = class Circle{
             this.hit(cur_time);
         }
         if(this.destroyed){
-            if(!this.beenHit && cur_time > this.hitObject.startTime){
+            if(!this.beenHit && cur_time > this.hitObject.startTime + this.hitObject.hitOffset.HIT_50){
                 //never been hit
                 if(this.isScoreAble) this.hitObject.ScorePoint.displayMiss();
                 this.beenHit = true;

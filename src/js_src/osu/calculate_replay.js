@@ -40,21 +40,11 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
         var hitTime = hitObject.startTime;
         var IS_HIT = false;
 
-        if(i == 104){
-            true;
-        }
-        //since im skiping frames to see if they hit the object it may cause the next object to get a miss
-        // so i will replay those frames to see if they hit the object
 
         lastFrame -= frameSkip;
-        frameSkip = 0;
-
         for(true; lastFrame < replayframes.length; lastFrame++){
             var replayFrame = replayframes[lastFrame];
             var difference = hitTime - (replayFrame.t -replayOffset);
-
-
-
 
             if(difference < hitObject.hitOffset.HIT_50*-1){
                 break;
@@ -101,40 +91,34 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
                 K2M2Down = false;
             }
 
-            if(difference<0){
-                difference *-1;
-            }
+            difference = Math.abs(difference);
             //TODO: sliders/spiners
             if(isClick && !IS_HIT && isIn(hitObject,replayFrame,radius)){
-                if(difference  <= hitObject.hitOffset.HIT_MISS && difference  > hitObject.hitOffset.HIT_50){
+                if(difference <= hitObject.hitOffset.HIT_300){
+                    //Hit is a 300
+                    hitObject.hitType = 'HIT_300';
+                    hitObject.hitTime = replayFrame.t - replayOffset;
+                    IS_HIT = true;
+                    REPLAYHIT = true;
+                }else if (difference <= hitObject.hitOffset.HIT_100){
+                    //Hit is a 100
+                    hitObject.hitType = 'HIT_100';
+                    hitObject.hitTime = replayFrame.t - replayOffset;
+                    IS_HIT = true;
+                    REPLAYHIT = true;
+                }else if (difference  <= hitObject.hitOffset.HIT_50){
+                    //Hit is a 50
+                    hitObject.hitType = 'HIT_50';
+                    hitObject.hitTime = replayFrame.t - replayOffset;
+                    IS_HIT = true;
+                    REPLAYHIT = true;
+                }else if (difference  <= hitObject.hitOffset.HIT_MIS){
                     //Hit to early and is a miss
                     hitObject.hitType = 'HIT_MISS';
                     hitObject.hitTime = replayFrame.t - replayOffset;
                     IS_HIT = true;
                     REPLAYHIT = true;
                 }
-                if(difference  <= hitObject.hitOffset.HIT_50 && difference  > hitObject.hitOffset.HIT_100){
-                    //Hit is a 50
-                    hitObject.hitType = 'HIT_50';
-                    hitObject.hitTime = replayFrame.t - replayOffset;
-                    IS_HIT = true;
-                    REPLAYHIT = true;
-                }
-                if(difference <= hitObject.hitOffset.HIT_100 && difference  > hitObject.hitOffset.HIT_300){
-                    //Hit is a 100
-                    hitObject.hitType = 'HIT_100';
-                    hitObject.hitTime = replayFrame.t - replayOffset;
-                    IS_HIT = true;
-                    REPLAYHIT = true;
-                }
-                if(difference <= hitObject.hitOffset.HIT_300){
-                    //Hit is a 300
-                    hitObject.hitType = 'HIT_300';
-                    hitObject.hitTime = Math.min(replayFrame.t - replayOffset, hitObject.hitTime-1);
-                    IS_HIT = true;
-                    REPLAYHIT = true;
-                }
-
             }
 
 
