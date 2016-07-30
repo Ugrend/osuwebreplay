@@ -39,7 +39,8 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
         var hitTime = hitObject.startTime;
         var IS_HIT = false;
         var ticks = hitObject.object.ticks || [];
-        var currentRepeat = hitObject.repeatCount || 0;
+        var repeatCount = hitObject.repeatCount || 0;
+        var currentRepeat = 0;
         //TODO: some maps (mostly or all troll) can have sliders and circles at the same time
         // so may need to take that into account later
         var REPLAYHIT = false;
@@ -147,26 +148,31 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
                     break;
                 }
                 var duration = hitObject.duration / hitObject.repeatCount+1; //how long it takes to go 1 way
-                if(difference <= duration){
-                    var sliderPos = hitObject.object.curves.get_point(difference/duration); //where we should be at this point in time;
+                var t = difference - (currentRepeat*duration);
+
+                if(t <= duration) {
+                    var sliderPos;
+                    if (currentRepeat == 0 || currentRepeat % 2 == 0) {
+                        sliderPos = hitObject.object.curves.get_point(t/duration); //where we should be at this point in time;
+                    }else{
+                        sliderPos = hitObject.object.curves.get_point(1-(t/duration)); //where we should be at this point in time;
+                    }
                     if(isIn(sliderPos,replayFrame,radius *3)){
                         hitObject.object.scoreBreak = false;
                     }else{
                         hitObject.object.scoreBreak = replayFrame.t -replayOffset;
-                        console.log(hitObject)
                     }
 
-
-                }else if(currentRepeat > 0){
-
-                    replayFrame++;
-                    break;
-
-
                 }else{
-                    currentRepeat-=1;
-                    replayFrame++;
-                    break;
+                    if(repeatCount > 0){
+                        currentRepeat++;
+                        repeatCount--;
+                        replayFrame--; //rerun this frame
+                        break;
+                    }else{
+                        replayFrame++;
+                        break;
+                    }
                 }
 
             }
