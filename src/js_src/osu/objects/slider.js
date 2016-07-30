@@ -61,10 +61,11 @@ osu.objects.Slider = class Slider{
             }
 
         }
-
+        this.scoreBreak = false; //if the slider has been exited early
 
     }
     init(){
+        this.beenHit = false;
         this.nextRepeatTime = 0;
         this.sliderDirectionBackwards = false;
         this.repeatCount = this.hitObject.repeatCount;
@@ -285,6 +286,32 @@ osu.objects.Slider = class Slider{
             this.destroyed = true;
         }
 
+        if(!this.beenHit && this.scoreBreak && this.scoreBreak > cur_time){
+            this.hitObject.ScorePoint.displayMiss();
+            this.beenHit = true;
+        }
+        if(!this.beenHit && !this.scoreBreak && cur_time > this.hitObject.endTime){
+            switch(this.hitObject.hitType){
+                case 'HIT_MISS':
+                    this.hitObject.ScorePoint.displayMiss();
+                    this.beenHit = true;
+                    break;
+                case 'HIT_50':
+                    this.hitObject.ScorePoint.display50();
+                    this.beenHit = true;
+                    break;
+                case 'HIT_100':
+                    this.hitObject.ScorePoint.display100();
+                    this.beenHit = true;
+                    break;
+                case 'HIT_300':
+                    this.hitObject.ScorePoint.display300();
+                    this.beenHit = true;
+                    break;
+            }
+
+        }
+
         if(cur_time >= this.hitObject.startTime){
             if(!this.drawnFollow){
                 this.hitObject.game.hit_object_container.addChild(this.sliderFollowContainer);
@@ -324,7 +351,7 @@ osu.objects.Slider = class Slider{
                 this.hitObject.game.hit_object_container.removeChild(this.sliderFollowContainer);
             }
 
-            //animate slider ?
+
         }
 
         if(!this.drawn){

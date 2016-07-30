@@ -44,6 +44,7 @@ osu.game.Perforamnce = class Performance{
     }
     addMiss(){
         this.hMiss++;
+        console.log('ayy');
         this.resetCombo();
     }
 

@@ -33,20 +33,21 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
     var SMOKE = false;
 
 
-    var frameSkip = 0;
     for(var i = 0; i < hitobjects.length; i++){
         var hitObject = hitobjects[i];
 
         var hitTime = hitObject.startTime;
         var IS_HIT = false;
-
-
-        lastFrame -= frameSkip;
+        var ticks = hitObject.object.ticks || [];
+        var currentRepeat = hitObject.repeatCount || 0;
+        //TODO: some maps (mostly or all troll) can have sliders and circles at the same time
+        // so may need to take that into account later
+        var REPLAYHIT = false;
         for(true; lastFrame < replayframes.length; lastFrame++){
             var replayFrame = replayframes[lastFrame];
             var difference = hitTime - (replayFrame.t -replayOffset);
 
-            if(difference < hitObject.hitOffset.HIT_50*-1){
+            if(difference < hitObject.duration*-1 || difference < hitObject.hitOffset.HIT_50*-1){
                 break;
             }
 
@@ -56,7 +57,7 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
             K1 = false;
             K2 = false;
             SMOKE = false;
-            var REPLAYHIT = false;
+
             for(var j = 0 ; j < replayFrame.keys.length ; j++){
                 var key = replayFrame.keys[j];
                 if(key == osu.keypress.KEYS.M1 || key == osu.keypress.KEYS.K1){
@@ -92,7 +93,7 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
             }
 
             difference = Math.abs(difference);
-            //TODO: sliders/spiners
+
             if(isClick && !IS_HIT && isIn(hitObject,replayFrame,radius)){
                 if(difference <= hitObject.hitOffset.HIT_300){
                     //Hit is a 300
@@ -135,10 +136,41 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
                 t: replayFrame.t -replayOffset
             });
 
-            if(REPLAYHIT){
+            if(REPLAYHIT && !hitObject.is_slider){
                 replayFrame++;
                 break;
             }
+            //TODO: its possible to still get points after missing intial circle
+            if(REPLAYHIT && hitObject.is_slider){
+                if(hitObject.object.scoreBreak){
+                    replayFrame++;
+                    break;
+                }
+                var duration = hitObject.duration / hitObject.repeatCount+1; //how long it takes to go 1 way
+                if(difference <= duration){
+                    var sliderPos = hitObject.object.curves.get_point(difference/duration); //where we should be at this point in time;
+                    if(isIn(sliderPos,replayFrame,radius *3)){
+                        hitObject.object.scoreBreak = false;
+                    }else{
+                        hitObject.object.scoreBreak = replayFrame.t -replayOffset;
+                        console.log(hitObject)
+                    }
+
+
+                }else if(currentRepeat > 0){
+
+                    replayFrame++;
+                    break;
+
+
+                }else{
+                    currentRepeat-=1;
+                    replayFrame++;
+                    break;
+                }
+
+            }
+
 
         }
     }
