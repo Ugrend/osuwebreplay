@@ -16,6 +16,7 @@
     "babel-preset-es2015-without-strict": "0.0.3",
     "grunt-babel": "^6.0.0",
     "grunt-contrib-concat": "^0.5.1",
-    "grunt-contrib-watch": "^0.6.1"
+    "grunt-contrib-watch": "^0.6.1",
+    "load-grunt-tasks": "^3.5.0"
   }
 }
