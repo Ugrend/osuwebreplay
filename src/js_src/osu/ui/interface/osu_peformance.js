@@ -55,7 +55,7 @@ osu.game.Perforamnce = class Performance{
     }
     resetCombo(){
         if(this.combo > 10){
-            //play miss sound?
+            osu.audio.sound.play_sound(osu.audio.sound.COMBOBREAK);
         }
         this.combo = 0;
         this.accuracy = osu.score.getAccuracy(this.h300,this.h100,this.h50,this.hMiss);
