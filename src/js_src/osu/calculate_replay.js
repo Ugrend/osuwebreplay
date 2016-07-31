@@ -59,6 +59,7 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
             K2 = false;
             SMOKE = false;
 
+            var circleHit = false;
             for(var j = 0 ; j < replayFrame.keys.length ; j++){
                 var key = replayFrame.keys[j];
                 if(key == osu.keypress.KEYS.M1 || key == osu.keypress.KEYS.K1){
@@ -102,30 +103,30 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
                     hitObject.hitTime = replayFrame.t - replayOffset;
                     IS_HIT = true;
                     REPLAYHIT = true;
+                    circleHit = true;
                 }else if (difference <= hitObject.hitOffset.HIT_100){
                     //Hit is a 100
                     hitObject.hitType = 'HIT_100';
                     hitObject.hitTime = replayFrame.t - replayOffset;
                     IS_HIT = true;
                     REPLAYHIT = true;
+                    circleHit = true;
                 }else if (difference  <= hitObject.hitOffset.HIT_50){
                     //Hit is a 50
                     hitObject.hitType = 'HIT_50';
                     hitObject.hitTime = replayFrame.t - replayOffset;
                     IS_HIT = true;
                     REPLAYHIT = true;
+                    circleHit = true;
                 }else if (difference  <= hitObject.hitOffset.HIT_MIS){
                     //Hit to early and is a miss
                     hitObject.hitType = 'HIT_MISS';
                     hitObject.hitTime = replayFrame.t - replayOffset;
                     IS_HIT = true;
                     REPLAYHIT = true;
+                    circleHit = true;
                 }
             }
-
-
-
-
 
             keyPresses.push({
                 M1: M1,
@@ -133,10 +134,10 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
                 K1: K1,
                 K2: K2,
                 SMOKE: SMOKE,
-                REPLAYHIT: REPLAYHIT,
+                REPLAYHIT: circleHit,
                 t: replayFrame.t -replayOffset
             });
-
+            
             if(REPLAYHIT && !hitObject.is_slider){
                 replayFrame++;
                 break;
@@ -176,6 +177,7 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
                 }
 
             }
+
 
 
         }
