@@ -49,7 +49,7 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
                 hitCount: 1,
                 timesHit:0
             };
-            var endPoint = hitObject.object.curves.points[-1]
+            var endPoint = hitObject.object.curves.points[hitObject.object.curves.points.length-1];
             endPoint.hitCount = 1;
             endPoint.timesHit = 0;
 
@@ -189,7 +189,7 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
                         sliderPos = hitObject.object.curves.get_point(1-(t/duration)); //where we should be at this point in time;
                     }
                     //TODO: this will need to be reworked alot, just getting the idea going
-                    for(var z = 0; z < sliderPoints.length; i++){
+                    for(var z = 0; z < sliderPoints.length; z++){
                         if(isIn(sliderPos,sliderPoints[z],radius*3)){
                             //TODO: need to not hit the same point multiple times
                             sliderPoints[z].timesHit++
