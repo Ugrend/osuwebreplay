@@ -14,7 +14,7 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
         //check if vector is in circle/slider
         var distance = Math.hypot(objectPos.x - curPos.x, objectPos.y - curPos.y)
         var result = distance <= radius;
-        return result
+        return result;
     };
 
 
@@ -38,9 +38,39 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
 
         var hitTime = hitObject.startTime;
         var IS_HIT = false;
-        var ticks = hitObject.object.ticks || [];
+        var sliderPoints = hitObject.object.ticks || [];
         var repeatCount = hitObject.repeatCount || 0;
         var currentRepeat = 0;
+
+        if(hitObject.is_slider){
+            var startPoint = {
+                x: hitObject.x,
+                y: hitObject.y,
+                hitCount: 1,
+                timesHit:0
+            };
+            var endPoint = hitObject.object.curves.points[-1]
+            endPoint.hitCount = 1;
+            endPoint.timesHit = 0;
+
+            if(repeatCount === 0){
+                for(var z = 0; z< sliderPoints.length;z++){
+                    sliderPoints[z].hitCount = 1;
+                    sliderPoints[z].timesHit = 0;
+                }
+
+                sliderPoints.push(startPoint);
+                sliderPoints.push(endPoint);
+            }else{
+                //Need to work out if a object should be 'hit' twice or more for repeats
+
+            }
+
+
+
+
+        }
+
         //TODO: some maps (mostly or all troll) can have sliders and circles at the same time
         // so may need to take that into account later
         var REPLAYHIT = false;
@@ -158,10 +188,24 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
                     }else{
                         sliderPos = hitObject.object.curves.get_point(1-(t/duration)); //where we should be at this point in time;
                     }
+                    //TODO: this will need to be reworked alot, just getting the idea going
+                    for(var z = 0; z < sliderPoints.length; i++){
+                        if(isIn(sliderPos,sliderPoints[z],radius*3)){
+                            //TODO: need to not hit the same point multiple times
+                            sliderPoints[z].timesHit++
+                        }
+                    }
+
                     if(isIn(sliderPos,replayFrame,radius *3)){
                         hitObject.object.scoreBreak = false;
                     }else{
-                        hitObject.object.scoreBreak = replayFrame.t -replayOffset;
+                        var sliderBreak = false;
+                        for(z = 0; z < sliderPoints.length; z++){
+                            if(sliderPoints[z].timesHit < sliderPoints[z].hitCount){
+                                sliderBreak = replayFrame.t -replayOffset;
+                            }
+                        }
+                        hitObject.object.scoreBreak = sliderBreak;
                     }
 
                 }else{
