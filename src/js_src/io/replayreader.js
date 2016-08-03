@@ -13,20 +13,12 @@
 var ReplayParser = function(replay_data, callback){
     event_handler.emit(event_handler.EVENTS.REPLAY_LOADING);
     //https://osu.ppy.sh/wiki/Osr_%28file_format%29
+    console.log(replay_data);
     var RP = {
-        replay_data: replay_data,
-        replay_bytes: null,
+        replay_bytes: replay_data,
         byte_index: 0,
 
-        /*
-            Converts binarystring  to byte array
-         */
-        convert: function(){
-            for (var bytes = [], i = 0; i < this.replay_data.length; ++i) {
-                bytes.push(this.replay_data.charCodeAt(i) & 0xff)
-            }
-            this.replay_bytes = bytes;
-        },
+
         //data types
         getByte: function(){
             return this.replay_bytes[this.byte_index++];
@@ -77,7 +69,6 @@ var ReplayParser = function(replay_data, callback){
         }
 
     };
-    RP.convert();
     var replay = {
         type: RP.getByte(),
         version: RP.getInteger(),

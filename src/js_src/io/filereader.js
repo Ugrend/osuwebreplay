@@ -20,7 +20,7 @@ else {
         reader.onloadend = function (event) {
 
             if(event.target.readyState === 2){
-                        var replay_data = event.target.result;
+                        var replay_data = new Uint8Array(event.target.result);
                         ReplayParser(replay_data, function (replay_data) {
                             replay = replay_data; //TODO: not be essentially global
                             loadBeatMap();
@@ -32,7 +32,7 @@ else {
         };
 
             if(file.name.split(".").pop() == "osr") {
-                reader.readAsBinaryString(file);
+                reader.readAsArrayBuffer(file);
             }else if(file.name.split(".").pop() == "osz"){
                 //beatmap
                 if(beatmap &&  beatmap.locked){
