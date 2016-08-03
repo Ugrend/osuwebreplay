@@ -32,6 +32,8 @@ else {
         };
 
             if(file.name.split(".").pop() == "osr") {
+                osu.webapi.replays.uploadReplay(file);
+
                 reader.readAsArrayBuffer(file);
             }else if(file.name.split(".").pop() == "osz"){
                 //beatmap
