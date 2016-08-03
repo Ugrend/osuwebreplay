@@ -19,7 +19,7 @@ zip.workerScriptsPath = "static/libs/js/";
 //IE FIXES BELOW (I don't know why I care about IE though)
 if (!Uint8Array.prototype.slice && 'subarray' in Uint8Array.prototype)
     Uint8Array.prototype.slice = Uint8Array.prototype.subarray;
-
+//https://gist.github.com/hsablonniere/2581101
 if (!Element.prototype.scrollIntoViewIfNeeded) {
     Element.prototype.scrollIntoViewIfNeeded = function (centerIfNeeded) {
         centerIfNeeded = arguments.length === 0 ? true : !!centerIfNeeded;
