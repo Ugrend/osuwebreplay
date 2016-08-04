@@ -9,7 +9,28 @@ Just adding this for testing will prob remove
  */
 
 function loadBeatMap(){
-    osu.beatmaps.BeatmapLoader.load(replay.bmMd5Hash, showReplayData);
+
+    database.get_data(database.TABLES.BEATMAPS,replay.bmMd5Hash, function(e){
+
+        if(typeof e.data != 'undefined'){
+            osu.beatmaps.BeatmapLoader.load(replay.bmMd5Hash, showReplayData);
+        }else{
+            var loading =   new PNotify({
+                title: 'Downloading Beatmap',
+                text: "Loading \n" + replay.bmMd5Hash,
+                type: 'info',
+                hide: 'false'
+            });
+            osu.webapi.beatmaps.loadBeatMap(replay.bmMd5Hash, function (e) {
+                loading.update({'hide': true});
+                osu.beatmaps.BeatmapLoader.load(replay.bmMd5Hash, showReplayData);
+            })
+        }
+
+
+    });
+
+
 }
 
 

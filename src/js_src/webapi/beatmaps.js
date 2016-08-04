@@ -43,22 +43,44 @@ osu.webapi.beatmaps = {
 
     },
 
-    loadBeatMap: function (id) {
+    loadBeatMap: function (id, callback) {
         $.ajax({
             url: APIURL + "beatmaps",
             type: 'GET',
             data: {id: id},
             dataType: 'json',
             success: function (data) {
-                var beatmap = {
 
-                };
+                if(data.status == "error"){
+                    callback(false);
+                    return;
+                }
+                var beatmap = {};
 
                 //TODO: rewrite parser so im not duplicating code here
-                beatmap.parsed = parse_osu_map_data(data.beatmap);
+                beatmap.parsed = parse_osu_map_data(data.data.beatmap);
                 var difficultyCalc = new osu.beatmaps.DifficultyCalculator(beatmap.parsed);
                 beatmap.stars = difficultyCalc.calculate();
-
+                for (var k in beatmap.parsed.metadata) {
+                    beatmap[k.toLocaleLowerCase()] = beatmap.parsed.metadata[k];
+                }
+                var background_file_name = beatmap.parsed.events[0][2].replace(/"/g, '');
+                beatmap.files = data.data.assets;
+                for (var i = 0; i < beatmap.files.length; i++) {
+                    if(beatmap.files[i].filename == background_file_name){
+                        beatmap.background = beatmap.files[i].md5sum;
+                    }
+                    if(beatmap.files[i].filename == beatmap.parsed.general.AudioFilename){
+                        beatmap.song = beatmap.files[i].md5sum;
+                    }
+                }
+                beatmap.thumbnail = "NOT_CALCULATED";
+                beatmap.md5sum = id;
+                database.insert_data(database.TABLES.BEATMAPS, beatmap.md5sum, beatmap, function () {
+                    callback(true);
+                }, function () {
+                    callback(true);
+                });
             }
         })
     }
