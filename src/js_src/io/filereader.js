@@ -19,12 +19,23 @@ else {
         var reader = new FileReader();
         reader.onloadend = function (event) {
 
+            console.log(event);
             if(event.target.readyState === 2){
-                        var replay_data = new Uint8Array(event.target.result);
-                        ReplayParser(replay_data, function (replay_data) {
-                            replay = replay_data; //TODO: not be essentially global
-                            loadBeatMap();
-                        });
+
+                if(event.target.result.constructor.name == "ArrayBuffer" ){
+                    var replay_data = new Uint8Array(event.target.result);
+                    ReplayParser(replay_data, function (replay_data) {
+                        replay = replay_data; //TODO: not be essentially global
+                        loadBeatMap();
+                    });
+                }
+                else{
+                    //We want it to be mpeg not mp3 (firefox is mpeg chrome is mp3)
+                    event.target.result = event.target.result.replace('audio/mp3','audio/mpeg');
+                    var md5sum = md5(event.target.result);
+                    database.insert_data(database.TABLES.ASSETS, md5sum, event.target.result, function () {}, function () {});
+                }
+
             }else{
                 event_handler.emit(event_handler.EVENTS.UNKNOWN_FILE_ERROR);
             }
@@ -45,10 +56,11 @@ else {
                     });
                 }
 
-            }else if(file.name.split(".").pop() !== "osk"){
+            }else if(file.name.split(".").pop() == "osk"){
                 //skin
             }else{
-                event_handler.emit(event_handler.EVENTS.INVALID_FILE);
+                //asset
+                reader.readAsDataURL(file);
             }
 
         return false;
