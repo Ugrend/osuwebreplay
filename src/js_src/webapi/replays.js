@@ -58,4 +58,4 @@ osu.webapi.replays = {
     }
     
     
-}
+};

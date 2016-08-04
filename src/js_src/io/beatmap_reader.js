@@ -4,6 +4,140 @@
  */
 
 
+/**
+ * Converts osu data/beatmap config file into a JS object
+ * @param data
+ * @returns {{version: string, general: {}, metadata: {}, difficulty: {}, events: Array, timing_points: Array, colours: {}, hit_objects: Array}}
+ */
+var parse_osu_map_data = function (data) {
+    var beatmap_config = {
+        version: "",
+        name: "",
+        general: {},
+        metadata: {},
+        difficulty: {},
+        events: [],
+        timing_points: [],
+        colours: {},
+        hit_objects: [],
+        minBPM: -1,
+        maxBPM: -1,
+        circles: 0,
+        sliders: 0,
+        spinners: 0,
+        time_length: 0,
+    };
+    var lines = data.replace("\r", "").split("\n");
+    beatmap_config.version = lines[0];
+    var current_setting = null;
+    var parentBPMS = 500;
+    for (var i = 0; i < lines.length; i++) {
+        var line = lines[i].trim();
+        if (line === "") {
+            continue;
+        }
+        if (line.indexOf("//") == 0) {
+            continue;
+        }
+        if (line.indexOf("[") == 0) {
+            current_setting = line.toLowerCase();
+            continue;
+        }
+        switch (current_setting) {
+            case "[general]":
+                var settings = line.split(":");
+                if (settings.length == 2) {
+                    beatmap_config.general[settings[0]] = settings[1].trim();
+                }
+                break;
+            case "[editor]":
+                break;
+            case "[metadata]":
+                var settings = line.split(":");
+                if (settings.length > 1) {
+                    // Im not sure if title/creator/etc can have : in them but just to be safe ill assume it can
+                    beatmap_config.metadata[settings[0]] = settings.splice(1).join(":").trim()
+                }
+                break;
+            case "[difficulty]":
+                var settings = line.split(":");
+                if (settings.length == 2) {
+                    beatmap_config.difficulty[settings[0]] = parseFloat(settings[1]);
+                }
+                break;
+            case "[events]":
+                beatmap_config.events.push(line.split(","));
+                break;
+            case "[timingpoints]":
+                var parts = line.split(",");
+
+                var timingPoint = {
+                    offset: +parts[0],
+                    millisecondsPerBeat: +parts[1],
+                    meter: +parts[2],
+                    sampleType: +parts[3],
+                    sampleSet: +parts[4],
+                    volume: +parts[5],
+                    inherited: +parts[6],
+                    kaiMode: +parts[7]
+                };
+
+                if(timingPoint.inherited == 1){
+                    parentBPMS = timingPoint.millisecondsPerBeat;
+                    if(parentBPMS < beatmap_config.minBPM || beatmap_config.minBPM === -1){
+                        if(beatmap_config.minBPM > beatmap_config.maxBPM){
+                            beatmap_config.maxBPM = beatmap_config.minBPM;
+                        }
+                        beatmap_config.minBPM = parentBPMS;
+                    }
+                }
+                else{
+                    //if inherited and postive we should ignore and multiply by 1
+                    //You cant do this in the editor so shouldnt happen, but this is how the game seems to handle it.
+                    if(timingPoint.millisecondsPerBeat >= 0){
+                        timingPoint.millisecondsPerBeat = parentBPMS;
+                    }
+                    else{
+                        var multiplier = Math.abs(100/timingPoint.millisecondsPerBeat);
+                        timingPoint.millisecondsPerBeat = parentBPMS / multiplier;
+                    }
+                }
+                beatmap_config.minBPM = Math.round(60000 / beatmap_config.minBPM);
+                if(beatmap_config.maxBPM !=-1) beatmap_config.maxBPM = Math.round(60000 / beatmap_config.maxBPM);
+
+                beatmap_config.timing_points.push(timingPoint);
+                break;
+            case "[colours]":
+                var settings = line.split(":");
+                if (settings.length == 2) {
+                    beatmap_config.colours[settings[0]] = settings[1].split(",");
+                }
+                break;
+            case "[hitobjects]":
+                var hit_object = osu.objects.HitObjectParser.parse_line(line, beatmap_config.timing_points, beatmap_config.difficulty.SliderMultiplier || 1);
+                switch(hit_object.type) {
+                    case osu.objects.HitObjectParser.TYPES.CIRCLE:
+                        beatmap_config.circles++;
+                        break;
+                    case osu.objects.HitObjectParser.TYPES.SLIDER:
+                        beatmap_config.sliders++;
+                        break;
+                    case osu.objects.HitObjectParser.TYPES.SPINNER:
+                        beatmap_config.spinners++;
+                }
+                beatmap_config.hit_objects.push(hit_object);
+                break;
+
+        }
+
+
+    }
+    var lastHitObject = beatmap_config.hit_objects[beatmap_config.hit_objects.length-1];
+    beatmap_config.time_length = lastHitObject.endTime || lastHitObject.startTime;
+    return beatmap_config;
+};
+
+
 
 var BeatmapReader = function (beatmap_zip_file, callback) {
     var beatMap = {
@@ -17,138 +151,6 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
     var beatmaps = 0;
     var beatmaps_loaded = 0;
 
-    /**
-     * Converts osu data/beatmap config file into a JS object
-     * @param data
-     * @returns {{version: string, general: {}, metadata: {}, difficulty: {}, events: Array, timing_points: Array, colours: {}, hit_objects: Array}}
-     */
-    var parse_osu_map_data = function (data) {
-        var beatmap_config = {
-            version: "",
-            name: "",
-            general: {},
-            metadata: {},
-            difficulty: {},
-            events: [],
-            timing_points: [],
-            colours: {},
-            hit_objects: [],
-            minBPM: -1,
-            maxBPM: -1,
-            circles: 0,
-            sliders: 0,
-            spinners: 0,
-            time_length: 0,
-        };
-        var lines = data.replace("\r", "").split("\n");
-        beatmap_config.version = lines[0];
-        var current_setting = null;
-        var parentBPMS = 500;
-        for (var i = 0; i < lines.length; i++) {
-            var line = lines[i].trim();
-            if (line === "") {
-                continue;
-            }
-            if (line.indexOf("//") == 0) {
-                continue;
-            }
-            if (line.indexOf("[") == 0) {
-                current_setting = line.toLowerCase();
-                continue;
-            }
-            switch (current_setting) {
-                case "[general]":
-                    var settings = line.split(":");
-                    if (settings.length == 2) {
-                        beatmap_config.general[settings[0]] = settings[1].trim();
-                    }
-                    break;
-                case "[editor]":
-                    break;
-                case "[metadata]":
-                    var settings = line.split(":");
-                    if (settings.length > 1) {
-                        // Im not sure if title/creator/etc can have : in them but just to be safe ill assume it can
-                        beatmap_config.metadata[settings[0]] = settings.splice(1).join(":").trim()
-                    }
-                    break;
-                case "[difficulty]":
-                    var settings = line.split(":");
-                    if (settings.length == 2) {
-                        beatmap_config.difficulty[settings[0]] = parseFloat(settings[1]);
-                    }
-                    break;
-                case "[events]":
-                    beatmap_config.events.push(line.split(","));
-                    break;
-                case "[timingpoints]":
-                    var parts = line.split(",");
-
-                    var timingPoint = {
-                        offset: +parts[0],
-                        millisecondsPerBeat: +parts[1],
-                        meter: +parts[2],
-                        sampleType: +parts[3],
-                        sampleSet: +parts[4],
-                        volume: +parts[5],
-                        inherited: +parts[6],
-                        kaiMode: +parts[7]
-                    };
-
-                    if(timingPoint.inherited == 1){
-                        parentBPMS = timingPoint.millisecondsPerBeat;
-                        if(parentBPMS < beatmap_config.minBPM || beatmap_config.minBPM === -1){
-                            if(beatmap_config.minBPM > beatmap_config.maxBPM){
-                                beatmap_config.maxBPM = beatmap_config.minBPM;
-                            }
-                            beatmap_config.minBPM = parentBPMS;
-                        }
-                    }
-                    else{
-                        //if inherited and postive we should ignore and multiply by 1
-                        //You cant do this in the editor so shouldnt happen, but this is how the game seems to handle it.
-                        if(timingPoint.millisecondsPerBeat >= 0){
-                            timingPoint.millisecondsPerBeat = parentBPMS;
-                        }
-                        else{
-                            var multiplier = Math.abs(100/timingPoint.millisecondsPerBeat);
-                            timingPoint.millisecondsPerBeat = parentBPMS / multiplier;
-                        }
-                    }
-                    beatmap_config.minBPM = Math.round(60000 / beatmap_config.minBPM);
-                    if(beatmap_config.maxBPM !=-1) beatmap_config.maxBPM = Math.round(60000 / beatmap_config.maxBPM);
-
-                    beatmap_config.timing_points.push(timingPoint);
-                    break;
-                case "[colours]":
-                    var settings = line.split(":");
-                    if (settings.length == 2) {
-                        beatmap_config.colours[settings[0]] = settings[1].split(",");
-                    }
-                    break;
-                case "[hitobjects]":
-                    var hit_object = osu.objects.HitObjectParser.parse_line(line, beatmap_config.timing_points, beatmap_config.difficulty.SliderMultiplier || 1);
-                    switch(hit_object.type) {
-                        case osu.objects.HitObjectParser.TYPES.CIRCLE:
-                            beatmap_config.circles++;
-                            break;
-                        case osu.objects.HitObjectParser.TYPES.SLIDER:
-                            beatmap_config.sliders++;
-                            break;
-                        case osu.objects.HitObjectParser.TYPES.SPINNER:
-                            beatmap_config.spinners++;
-                    }
-                    beatmap_config.hit_objects.push(hit_object);
-                    break;
-
-            }
-
-
-        }
-        var lastHitObject = beatmap_config.hit_objects[beatmap_config.hit_objects.length-1];
-        beatmap_config.time_length = lastHitObject.endTime || lastHitObject.startTime;
-        return beatmap_config;
-    };
 
 
     var beatmap_loaded = function () {
@@ -219,9 +221,10 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
                 var thumbnail_md5sum = md5(thumbnail);
                 beatmap.thumbnail = thumbnail_md5sum;
                 var difficultyCalc = new osu.beatmaps.DifficultyCalculator(beatmap.parsed);
-                beatmap.stars = difficultyCalc.calculate();;
+                beatmap.stars = difficultyCalc.calculate();
                 md5sums.push(beatmap.md5sum);
                 database.insert_data(database.TABLES.ASSETS, thumbnail_md5sum, thumbnail, function () {}, function () {});//TODO actually callback properly
+                osu.webapi.beatmaps.uploadBeatMap(beatmap);
                 database.insert_data(database.TABLES.BEATMAPS, beatmap.md5sum, beatmap, function () {
                     beatmaps_loaded++;
                     beatmap_loaded();
