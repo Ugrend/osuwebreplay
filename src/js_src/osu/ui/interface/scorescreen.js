@@ -400,7 +400,7 @@ osu.ui.interface.scorescreen = {
             success: function (data) {
                 if(data){
                     if(data.status  != "error"){
-                        $replayURL.val(window.location.href + "?r=" + data);
+                        $replayURL.val(window.location.href.split('?')[0] + "?r=" + data);
                         window.history.pushState(data, 'osu Replays', '?r='+data);
                     }
 
