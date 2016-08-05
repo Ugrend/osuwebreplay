@@ -30,7 +30,7 @@ osu.webapi.beatmaps = {
                     $.ajax({
                         url: APIURL + "beatmaps",
                         type: 'POST',
-                        data: {beatmap: beatmapFile, assets: assets},
+                        data: {beatmap: beatmapFile, assets: JSON.stringify(assets)},
                         dataType: 'json',
                         success: function (data) {
 

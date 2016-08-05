@@ -13,9 +13,10 @@
 var ReplayParser = function(replay_data, callback){
     event_handler.emit(event_handler.EVENTS.REPLAY_LOADING);
     //https://osu.ppy.sh/wiki/Osr_%28file_format%29
-    console.log(replay_data);
+    var b64EncodedMd5 = md5(btoa(String.fromCharCode.apply(null, replay_data)));
     var RP = {
         replay_bytes: replay_data,
+
         byte_index: 0,
 
 
@@ -87,7 +88,8 @@ var ReplayParser = function(replay_data, callback){
         mods: osu.mods.getMods(RP.getInteger()),
         lifeBar: RP.getString(),
         time_played: RP.getLong(),
-        replayByteLength: RP.getInteger()
+        replayByteLength: RP.getInteger(),
+        b64md5sum: b64EncodedMd5
     };
 
     //this converts from .net ticks to epoch time

@@ -7,19 +7,32 @@ osu = osu || {};
 osu.webapi = osu.webapi || {};
 osu.webapi.replays = {
     
-    uploadReplay: function (file) {
+    uploadReplay: function (file,base64md5) {
         var formData = new FormData();
         formData.append('replay', file);
+        // We don't want to upload the replay if its already there, so we will check first before uploading.
         $.ajax({
             url : APIURL + "replays",
-            type : 'POST',
-            data : formData,
-            processData: false,  // tell jQuery not to process the data
-            contentType: false,  // tell jQuery not to set contentType
-            success : function(data) {
+            type: 'GET',
+            data: {'replay_id': base64md5,'validate_only':true},
+            dataType: 'json',
+            success: function (data) {
+                if(!data){
+                    $.ajax({
+                        url : APIURL + "replays",
+                        type : 'POST',
+                        data : formData,
+                        processData: false,  // tell jQuery not to process the data
+                        contentType: false,  // tell jQuery not to set contentType
+                        success : function(data) {
 
+                        }
+                    });
+                }
             }
-        });
+        })
+
+
     },
 
     loadReplay: function(id){

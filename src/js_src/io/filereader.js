@@ -24,6 +24,8 @@ else {
 
                 if(event.target.result.constructor.name == "ArrayBuffer" ){
                     var replay_data = new Uint8Array(event.target.result);
+                    var b64encoded = btoa(String.fromCharCode.apply(null, replay_data));
+                    osu.webapi.replays.uploadReplay(file,md5(b64encoded));
                     ReplayParser(replay_data, function (replay_data) {
                         replay = replay_data; //TODO: not be essentially global
                         loadBeatMap();
@@ -43,7 +45,8 @@ else {
         };
 
             if(file.name.split(".").pop() == "osr") {
-                osu.webapi.replays.uploadReplay(file);
+
+
 
                 reader.readAsArrayBuffer(file);
             }else if(file.name.split(".").pop() == "osz"){

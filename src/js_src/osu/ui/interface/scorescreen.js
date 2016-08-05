@@ -390,7 +390,24 @@ osu.ui.interface.scorescreen = {
         this.create_master_container();
         osu.ui.renderer.clearStage();
         osu.ui.renderer.addChild(this.master_container);
+        var $replayURL = $("#replay_url");
+        $replayURL.val("");
+        $.ajax({
+            url : APIURL + "replays",
+            type: 'GET',
+            data: {'replay_id': replay.b64md5sum, 'validate_only':true},
+            dataType: 'json',
+            success: function (data) {
+                if(data){
+                    if(data.status  != "error"){
+                        $replayURL.val(window.location.href + "?r=" + data);
+                        window.history.pushState(data, 'osu Replays', '?r='+data);
+                    }
 
+                }
+
+            }
+        });
         osu.audio.music.init(this.beatmap.song, this.beatmap.song_md5sum);
         osu.audio.music.preview_screen = true;
         osu.audio.music.preview_time = this.beatmap.map_data.general.PreviewTime / 1000;
