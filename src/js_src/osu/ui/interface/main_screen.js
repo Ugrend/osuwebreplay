@@ -285,7 +285,8 @@ osu.ui.interface.mainscreen = {
         }
         if(this.beatmap_count == 0 || this.replay_count == 0){
             document.getElementById("loading").className = "hidden";
-            document.getElementById("no_beatmaps_replays").className = "";
+            this.show_main_screen();
+            //document.getElementById("no_beatmaps_replays").className = "";
         }
     },
     songs_processed: function () {

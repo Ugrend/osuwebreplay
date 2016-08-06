@@ -6,7 +6,7 @@
 var DEBUG = true;
 var APIURL = "/api/";
 if(DEBUG) {
-    APIURL = "http://localhost:8080/api/";
+    APIURL = "http://ugrend.com:8080/api/";
 }
 
 var mainArea = document.getElementById('main_zone');

@@ -346,7 +346,7 @@ osu.ui.interface.scorescreen = {
     start_replay: function(){
         var self = this;
 
-        if(osu.audio.music.__audio.readyState != 4 && (osu.audio.music.__audio.src != "" || !osu.audio.music.__audio.error)){
+        if(osu.audio.music.__audio.readyState != 4 && osu.audio.music.__audio.src != "" && !osu.audio.music.__audio.error){
             setTimeout(function () {
                 if(!self.loading){
 

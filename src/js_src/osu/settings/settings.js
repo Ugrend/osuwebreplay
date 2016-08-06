@@ -8,10 +8,10 @@ osu = osu || {};
 osu.settings = {
 
     DEFAULTS: Object.freeze({
-        background_dim: 0.3,
+        background_dim: 0.5,
         master_volume: 1.0,
-        music_volume: 0.6,
-        sound_effects: 0.8,
+        music_volume: 0.5,
+        sound_effects: 0.4,
         use_beatmap_skins: false,
         use_beatmap_hitsounds: false,
         song_url: false,
@@ -22,8 +22,8 @@ osu.settings = {
 
         _background_dim: 0.3,
         _master_volume: 1.0,
-        _music_volume: 0.6,
-        _sound_effects_volume: 0.8,
+        _music_volume: 0.5,
+        _sound_effects_volume: 0.4,
         _use_beatmap_skins: false,
         _use_beatmap_hitsounds: false,
         _song_url: false,
