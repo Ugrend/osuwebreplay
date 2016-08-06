@@ -310,7 +310,7 @@ osu.ui.interface.scorescreen = {
         replay_Sprite.anchor.set(0.5);
         replay_Sprite.interactive = true;
         replay_Sprite.on("mouseup", this.start_replay.bind(this));
-
+        replay_Sprite.on("touchend", this.start_replay.bind(this));
 
         var backpng = PIXI.Texture.fromImage(osu.skins.menu_back);
         var back_Sprite = new PIXI.Sprite(backpng);
@@ -321,6 +321,7 @@ osu.ui.interface.scorescreen = {
         back_Sprite.height = this.getRenderHeight() *.2;
         back_Sprite.anchor.set(0.5);
         back_Sprite.on("mouseup", this.exit.bind(this));
+        back_Sprite.on("touchend", this.exit.bind(this));
 
         this.master_container.addChild(gradeSprite);
         for(var i = 0; i < this.mods.length ; i++ ){
