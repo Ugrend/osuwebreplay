@@ -349,6 +349,7 @@ osu.ui.interface.scorescreen = {
         if(osu.audio.music.__audio.readyState != 4 && (osu.audio.music.__audio.src != "" || !osu.audio.music.__audio.error)){
             setTimeout(function () {
                 if(!self.loading){
+
                     osu.audio.sound.play_sound(osu.audio.sound.MENUHIT);
                     self.loading = new PNotify({
                         title: 'Loading song',
@@ -372,8 +373,6 @@ osu.ui.interface.scorescreen = {
         this.replayStarted = true;
         setTimeout(function () {
             //ghetto fix to play menu sound
-
-
             osu.audio.music.preview_screen = false;
 
             osu.ui.interface.osugame.replay_data = replay.replayData;
@@ -436,6 +435,13 @@ osu.ui.interface.scorescreen = {
 
         osu.audio.music.init(this.beatmap.song, this.beatmap.song_md5sum);
         osu.audio.music.preview_screen = true;
+        if(osu.audio.music.__audio.readyState != 4 && (osu.audio.music.__audio.src != "" || !osu.audio.music.__audio.error)){
+            //if it is external we want to reset the position to 0 so it doesnt break bufffering
+            osu.audio.music.set_position(0);
+            osu.audio.music.preview_screen = false;
+        }
+
+
         osu.audio.music.preview_time = this.beatmap.map_data.general.PreviewTime / 1000;
         osu.audio.music.start();
 
