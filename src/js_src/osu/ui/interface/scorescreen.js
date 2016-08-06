@@ -26,6 +26,7 @@ osu.ui.interface.scorescreen = {
     mods: [],
     beatmap: {},
     master_container: new PIXI.Container(),
+    loading: false,
 
     getRenderWidth: function(){
         return osu.ui.renderer.renderWidth;
@@ -343,14 +344,38 @@ osu.ui.interface.scorescreen = {
     },
 
     start_replay: function(){
+        var self = this;
+
+        if(osu.audio.music.__audio.readyState != 4 && (osu.audio.music.__audio.src != "" || !osu.audio.music.__audio.error)){
+            setTimeout(function () {
+                if(!self.loading){
+                    osu.audio.sound.play_sound(osu.audio.sound.MENUHIT);
+                    self.loading = new PNotify({
+                        title: 'Loading song',
+                        type: 'info',
+                        hide: false
+                    });
+                }
+                self.start_replay();
+
+            },1000);
+            return;
+        }
+        if(self.loading){
+
+            self.loading.remove()
+        }else{
+            osu.audio.sound.play_sound(osu.audio.sound.MENUHIT);
+        }
+
         if(this.replayStarted) return; // prevent multi clicks
         this.replayStarted = true;
-        osu.audio.sound.play_sound(osu.audio.sound.MENUHIT);
-        var self = this;
         setTimeout(function () {
             //ghetto fix to play menu sound
 
+
             osu.audio.music.preview_screen = false;
+
             osu.ui.interface.osugame.replay_data = replay.replayData;
             osu.ui.interface.osugame.beatmap = self.beatmap;
             osu.ui.interface.osugame.mods = self.mods;
@@ -408,6 +433,7 @@ osu.ui.interface.scorescreen = {
 
             }
         });
+
         osu.audio.music.init(this.beatmap.song, this.beatmap.song_md5sum);
         osu.audio.music.preview_screen = true;
         osu.audio.music.preview_time = this.beatmap.map_data.general.PreviewTime / 1000;

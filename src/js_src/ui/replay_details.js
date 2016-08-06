@@ -19,10 +19,10 @@ function loadBeatMap(){
                 title: 'Downloading Beatmap',
                 text: "Loading \n" + replay.bmMd5Hash,
                 type: 'info',
-                hide: 'false'
+                hide: false
             });
             osu.webapi.beatmaps.loadBeatMap(replay.bmMd5Hash, function (e) {
-                loading.update({'hide': true});
+                loading.remove();
                 osu.beatmaps.BeatmapLoader.load(replay.bmMd5Hash, showReplayData);
             })
         }

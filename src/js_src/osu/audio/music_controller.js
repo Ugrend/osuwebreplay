@@ -20,7 +20,7 @@ osu.audio.music =  {
             this.events_bound = true;
         }
         //only start again
-        if(md5sum != this.md5sum){
+        if(src && md5sum != this.md5sum){
             this.md5sum = md5sum;
             this.__audio.pause();
             this.__audio.src = src;

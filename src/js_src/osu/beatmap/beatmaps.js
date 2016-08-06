@@ -244,6 +244,11 @@ osu.beatmaps.BeatmapLoader = {
         __process_beatmap: function () {
             this.song_md5sum =this.__lookup_file_md5(this.map_data.general.AudioFilename)
             this.song = this.__get_asset_from_md5(this.song_md5sum);
+            var self = this;
+            if(!this.song){
+                osu.webapi.audio.findAudio(this);
+            }
+
             this.background = this.__get_asset_from_md5(this.__lookup_file_md5(this.map_data.events[0][2].replace(/"/g, '')));
             this.map_name = this.map_data.metadata.Artist + " - " + this.map_data.metadata.Title + " [" + this.map_data.metadata.Version + "]";
             this.author = this.map_data.metadata.Creator;
