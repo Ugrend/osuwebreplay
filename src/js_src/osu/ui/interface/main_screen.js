@@ -66,8 +66,9 @@ osu.ui.interface.mainscreen = {
             this.$replay_search_field = $("#filter_players_search");
             this.$title_and_search = $("#title_and_search");
             this.$details_replay_search = $("#details_replay_search");
-
-
+            this.$asset_server_url = $("#asset_server_url");
+            this.$song_server_url = $("#song_server_url");
+            this.$save_asset_servers_btn = $("#save_asset_servers_btn");
             this.$master_volume_slider = $("#master_volume");
             this.$music_volume_slider = $("#music_volume");
             this.$sound_volume_slider = $("#sound_volume");
@@ -82,7 +83,13 @@ osu.ui.interface.mainscreen = {
         //init script can be called multiple times if no maps/replays exist
         if(!this.events_bound){
             osu.audio.sound.init();
+
             var self = this;
+            this.$save_asset_servers_btn.on('click', function () {
+                osu.settings.SETTINGS.asset_server = self.$asset_server_url.val();
+                osu.settings.SETTINGS.song_url = self.$song_server_url.val();
+            });
+
             this.$beatmap_search_field.on('input', function (e) {
                 var searchParam = e.currentTarget.value;
                 if(self.beatmapSearch && searchParam != ""){
@@ -294,6 +301,7 @@ osu.ui.interface.mainscreen = {
             this.beatmaps.sort(function (a,b) {
                 if (a.title < b.title)
                     return -1;
+                    return -1;
                 if (a.title > b.title)
                     return 1;
                 //if same beatmap order by star difficulty
@@ -325,7 +333,10 @@ osu.ui.interface.mainscreen = {
         document.getElementById("container").className = "";
         document.getElementById("main_menu").className = "";
         document.getElementById("render_zone").className = "hidden";
+        document.getElementById("replay_url_area").className = "hidden";
 
+        this.$asset_server_url.val(osu.settings.SETTINGS.asset_server);
+        this.$song_server_url.val(osu.settings.SETTINGS.song_url);
 
         if(this.$footer.css('display') =='none'){
             this.$footer.toggle("slide", {direction: "down"});

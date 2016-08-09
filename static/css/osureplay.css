@@ -169,3 +169,7 @@ body {
 #close_settings{
     float: right;
 }
+
+#show_asset_config{
+    color: black;
+}

@@ -445,7 +445,7 @@ osu.ui.interface.scorescreen = {
 
         osu.audio.music.preview_time = this.beatmap.map_data.general.PreviewTime / 1000;
         osu.audio.music.start();
-
+        document.getElementById("replay_url_area").className = "z";
 
     }
 
