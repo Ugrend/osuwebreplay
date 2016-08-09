@@ -15,6 +15,7 @@ osu.settings = {
         use_beatmap_skins: false,
         use_beatmap_hitsounds: false,
         song_url: false,
+        asset_server: false,
 
     }),
     SETTINGS:{
@@ -27,6 +28,7 @@ osu.settings = {
         _use_beatmap_skins: false,
         _use_beatmap_hitsounds: false,
         _song_url: false,
+        _asset_server: false,
 
 
         get background_dim(){return this._background_dim},
@@ -43,6 +45,8 @@ osu.settings = {
         set use_beatmap_hitsounds(v) { this._use_beatmap_hitsounds = v; event_handler.emit(event_handler.EVENTS.SETTINGS_CHANGED);},
         get song_url(){return this._song_url},
         set song_url(v) { this._song_url = v; event_handler.emit(event_handler.EVENTS.SETTINGS_CHANGED);},
+        get asset_server(){return this._asset_server},
+        set asset_server(v) { this._asset_server = v; event_handler.emit(event_handler.EVENTS.SETTINGS_CHANGED);},
     },
 
 
