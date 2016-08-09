@@ -183,6 +183,7 @@
                 <p>Asset server will take a param of id which will be the base64 (with MIME type) md5sum of the file.</p>
                 <p>You can run your own (that only this PC can access) by running <a href="">this</a></p>
                 <p>This program will run a small webserver that will give access to the osu! Song directory</p>
+                <p><b>Note: This could be considered poor security practice, it could grant any website the ability to load assets from the osu! song dir. Run at own Risk</b></p>
                 <b>Example:</b>
                 <p><b>1716e0722fe2c502646fa041fae6593f</b> might be a md5 hash of freedmon dive</p>
                 <p><b>http://localhost:17361/1716e0722fe2c502646fa041fae6593f</b> should return the song for freedom dive</p>
@@ -193,7 +194,7 @@
                 <p>Beatmap loader URL will take the param of the osu! beatmap id and return the song for the map</p>
                 <b>Example:</b>
                 <p><b>129891</b> is the beatmap id for FREEDOM DiVE (4D)</p>
-                <b>eg: http://urlforbeatmaps/a/</b>
+                <b>eg: http://urlforbeatmaps.com/osu/a/</b>
                 <p>The url should be able to take a param of that ID and it should return the song for the map</p>
                 <p>In this case <b>http://urlforbeatmaps/a/129891</b> should return the song for freedom dive</p>
                 <label for="song_server_url">Beatmap Loader URL:</label>
