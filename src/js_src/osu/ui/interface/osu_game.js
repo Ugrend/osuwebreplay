@@ -672,6 +672,7 @@ osu.ui.interface.osugame = {
         this.skipTime = -1;
 
         if(skipFrame.t > 0){
+            this.replayDiff = this.replay_data[2].t * -1;
             this.skipTime = skipFrame.t;
             this.warning_arrow_times.push(this.skipTime);
         }
