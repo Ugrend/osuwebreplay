@@ -70,6 +70,8 @@ osu.objects.HitObject = class HitObject{
         if(this.game.is_doubletime){
             this.startTime *= osu.helpers.constants.DOUBLE_TIME_MULTI;
             if(this.endTime) this.endTime *= osu.helpers.constants.DOUBLE_TIME_MULTI;
+            this.hitTime *=osu.helpers.constants.DOUBLE_TIME_MULTI;
+
         }
         this.object.init();
         //endX/Y will get intiatied by a slider else just use hitObject x
