@@ -126,7 +126,7 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
 
             difference = Math.abs(difference);
 
-            if(isClick && !IS_HIT && isIn(hitObject,replayFrame,radius)){
+            if(!hitObject.is_spinner && isClick && !IS_HIT && isIn(hitObject,replayFrame,radius)){
                 if(difference <= hitObject.hitOffset.HIT_300){
                     //Hit is a 300
                     hitObject.hitType = 'HIT_300';
@@ -168,7 +168,7 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
                 t: replayFrame.t -replayOffset
             });
             
-            if(REPLAYHIT && !hitObject.is_slider){
+            if(REPLAYHIT && hitObject.is_circle){
                 replayFrame++;
                 break;
             }
@@ -222,7 +222,16 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
 
             }
 
+            if(hitObject.is_spinner){
+                var centerPoint = {x:osu.helpers.constants.OSU_GAME_WIDTH/2,
+                    y:osu.helpers.constants.OSU_GAME_HEIGHT/2};
+                var angle = Math.atan2(centerPoint.y - replayFrame.y, centerPoint.x - replayFrame.x);
+                hitObject.object.rotations.push({
+                    a: angle,
+                    t: replayFrame.t - replayOffset
+                });
 
+            }
 
         }
     }

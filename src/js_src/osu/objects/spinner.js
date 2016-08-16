@@ -27,6 +27,8 @@ osu.objects.Spinner = class Spinner{
         this.hitObject = hitObject;
         this.drawn = false;
         this.destroyed = false;
+        this.rotations = [];
+        this.currentRotation = 0;
     }
     init(){
         this.drawn = false;
@@ -43,6 +45,7 @@ osu.objects.Spinner = class Spinner{
         this.spinnerCirle.anchor.set(0.5);
         this.spinnerContainer.addChild(backgroundSprite);
         this.spinnerContainer.addChild(this.spinnerCirle);
+        this.currentRotation
     }
     draw(cur_time){
         if(!this.drawn){
@@ -52,18 +55,30 @@ osu.objects.Spinner = class Spinner{
             }
         }
         if(!this.destroyed){
-            this.spinnerCirle.rotation -= 0.1;
+
+
+            if(this.rotations.length === 0){
+                this.spinnerCirle.rotation -= 0.1;
+            }else{
+                for(var i = this.currentRotation; i<this.rotations.length; i++){
+                    if(this.rotations[i].t >= cur_time){
+                        this.currentRotation = i+1;
+                        this.spinnerCirle.rotation = this.rotations[i].a;
+                    }else{
+                        break;
+                    }
+                }
+
+            }
+
             if(cur_time > this.hitObject.endTime){
                 this.destroy();
                 this.destroyed = true;
             }
         }
 
-        if(this.destroyed){
-            return false;
-        }
+        return !this.destroyed;
 
-        return true;
     }
     destroy(){
         this.hitObject.game.hit_object_container.removeChild(this.spinnerContainer);
