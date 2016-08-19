@@ -61,8 +61,8 @@ osu.objects.Spinner = class Spinner{
                 this.spinnerCirle.rotation -= 0.1;
             }else{
                 for(var i = this.currentRotation; i<this.rotations.length; i++){
-                    if(this.rotations[i].t >= cur_time){
-                        this.currentRotation = i+1;
+                    if(this.rotations[i].t <= cur_time){
+                        this.currentRotation = i;
                         this.spinnerCirle.rotation = this.rotations[i].a;
                     }else{
                         break;

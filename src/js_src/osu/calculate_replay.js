@@ -78,8 +78,11 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
             var replayFrame = replayframes[lastFrame];
             var difference = hitTime - (replayFrame.t -replayOffset);
 
-            if(difference < hitObject.duration*-1 || difference < hitObject.hitOffset.HIT_50*-1){
+            if(hitObject.is_circle && difference < hitObject.hitOffset.HIT_50*-1){
                 break;
+            }else if(difference < ((hitObject.endTime - hitObject.startTime)*-1)){
+                break;
+
             }
 
             var isClick = false; // if this is a hold or click (if button is down)
@@ -228,7 +231,7 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
                 var angle = Math.atan2(centerPoint.y - replayFrame.y, centerPoint.x - replayFrame.x);
                 hitObject.object.rotations.push({
                     a: angle,
-                    t: replayFrame.t - replayOffset
+                    t: replayFrame.t
                 });
 
             }
