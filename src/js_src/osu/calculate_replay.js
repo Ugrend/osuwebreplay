@@ -25,6 +25,7 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
     var keyPresses = [];
     var K1M1Down = false;
     var K2M2Down = false;
+    var keyDown = false;
     var radius = (unscaledCircleSize /2);
     var M1 = false;
     var M2 = false;
@@ -99,6 +100,7 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
                     if(K1M1Down == false){
                         isClick = true;
                         K1M1Down = true;
+                        keyDown = true;
                     }
 
                     M1 = (key == osu.keypress.KEYS.M1);
@@ -109,6 +111,7 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
                     if(K2M2Down == false){
                         isClick = true;
                         K2M2Down = true;
+                        keyDown = true;
                     }
 
                     M2 = (key == osu.keypress.KEYS.M2);
@@ -125,6 +128,9 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
             }
             if(!M2 && !K2){
                 K2M2Down = false;
+            }
+            if(!K1M1Down && !K2M2Down){
+                keyDown = false;
             }
 
             difference = Math.abs(difference);
@@ -229,11 +235,12 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
                 var centerPoint = {x:osu.helpers.constants.OSU_GAME_WIDTH/2,
                     y:osu.helpers.constants.OSU_GAME_HEIGHT/2};
                 var angle = Math.atan2(centerPoint.y - replayFrame.y, centerPoint.x - replayFrame.x);
-                hitObject.object.rotations.push({
-                    a: angle,
-                    t: replayFrame.t
-                });
-
+                if(keyDown){
+                    hitObject.object.rotations.push({
+                        a: angle,
+                        t: replayFrame.t
+                    });
+                }
             }
 
         }
