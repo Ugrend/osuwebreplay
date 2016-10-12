@@ -34,6 +34,7 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
     var SMOKE = false;
 
 
+
     for(var i = 0; i < hitobjects.length; i++){
         var hitObject = hitobjects[i];
 
@@ -157,7 +158,7 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
                     IS_HIT = true;
                     REPLAYHIT = true;
                     circleHit = true;
-                }else if (difference  <= hitObject.hitOffset.HIT_MIS){
+                }else if (difference  <= hitObject.hitOffset.HIT_MISS){
                     //Hit to early and is a miss
                     hitObject.hitType = 'HIT_MISS';
                     hitObject.hitTime = replayFrame.t - replayOffset;
@@ -174,6 +175,7 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
                 K2: K2,
                 SMOKE: SMOKE,
                 REPLAYHIT: circleHit,
+                ID: i,
                 t: replayFrame.t -replayOffset
             });
             

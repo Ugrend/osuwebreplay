@@ -57,6 +57,7 @@ osu.ui.interface.osugame = {
     finished: false,
     keyPresses: [],
     currentKeyPress: 0,
+    lasthit_id: 1000,
 
     calculateLetterBox: function () {
         var x = osu.ui.renderer.renderWidth;
@@ -715,7 +716,7 @@ osu.ui.interface.osugame = {
                 this.tint_untint_key(this.keypress_3,tint_3);
                 this.tint_untint_key(this.keypress_4,tint_4);
                 this.currentKeyPress = i;
-                if(keyPress.REPLAYHIT){
+                if(keyPress.REPLAYHIT && this.lasthit_id != keyPress.ID){
                     if(keyPress.K1){
                         this.key_1_count++;
                     }
@@ -732,6 +733,7 @@ osu.ui.interface.osugame = {
                     this.keypress_2_Text.text = (this.key_2_count > 0 && this.key_2_count.toString() || "K2");
                     this.keypress_3_Text.text = (this.key_3_count > 0 && this.key_3_count.toString() || "M1");
                     this.keypress_4_Text.text = (this.key_4_count > 0 && this.key_4_count.toString() || "M2");
+                    this.lasthit_id = keyPress.ID;
                 }
 
                 if(keyPress.SMOKE){
