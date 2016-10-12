@@ -59,6 +59,19 @@ osu.ui.interface.osugame = {
     currentKeyPress: 0,
     lasthit_id: 1000,
 
+
+    currentMap: function () {
+        return this.beatmap;
+    },
+
+    currentReplay: function () {
+        return this.replay_data;
+    },
+
+    currentHitObjects: function () {
+        return this.hit_objects;
+    },
+
     calculateLetterBox: function () {
         var x = osu.ui.renderer.renderWidth;
         var y = osu.ui.renderer.renderHeight;
