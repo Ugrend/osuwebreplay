@@ -20,6 +20,9 @@ var event_handler = {
         BEATMAP_SELECTED: 13,
         STOP_REPLAY: 14,
         SETTINGS_CHANGED: 15,
+        SKIN_LOADING: 16,
+        SKIN_LOADED: 17,
+        SKIN_LOADING_FAILED: 18,
     }),
 
     __events: {},
@@ -61,6 +64,28 @@ var event_handler = {
 
 
 
+event_handler.on(event_handler.EVENTS.SKIN_LOADING, function (data) {
+    var loading =   new PNotify({
+        title: 'Loading skin',
+        text: "Loading \n" + data,
+        type: 'info',
+        hide: 'false'
+    });
+    var alias = Date.now().toString();
+    event_handler.on(event_handler.EVENTS.SKIN_LOADED, function (data_loaded) {
+        var options = {
+            type: "success",
+            title: "Skin Loaded",
+            text: data_loaded.name + "\n has been successfully processed",
+            hide: "true"
+        };
+        loading.update(options);
+        //one time only event
+        event_handler.off(event_handler.EVENTS.SKIN_LOADED, alias);
+    }, alias);
+});
+
+
 event_handler.on(event_handler.EVENTS.BEATMAP_LOADING, function (data) {
     var loading =   new PNotify({
         title: 'Loading beatmap',
@@ -81,7 +106,6 @@ event_handler.on(event_handler.EVENTS.BEATMAP_LOADING, function (data) {
         event_handler.off(event_handler.EVENTS.BEATMAP_LOADED, alias);
     }, alias);
 });
-
 
 
 event_handler.on(event_handler.EVENTS.BEATMAP_LOADING_FAILED, function (data) {

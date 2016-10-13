@@ -61,7 +61,11 @@ else {
 
             }else if(file.name.split(".").pop() == "osk"){
                 //skin
+                SkinReader(file,function (skin) {
+                    event_handler.emit(event_handler.EVENTS.SKIN_LOADED, skin);
+                });
             }else{
+
                 //asset
                 reader.readAsDataURL(file);
             }
