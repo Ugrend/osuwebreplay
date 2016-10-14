@@ -4,6 +4,114 @@
  */
 var osu = osu || {};
 //TODO: create PIXI textures
+
+
+function loadProgressHandler(loader, resources) {
+    console.log(resources);
+}
+
+function loaded(loader, resources) {
+    console.log("loaded");
+    console.log(resources);
+}
+
+PIXI.loader.add([
+    //hitbursts
+    {name: 'hit300', url: "data/hit300.png"},
+    {name: 'hit300g', url: "data/hit300g.png"},
+    {name: 'hit300k', url: "data/hit300k.png"},
+    {name: 'hit100',  url: "data/hit100.png"},
+    {name: 'hit100k', url: "data/hit100k.png"},
+    {name: 'hit50', url: "data/hit50.png"},
+    {name: 'hit0', url: "data/hit0.png"},
+
+    //Ranking Grades
+    {name: 'ranking_XH',  url:"data/ranking-XH.png"},
+    {name: 'ranking_SH',  url:"data/ranking-SH.png"},
+    {name: 'ranking_X', url:"data/ranking-X.png"},
+    {name: 'ranking_S', url:"data/ranking-S.png"},
+    {name: 'ranking_A', url:"data/ranking-A.png"},
+    {name: 'ranking_B', url:"data/ranking-B.png"},
+    {name: 'ranking_C', url:"data/ranking-C.png"},
+    {name: 'ranking_D', url:"data/ranking-D.png"},
+    {name: 'ranking_XH_small', url:"data/ranking-XH.png"},
+    {name: 'ranking_SH_small', url:"data/ranking-SH.png"},
+    {name: 'ranking_X_small', url:"data/ranking-X.png"},
+    {name: 'ranking_S_small', url:"data/ranking-S.png"},
+    {name: 'ranking_A_small', url:"data/ranking-A.png"},
+    {name: 'ranking_B_small', url:"data/ranking-B.png"},
+    {name: 'ranking_C_small', url:"data/ranking-C.png"},
+    {name: 'ranking_D_small', url:"data/ranking-D.png"},
+
+
+    //Interface
+    {name: 'pause_replay', url:"data/pause-replay.png"},
+    {name: 'menu_back', url:"data/menu-back.png"},
+    {name: 'cursor', url:"data/cursor.png"},
+    {name: 'cursortrail', url:"data/cursortrail.png"},
+    {name: 'cursormiddle', url:"data/cursormiddle.png"},
+    {name: 'cursor_smoke', url:"data/cursor-smoke.png"},
+    {name: 'inputoverlay_key', url:"data/inputoverlay-key.png"},
+    {name: 'star', url:"data/star.png"},
+
+    //Playfield
+    {name: 'section_fail', url:"data/section-fail.png"},
+    {name: 'section_pass', url:"data/section-pass.png"},
+    {name: 'play_warningarrow', url:"data/play-warningarrow.png"},
+    {name: 'play_skip', url:"data/play-skip.png"},
+
+    {name: 'hitcircle',  url:"data/hitcircle.png"},
+    {name: 'hitcicleoverlay',  url:"data/hitcircleoverlay.png"},
+    {name: 'approachcircle',  url:"data/approachcircle.png"},
+    {name: 'followpoint',  url:"data/followpoint.png"},
+    {name: 'sliderfollowcircle',  url:"data/sliderfollowcircle.png"},
+    {name: 'reversearrow',  url:"data/reversearrow.png"},
+    {name: 'sliderscorepoint',  url:"data/sliderscorepoint.png"},
+
+    {name: 'spinner_approachcircle',url:"data/spinner-approachcircle.png"},
+    {name: 'spinner_background',url:"data/spinner-background.png"},
+    {name: 'spinner_bottom',url:"data/spinner-bottom.png"},
+    {name: 'spinner_circle',url:"data/spinner-circle.png"},
+    {name: 'spinner_clear',url:"data/spinner-clear.png"},
+    {name: 'spinner_glow',url:"data/spinner-glow.png"},
+    {name: 'spinner_metre',url:"data/spinner-metre.png"},
+    {name: 'spinner_middle',url:"data/spinner-middle.png"},
+    {name: 'spinner_middle2',url:"data/spinner-middle2.png"},
+    {name: 'spinner_osu',url:"data/spinner-osu.png"},
+    {name: 'spinner_rpm',url:"data/spinner-rpm.png"},
+    {name: 'spinner_spin',url:"data/spinner-spin.png"},
+    {name: 'spinner_top',url:"data/spinner-top.png"},
+    {name: 'spinner_warning',url:"data/spinner-warning.png"},
+
+
+
+    {name: 'default_0', url:"data/default-0.png"},
+    {name: 'default_1', url:"data/default-1.png"},
+    {name: 'default_2', url:"data/default-2.png"},
+    {name: 'default_3', url:"data/default-3.png"},
+    {name: 'default_4', url:"data/default-4.png"},
+    {name: 'default_5', url:"data/default-5.png"},
+    {name: 'default_6', url:"data/default-6.png"},
+    {name: 'default_7', url:"data/default-7.png"},
+    {name: 'default_8', url:"data/default-8.png"},
+    {name: 'default_9', url:"data/default-9.png"},
+    //Mods
+
+    {name: 'selection_mod_doubletime', url:"data/selection-mod-doubletime.png"},
+    {name: 'selection_mod_easy', url:"data/selection-mod-easy.png"},
+    {name: 'selection_mod_flashlight', url:"data/selection-mod-flashlight.png"},
+    {name: 'selection_mod_halftime', url:"data/selection-mod-halftime.png"},
+    {name: 'selection_mod_hardrock', url:"data/selection-mod-hardrock.png"},
+    {name: 'selection_mod_hidden', url:"data/selection-mod-hidden.png"},
+    {name: 'selection_mod_nightcore', url:"data/selection-mod-nightcore.png"},
+    {name: 'selection_mod_nofail', url:"data/selection-mod-nofail.png"},
+    {name: 'selection_mod_perfect', url:"data/selection-mod-perfect.png"},
+    {name: 'selection_mod_spunout', url:"data/selection-mod-spunout.png"},
+    {name: 'selection_mod_suddendeath', url:"data/selection-mod-suddendeath.png"},
+
+]).on("progress",loadProgressHandler).load(loaded);
+
+
 osu.skins = {
 
     //https://osu.ppy.sh/wiki/Skinning_Standard
