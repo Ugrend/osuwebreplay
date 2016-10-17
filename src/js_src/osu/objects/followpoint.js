@@ -28,7 +28,7 @@ osu.objects.FollowPoint = class FollowPoint{
         var steps = 1/(numPoints+1);
         var nextStep = steps;
         this.followPointContainer = new PIXI.Container();
-        var arrowTexture =  PIXI.Texture.fromImage(osu.skins.followpoint);
+        var arrowTexture = osu.skins.resources.followpoint.texture;
         for(var i = 0 ; i < numPoints; i++){
             var arrowSprite = new PIXI.Sprite(arrowTexture);
 

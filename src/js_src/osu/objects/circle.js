@@ -3,24 +3,6 @@
  * Created by Ugrend on 11/06/2016.
  */
 
-    //TODO: THIS WILL MOVE ONCE SKIN SECTION IS DONE
-var hit_circle_texture = PIXI.Texture.fromImage(osu.skins.hitcircle);
-var hit_circle_overlay = PIXI.Texture.fromImage(osu.skins.hitcicleoverlay);
-var approach_circle_texture = PIXI.Texture.fromImage(osu.skins.approachcircle);
-
-var hit_numbers = {
-    num_0: PIXI.Texture.fromImage(osu.skins.default_1),
-    num_1: PIXI.Texture.fromImage(osu.skins.default_1),
-    num_2: PIXI.Texture.fromImage(osu.skins.default_2),
-    num_3: PIXI.Texture.fromImage(osu.skins.default_3),
-    num_4: PIXI.Texture.fromImage(osu.skins.default_4),
-    num_5: PIXI.Texture.fromImage(osu.skins.default_5),
-    num_6: PIXI.Texture.fromImage(osu.skins.default_6),
-    num_7: PIXI.Texture.fromImage(osu.skins.default_7),
-    num_8: PIXI.Texture.fromImage(osu.skins.default_8),
-    num_9: PIXI.Texture.fromImage(osu.skins.default_9)
-};
-
 
 osu = osu || {};
 osu.objects = osu.objects || {};
@@ -35,11 +17,30 @@ osu.objects.Circle = class Circle{
         this.isScoreAble = true; //just prevents the point animation from appearing
         this.radius = 0;
         this.missArray = [];
+
+        this.hit_numbers = {
+            num_0: osu.skins.resources.default_0.texture,
+            num_1: osu.skins.resources.default_1.texture,
+            num_2: osu.skins.resources.default_2.texture,
+            num_3: osu.skins.resources.default_3.texture,
+            num_4: osu.skins.resources.default_4.texture,
+            num_5: osu.skins.resources.default_5.texture,
+            num_6: osu.skins.resources.default_6.texture,
+            num_7: osu.skins.resources.default_7.texture,
+            num_8: osu.skins.resources.default_8.texture,
+            num_9: osu.skins.resources.default_9.texture
+        };
+
     }
+
+
+
+
+
     init(){
         this.radius = this.hitObject.size/2;
         this.circleContainer = new PIXI.Container();
-        this.endCircleSprite =  new PIXI.Sprite(hit_circle_texture);
+        this.endCircleSprite =  new PIXI.Sprite(osu.skins.resources.hitcircle.texture);
         this.endCircleSprite.tint = this.hitObject.colour;
         this.endCircleSprite.anchor.set(0.5);
         this.endCircleSprite.height = this.hitObject.size;
@@ -47,7 +48,7 @@ osu.objects.Circle = class Circle{
         this.radius = this.hitObject.size /2;
 
         if(!this.hitObject.game.is_hidden) {
-            this.approchCircleSprite = new PIXI.Sprite(approach_circle_texture);
+            this.approchCircleSprite = new PIXI.Sprite(osu.skins.resources.approachcircle.texture);
             this.approchCircleSprite.tint = this.hitObject.colour;
             this.approchCircleSprite.anchor.set(0.5);
             this.approchCircleSprite.width = this.hitObject.size * 2.5;
@@ -56,7 +57,7 @@ osu.objects.Circle = class Circle{
         }
 
 
-        this.circleOverlaySprite =  new PIXI.Sprite(hit_circle_overlay);
+        this.circleOverlaySprite =  new PIXI.Sprite(osu.skins.resources.hitcicleoverlay.texture);
         this.circleOverlaySprite.height = this.hitObject.size;
         this.circleOverlaySprite.width = this.hitObject.size;
         this.circleOverlaySprite.anchor.set(0.5);
@@ -66,7 +67,7 @@ osu.objects.Circle = class Circle{
         var comboString = this.hitObject.combo.toString();
         this.comboNumSprites = [];
         for(var i = 0; i< comboString.length ; i++){
-            this.comboNumSprites.push(new PIXI.Sprite(hit_numbers["num_"+comboString.charAt(i)]));
+            this.comboNumSprites.push(new PIXI.Sprite(this.hit_numbers["num_"+comboString.charAt(i)]));
         }
 
         if(this.comboNumSprites.length > 1){
@@ -100,18 +101,16 @@ osu.objects.Circle = class Circle{
         if(cur_time >= (this.hitObject.hitTime)){
             this.hit(cur_time);
         }
-        if(this.destroyed){
-            if(!this.beenHit && cur_time > this.hitObject.startTime + this.hitObject.hitOffset.HIT_50){
+        if(this.destroyed) {
+            if (!this.beenHit && cur_time > this.hitObject.startTime + this.hitObject.hitOffset.HIT_50) {
                 //never been hit
-                if(this.isScoreAble) this.hitObject.ScorePoint.displayMiss();
+                if (this.isScoreAble) this.hitObject.ScorePoint.displayMiss();
                 this.beenHit = true;
             }
             //object is no longer rendered but point sprite will be destroyed once this object is finished
-            if(cur_time < this.hitObject.startTime + 1000){
-                return true;
-            }
-            return false;
+            return (cur_time < this.hitObject.startTime + 1000);
         }
+
         if(this.drawn && this.hitObject.game.is_hidden && cur_time > this.hitObject.startTime - this.hidden_time){
             this.destroy();
             this.destroyed = true;

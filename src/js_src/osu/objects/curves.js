@@ -207,7 +207,7 @@ osu.objects.Curve = class Curve {
         var t = 0;
         while(t<=1){
             var angle = lerp(startAngle,endAngle,t);
-            var point = getPoint(angle,centerCircle.r)
+            var point = getPoint(angle,centerCircle.r);
             point.x += centerCircle.x;
             point.y += centerCircle.y;
             this.points.push(point);

@@ -23,6 +23,8 @@ var event_handler = {
         SKIN_LOADING: 16,
         SKIN_LOADED: 17,
         SKIN_LOADING_FAILED: 18,
+        RESOURCES_LOADING: 19,
+        RESOURCES_LOADED: 20
     }),
 
     __events: {},

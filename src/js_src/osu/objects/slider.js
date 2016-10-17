@@ -9,9 +9,7 @@ var ballTextures = [];
 for(var i = 0; i< osu.skins.sliderb.length; i++){
     ballTextures.push(PIXI.Texture.fromImage(osu.skins.sliderb[i]));
 }
-var sliderFollowTexture = PIXI.Texture.fromImage(osu.skins.sliderfollowcircle);
-var reverseArrowTexture = PIXI.Texture.fromImage(osu.skins.reversearrow);
-var sliderTickTexture = PIXI.Texture.fromImage(osu.skins.sliderscorepoint)
+
 
 osu = osu || {};
 osu.objects = osu.objects || {};
@@ -151,7 +149,7 @@ osu.objects.Slider = class Slider{
 
 
         //Add end circle TODO: check if theres a override skin
-        this.endCircleSprite =  new PIXI.Sprite(hit_circle_overlay);
+        this.endCircleSprite =  new PIXI.Sprite(osu.skins.resources.hitcicleoverlay.texture);
         this.endCircleSprite.anchor.set(0.5);
         this.endCircleSprite.height = this.hitObject.size;
         this.endCircleSprite.width = this.hitObject.size;
@@ -160,7 +158,7 @@ osu.objects.Slider = class Slider{
 
         this.sliderGraphicsContainer.addChild(this.endCircleSprite);
 
-        this.startCircleSprite =  new PIXI.Sprite(hit_circle_overlay);
+        this.startCircleSprite =  new PIXI.Sprite(osu.skins.resources.hitcicleoverlay.texture);
         this.startCircleSprite.anchor.set(0.5);
         this.startCircleSprite.height = this.hitObject.size;
         this.startCircleSprite.width = this.hitObject.size;
@@ -168,7 +166,7 @@ osu.objects.Slider = class Slider{
         this.startCircleSprite.position.y = this.hitObject.y;
         this.sliderGraphicsContainer.addChild(this.startCircleSprite);
 
-        this.arrowSliderEnd = new PIXI.Sprite(reverseArrowTexture);
+        this.arrowSliderEnd = new PIXI.Sprite(osu.skins.resources.reversearrow.texture);
         this.arrowSliderEnd.height = (this.hitObject.size *2)/5;
         this.arrowSliderEnd.width = (this.hitObject.size *2)/5;
         this.arrowSliderEnd.anchor.set(0.5);
@@ -179,7 +177,7 @@ osu.objects.Slider = class Slider{
         this.arrowSliderEnd.rotation = angle;
         this.arrowSliderEnd.visible = false;
 
-        this.arrowSliderStart = new PIXI.Sprite(reverseArrowTexture);
+        this.arrowSliderStart = new PIXI.Sprite(osu.skins.resources.reversearrow.texture);
         this.arrowSliderStart.height = (this.hitObject.size *2) /5;
         this.arrowSliderStart.width = (this.hitObject.size *2) /5 ;
         this.arrowSliderStart.anchor.set(0.5);
@@ -195,7 +193,7 @@ osu.objects.Slider = class Slider{
         for (i = 0; i < this.ticks.length; i++) {
             var tickLoc = this.curves.get_point(this.ticks[i]);
             this.tickPositions.push(tickLoc);
-            var tickSprite = new PIXI.Sprite(sliderTickTexture)
+            var tickSprite = new PIXI.Sprite(osu.skins.resources.sliderscorepoint.texture);
             tickSprite.position.x = tickLoc.x;
             tickSprite.position.y = tickLoc.y;
             tickSprite.anchor.set(0.5);
@@ -206,7 +204,7 @@ osu.objects.Slider = class Slider{
 
         this.sliderFollowContainer = new PIXI.Container();
 
-        var sliderFollowSprite = new PIXI.Sprite(sliderFollowTexture);
+        var sliderFollowSprite = new PIXI.Sprite(osu.skins.resources.sliderfollowcircle.texture);
         sliderFollowSprite.height = this.hitObject.size *2;
         sliderFollowSprite.width = this.hitObject.size *2;
         sliderFollowSprite.anchor.set(0.5);
