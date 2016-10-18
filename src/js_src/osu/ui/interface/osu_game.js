@@ -139,7 +139,7 @@ osu.ui.interface.osugame = {
     },
     create_key_press: function () {
         this.keypress_area = new PIXI.Container();
-        var keypress_texture = PIXI.Texture.fromImage(osu.skins.inputoverlay_key);
+        var keypress_texture = osu.skins.resources.inputoverlay_key.texture;
         this.keypress_1 = new PIXI.Sprite(keypress_texture);
         this.keypress_2 = new PIXI.Sprite(keypress_texture);
         this.keypress_3 = new PIXI.Sprite(keypress_texture);
@@ -199,8 +199,8 @@ osu.ui.interface.osugame = {
     },
     create_cursor: function () {
         this.cursor = new PIXI.Container();
-        var cursor_texture = PIXI.Texture.fromImage(osu.skins.cursor);
-        var cursor_middle_texture = PIXI.Texture.fromImage(osu.skins.cursormiddle);
+        var cursor_texture = osu.skins.resources.cursor.texture;
+        var cursor_middle_texture = osu.skins.resources.cursormiddle.texture;
         var cursor_sprite = new PIXI.Sprite(cursor_texture);
         var cursor_middle_sprite = new PIXI.Sprite(cursor_middle_texture);
 
@@ -215,7 +215,7 @@ osu.ui.interface.osugame = {
     },
     create_skip_container: function () {
         this.skip_container = new PIXI.Container();
-        var skip_texture = new PIXI.Texture.fromImage(osu.skins.play_skip);
+        var skip_texture =  osu.skins.resources.play_skip.texture;
         var skip_sprite = new PIXI.Sprite(skip_texture);
         skip_sprite.anchor.set(0.5);
         skip_sprite.x = this.calculate_x(512);
@@ -230,7 +230,7 @@ osu.ui.interface.osugame = {
     },
     create_play_warn_arrows_container: function () {
         this.arrow_container = new PIXI.Container();
-        var arrow_texture = new PIXI.Texture.fromImage(osu.skins.play_warningarrow);
+        var arrow_texture =  osu.skins.resources.play_warningarrow.texture;
         var skip_arrow_sprite_1 = new PIXI.Sprite(arrow_texture);
         var skip_arrow_sprite_2 = new PIXI.Sprite(arrow_texture);
         var skip_arrow_sprite_3 = new PIXI.Sprite(arrow_texture);
@@ -263,7 +263,7 @@ osu.ui.interface.osugame = {
     },
     create_success_container: function () {
         this.success_container = new PIXI.Container();
-        var success_texture = new PIXI.Texture.fromImage(osu.skins.section_pass);
+        var success_texture =  osu.skins.resources.section_pass.texture;
         var success_sprite = new PIXI.Sprite(success_texture);
         success_sprite.anchor.set(0.5);
         success_sprite.x = this.getRenderWidth() / 2;
@@ -274,7 +274,7 @@ osu.ui.interface.osugame = {
     },
     create_fail_container: function () {
         this.fail_container = new PIXI.Container();
-        var fail_texture = new PIXI.Texture.fromImage(osu.skins.section_fail);
+        var fail_texture = osu.skins.resources.section_fail.texture;
         var fail_sprite = new PIXI.Sprite(fail_texture);
         fail_sprite.anchor.set(0.5);
         fail_sprite.x = this.getRenderWidth() / 2;
@@ -295,7 +295,7 @@ osu.ui.interface.osugame = {
     create_mod_container: function () {
         for (var i = 0; i < this.mods.length; i++) {
             if (this.mods[i].icon != "") {
-                var modpng = PIXI.Texture.fromImage(osu.skins[this.mods[i].icon]);
+                var modpng = osu.skins.resources[this.mods[i].icon].texture;
                 var modSprite = new PIXI.Sprite(modpng);
                 modSprite.position.y = this.getRenderHeight() / 5;
                 modSprite.position.x = (this.getRenderWidth() * .95) - (i * 50);

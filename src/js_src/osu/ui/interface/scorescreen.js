@@ -140,8 +140,8 @@ osu.ui.interface.scorescreen = {
         this.total300ghitsText.anchor.set(0.5);
 
 
-        var hit300png = PIXI.Texture.fromImage(osu.skins.hit300);
-        var hit300gpng = PIXI.Texture.fromImage(osu.skins.hit300g);
+        var hit300png = osu.skins.resources.hit300.texture;
+        var hit300gpng = osu.skins.resources.hit300g.texture;
         var hit300Sprite = new PIXI.Sprite(hit300png);
         var hit300gSprite = new PIXI.Sprite(hit300gpng);
 
@@ -182,8 +182,8 @@ osu.ui.interface.scorescreen = {
         this.total100khitsText.anchor.set(0.5);
 
 
-        var hit100png = PIXI.Texture.fromImage(osu.skins.hit100);
-        var hit100kpng = PIXI.Texture.fromImage(osu.skins.hit100k);
+        var hit100png = osu.skins.resources.hit100.texture;
+        var hit100kpng = osu.skins.resources.hit100k.texture;
         var hit100Sprite = new PIXI.Sprite(hit100png);
         var hit100kSprite = new PIXI.Sprite(hit100kpng);
 
@@ -225,8 +225,8 @@ osu.ui.interface.scorescreen = {
         this.totalMissesText.anchor.set(0.5);
 
 
-        var hit50png = PIXI.Texture.fromImage(osu.skins.hit50);
-        var hit0png = PIXI.Texture.fromImage(osu.skins.hit0);
+        var hit50png = osu.skins.resources.hit50.texture;
+        var hit0png = osu.skins.resources.hit0.texture;
         var hit50Sprite = new PIXI.Sprite(hit50png);
         var hit0Sprite = new PIXI.Sprite(hit0png);
 
@@ -288,7 +288,7 @@ osu.ui.interface.scorescreen = {
     },
 
     create_grade_details_container: function () {
-        var gradepng = PIXI.Texture.fromImage(osu.skins[osu.score.GRADES[this.grade].large_icn]);
+        var gradepng = osu.skins.resources[osu.score.GRADES[this.grade].large_icn].texture;
         var gradeSprite = new PIXI.Sprite(gradepng);
 
         gradeSprite.position.x = this.getRenderWidth() *.8;
@@ -301,7 +301,7 @@ osu.ui.interface.scorescreen = {
 
 
 
-        var replaypng = PIXI.Texture.fromImage(osu.skins.pause_replay);
+        var replaypng = osu.skins.resources.pause_replay.texture;
         var replay_Sprite = new PIXI.Sprite(replaypng);
         replay_Sprite.position.x = this.getRenderWidth() *.8;
         replay_Sprite.position.y = this.getRenderHeight() *.8;
@@ -312,7 +312,7 @@ osu.ui.interface.scorescreen = {
         replay_Sprite.on("mouseup", this.start_replay.bind(this));
         replay_Sprite.on("touchend", this.start_replay.bind(this));
 
-        var backpng = PIXI.Texture.fromImage(osu.skins.menu_back);
+        var backpng = osu.skins.resources.menu_back.texture;
         var back_Sprite = new PIXI.Sprite(backpng);
         back_Sprite.position.x = this.getRenderWidth() *.1;
         back_Sprite.position.y = this.getRenderHeight() *.9;
@@ -326,7 +326,7 @@ osu.ui.interface.scorescreen = {
         this.master_container.addChild(gradeSprite);
         for(var i = 0; i < this.mods.length ; i++ ){
             if(this.mods[i].icon != ""){
-                var modpng = PIXI.Texture.fromImage(osu.skins[this.mods[i].icon]);
+                var modpng = osu.skins.resources[this.mods[i].icon].texture;
                 var modSprite = new PIXI.Sprite(modpng);
                 modSprite.position.y = this.getRenderHeight() *.7;
                 modSprite.position.x = (this.getRenderWidth() *.9) - (i*50);

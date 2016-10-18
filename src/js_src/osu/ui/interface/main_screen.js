@@ -250,7 +250,7 @@ osu.ui.interface.mainscreen = {
                 return 0;
             });
             for(i = 0; i < self.replays.length; i++){
-                self.replays[i].grade_img = osu.skins[osu.score.GRADES[self.replays[i].grade].small_icn];
+                self.replays[i].grade_img = osu.skins.resources[osu.score.GRADES[self.replays[i].grade].small_icn].url;
             }
 
             self.replaySearch = new Bloodhound({

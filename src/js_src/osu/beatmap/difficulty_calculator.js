@@ -52,8 +52,6 @@ osu.beatmaps.DifficultyCalculator = class DifficultyCalculator{
                 this.LAZY_SLIDER_STEP_LENGTH = 1;
                 this.lazySliderLengthFirst = 0;
                 this.lazySliderLengthSubsequent = 0;
-                this.normalizedEndPosition;
-                this.normalizedStartPosition;
                 this.strains = [ 1, 1 ];
 
 
@@ -291,7 +289,7 @@ osu.beatmaps.DifficultyCalculator = class DifficultyCalculator{
 		var weight = 1;
         var sortNum = function (a,b) {
             return b-a;
-        }
+        };
         highestStrains.sort(sortNum);
 
         for(var i = 0 ; i < highestStrains.length; i++){
