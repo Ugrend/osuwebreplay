@@ -118,10 +118,15 @@ osu.skins = {
         console.log(resources);
     },
 
+    onloaded: function () {
+
+    },
+
     _loaded: function (loader, resources) {
         this.resources = resources;
         event_handler.emit(event_handler.EVENTS.RESOURCES_LOADED);
         this.loaded = true;
+        osu.skins.onloaded();
     },
 
 
