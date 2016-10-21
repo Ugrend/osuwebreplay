@@ -82,7 +82,7 @@ osu.beatmaps.BeatmapPreview = class BeatmapPreview {
                         {
                             h: 52,
                             w: 50,
-                            star_img: osu.skins.star
+                            star_img: osu.skins.resources.star.url
                         }
                     )
                 }else{
@@ -91,7 +91,7 @@ osu.beatmaps.BeatmapPreview = class BeatmapPreview {
                             {
                                 h: 52 * stars,
                                 w: 50 * stars,
-                                star_img: osu.skins.star
+                                star_img: osu.skins.resources.star.url
                             })
                     }
 
