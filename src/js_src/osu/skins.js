@@ -149,8 +149,37 @@ osu.skins = {
         });
     },
     _loadAssetsFromIDB: function (current_skin,assets,cb) {
-        console.log(current_skin);
-        cb(current_skin);
+
+        var _length = assets.length;
+        var _loaded = 0;
+        for(var i = 0; i < _length; i++){
+            var fileExt = assets[i].filename.split('.').pop();
+            if(fileExt.toLowerCase() == "png"){
+                var name = assets[i].filename.split('.')[0].toLowerCase();
+                (function (name) {
+                    database.get_data(database.TABLES.ASSETS,assets[i].md5sum, function (result) {
+                        _loaded++;
+                        current_skin[name] = result.data;
+                        if(_loaded >= _length){
+                            cb(current_skin);
+                        }
+                    }, function () {
+                        _loaded++;
+                        if(_loaded >= _length){
+                            cb(current_skin);
+                        }
+                    })
+                })(name);
+            }else{
+                _loaded++;
+                if(_loaded >= _length){
+                    cb(current_skin);
+                }
+            }
+        }
+        if(_loaded >= _length){
+            cb(current_skin);
+        }
 
     },
 
@@ -170,7 +199,6 @@ osu.skins = {
     },
 
     loadProgressHandler: function (loader, resources) {
-        console.log(resources);
     },
 
     onloaded: function () {
