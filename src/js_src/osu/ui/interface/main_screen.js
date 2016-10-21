@@ -36,6 +36,7 @@ osu.ui.interface.mainscreen = {
         this.$music_volume_slider.val(osu.settings.SETTINGS.music_volume * 100);
         this.$sound_volume_slider.val(osu.settings.SETTINGS.sound_effects_volume * 100);
         this.$background_dim_slider.val(osu.settings.SETTINGS.background_dim * 100);
+        this.$skin_select.val(osu.settings.SETTINGS.selected_skin);
 
         var self = this;
         database.get_count(database.TABLES.BEATMAPS, function (count) {
@@ -73,7 +74,7 @@ osu.ui.interface.mainscreen = {
             this.$music_volume_slider = $("#music_volume");
             this.$sound_volume_slider = $("#sound_volume");
             this.$background_dim_slider = $("#background_dim");
-
+            this.$skin_select = $("#skin_select");
             this.cached_dom = true;
         }
 
@@ -89,6 +90,11 @@ osu.ui.interface.mainscreen = {
                 osu.settings.SETTINGS.asset_server = self.$asset_server_url.val();
                 osu.settings.SETTINGS.song_url = self.$song_server_url.val();
             });
+
+            this.$skin_select.on('change',function () {
+                osu.settings.SETTINGS.selected_skin = self.$skin_select.val();
+            });
+
 
             this.$beatmap_search_field.on('input', function (e) {
                 var searchParam = e.currentTarget.value;
@@ -355,6 +361,12 @@ osu.ui.interface.mainscreen = {
             this.$beatmap_section_html.toggle("slide", {direction: "right"}); //right looks broken
         }
 
+        this.$skin_select.empty();
+        this.$skin_select.append('<option value="0">Default</option>');
+        for(var i = 0; i < osu.skins.skins.length; i++){
+            this.$skin_select.append('<option value="'+ osu.skins.skins[i].md5sum +'">'+ osu.skins.skins[i].name  +'</option>')
+        }
+        this.$skin_select.val(osu.settings.SETTINGS.selected_skin);
 
 
         this.$footer.find('#skin_settings').attr('style','');

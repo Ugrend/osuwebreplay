@@ -146,6 +146,24 @@ var database = {
             onsuccess(e.target.result);
         };
     },
+    getAll(table,callback){
+        var request = this.__db.transaction([table], "readonly").objectStore(table);
+        var result = [];
+        request.openCursor().onsuccess = function (event) {
+
+
+            var cursor = event.target.result;
+            if(cursor){
+                result.push(cursor.value);
+                cursor.continue();
+            }else{
+                callback(result);
+            }
+
+
+        }
+
+    },
     update_data(table,key,data, onsuccess, onerror){
         onsuccess = onsuccess || function () {};
         onerror = onerror || function () {};

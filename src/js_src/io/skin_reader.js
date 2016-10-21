@@ -11,7 +11,8 @@ var SkinReader = function(skin_zip, callback) {
         author: "",
         version: "",
         colours: [],
-        assets: []
+        assets: [],
+        md5sum: "",
     };
 
     zip.createReader(new zip.BlobReader(skin_zip), function (reader) {
@@ -21,7 +22,7 @@ var SkinReader = function(skin_zip, callback) {
             process_count++;
             if (process_count >= zip_length){
 
-                database.insert_data(database.TABLES.SKINS,skins.name,skins,callback,callback);
+                database.insert_data(database.TABLES.SKINS,skins.md5sum,skins,callback,callback);
             }
         };
 
@@ -40,6 +41,8 @@ var SkinReader = function(skin_zip, callback) {
                     var extension = entries[i].filename.split(".").pop();
                     if (extension == "ini") {
                         entries[i].getData(new zip.TextWriter(), function (text) {
+                            skins.md5sum = md5(text);
+
                             var lines = text.replace("\r", "").split("\n");
                             for (var j = 0; j < lines.length; j++) {
                                 var line = lines[j];

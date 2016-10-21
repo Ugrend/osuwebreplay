@@ -94,7 +94,7 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
             K2 = false;
             SMOKE = false;
 
-            var circleHit = false;
+
             for(var j = 0 ; j < replayFrame.keys.length ; j++){
                 var key = replayFrame.keys[j];
                 if(key == osu.keypress.KEYS.M1 || key == osu.keypress.KEYS.K1){
@@ -135,7 +135,7 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
             }
 
             difference = Math.abs(difference);
-
+            var circleHit = false;
             if(!hitObject.is_spinner && isClick && !IS_HIT && isIn(hitObject,replayFrame,radius)){
                 if(difference <= hitObject.hitOffset.HIT_300){
                     //Hit is a 300
