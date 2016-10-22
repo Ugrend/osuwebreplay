@@ -155,7 +155,7 @@ osu.skins = {
         for(var i = 0; i < _length; i++){
             var fileExt = assets[i].filename.split('.').pop();
             if(fileExt.toLowerCase() == "png"){
-                var name = assets[i].filename.split('.')[0].toLowerCase().replace(/-/g,"_");
+                var name = assets[i].filename.split('.')[0].toLowerCase().replace(/-|@/g,"_");
                 (function (name) {
                     database.get_data(database.TABLES.ASSETS,assets[i].md5sum, function (result) {
                         _loaded++;
