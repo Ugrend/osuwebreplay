@@ -16,14 +16,14 @@ osu.score = {
 
      */
     GRADES: Object.freeze({
-        SS: {name:"SS",small_icn:"ranking_X_small",large_icn:"ranking_X"},
-        S:  {name:"S",small_icn:"ranking_S_small",large_icn:"ranking_S"},
-        A:  {name:"A",small_icn:"ranking_A_small",large_icn:"ranking_A"},
-        B:  {name:"B",small_icn:"ranking_B_small",large_icn:"ranking_B"},
-        C:  {name:"C",small_icn:"ranking_C_small",large_icn:"ranking_C"},
-        D:  {name:"D",small_icn:"ranking_D_small",large_icn:"ranking_D"},
-        SSH:  {name:"SSH",small_icn:"ranking_XH_small",large_icn:"ranking_XH"},
-        SH:  {name:"SH",small_icn:"ranking_SH_small",large_icn:"ranking_SH"}
+        SS: {name:"SS",small_icn:"ranking_x_small",large_icn:"ranking_x"},
+        S:  {name:"S",small_icn:"ranking_s_small",large_icn:"ranking_s"},
+        A:  {name:"A",small_icn:"ranking_a_small",large_icn:"ranking_a"},
+        B:  {name:"B",small_icn:"ranking_b_small",large_icn:"ranking_b"},
+        C:  {name:"C",small_icn:"ranking_c_small",large_icn:"ranking_c"},
+        D:  {name:"D",small_icn:"ranking_d_small",large_icn:"ranking_d"},
+        SSH:  {name:"SSH",small_icn:"ranking_xh_small",large_icn:"ranking_xh"},
+        SH:  {name:"SH",small_icn:"ranking_sh_small",large_icn:"ranking_sh"}
     }),
 
 

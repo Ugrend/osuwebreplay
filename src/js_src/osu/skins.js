@@ -26,22 +26,22 @@ osu.skins = {
         {name: 'hit0', url: "data/hit0.png"},
 
         //Ranking Grades
-        {name: 'ranking_XH',  url:"data/ranking-XH.png"},
-        {name: 'ranking_SH',  url:"data/ranking-SH.png"},
-        {name: 'ranking_X', url:"data/ranking-X.png"},
-        {name: 'ranking_S', url:"data/ranking-S.png"},
-        {name: 'ranking_A', url:"data/ranking-A.png"},
-        {name: 'ranking_B', url:"data/ranking-B.png"},
-        {name: 'ranking_C', url:"data/ranking-C.png"},
-        {name: 'ranking_D', url:"data/ranking-D.png"},
-        {name: 'ranking_XH_small', url:"data/ranking-XH.png"},
-        {name: 'ranking_SH_small', url:"data/ranking-SH.png"},
-        {name: 'ranking_X_small', url:"data/ranking-X.png"},
-        {name: 'ranking_S_small', url:"data/ranking-S.png"},
-        {name: 'ranking_A_small', url:"data/ranking-A.png"},
-        {name: 'ranking_B_small', url:"data/ranking-B.png"},
-        {name: 'ranking_C_small', url:"data/ranking-C.png"},
-        {name: 'ranking_D_small', url:"data/ranking-D.png"},
+        {name: 'ranking_xh',  url:"data/ranking-XH.png"},
+        {name: 'ranking_sh',  url:"data/ranking-SH.png"},
+        {name: 'ranking_x', url:"data/ranking-X.png"},
+        {name: 'ranking_s', url:"data/ranking-S.png"},
+        {name: 'ranking_a', url:"data/ranking-A.png"},
+        {name: 'ranking_b', url:"data/ranking-B.png"},
+        {name: 'ranking_c', url:"data/ranking-C.png"},
+        {name: 'ranking_d', url:"data/ranking-D.png"},
+        {name: 'ranking_xh_small', url:"data/ranking-XH.png"},
+        {name: 'ranking_sh_small', url:"data/ranking-SH.png"},
+        {name: 'ranking_x_small', url:"data/ranking-X.png"},
+        {name: 'ranking_s_small', url:"data/ranking-S.png"},
+        {name: 'ranking_a_small', url:"data/ranking-A.png"},
+        {name: 'ranking_b_small', url:"data/ranking-B.png"},
+        {name: 'ranking_c_small', url:"data/ranking-C.png"},
+        {name: 'ranking_d_small', url:"data/ranking-D.png"},
 
 
         //Interface
@@ -155,7 +155,7 @@ osu.skins = {
         for(var i = 0; i < _length; i++){
             var fileExt = assets[i].filename.split('.').pop();
             if(fileExt.toLowerCase() == "png"){
-                var name = assets[i].filename.split('.')[0].toLowerCase();
+                var name = assets[i].filename.split('.')[0].toLowerCase().replace(/-/g,"_");
                 (function (name) {
                     database.get_data(database.TABLES.ASSETS,assets[i].md5sum, function (result) {
                         _loaded++;
@@ -182,7 +182,6 @@ osu.skins = {
         }
 
     },
-
     loadSkin: function (skin) {
         var self = this;
         var skinArray = [];
@@ -195,10 +194,14 @@ osu.skins = {
             }
 
         }
+
         PIXI.loader.add(skinArray).on("progress",self.loadProgressHandler.bind(self)).load(self._loaded.bind(self));
     },
 
     loadProgressHandler: function (loader, resources) {
+       if(resources.name == "ranking-sh"){
+           console.log(resources);
+       }
     },
 
     onloaded: function () {
