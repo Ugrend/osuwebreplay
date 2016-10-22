@@ -12,10 +12,10 @@ osu.objects.ScorePoint = class ScorePoint {
 
     constructor(x,y,game){
         this.game = game;
-        this.hit300Sprite = new PIXI.Sprite(osu.skins.resources.hit300.texture);
-        this.hit100Sprite = new PIXI.Sprite(osu.skins.resources.hit100.texture);
-        this.hit50Sprite = new PIXI.Sprite(osu.skins.resources.hit50.texture);
-        this.hitMissSprite = new PIXI.Sprite(osu.skins.resources.hit0.texture);
+        this.hit300Sprite = new PIXI.Sprite(osu.skins.resources.hit300_0 && osu.skins.resources.hit300_0.texture || osu.skins.resources.hit300.texture);
+        this.hit100Sprite = new PIXI.Sprite(osu.skins.resources.hit100_0 && osu.skins.resources.hit100_0.texture || osu.skins.resources.hit100.texture);
+        this.hit50Sprite = new PIXI.Sprite(osu.skins.resources.hit50_0 && osu.skins.resources.hit50_0.texture || osu.skins.resources.hit50.texture);
+        this.hitMissSprite = new PIXI.Sprite(osu.skins.resources.hit0_0 && osu.skins.resources.hit0_0.texture || osu.skins.resources.hit0.texture);
 
         this.hit300Sprite.visible = false;
         this.hit100Sprite.visible = false;
