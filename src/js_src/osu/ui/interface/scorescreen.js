@@ -314,13 +314,18 @@ osu.ui.interface.scorescreen = {
 
 
         var backFrames = [];
-        backFrames.push(osu.skins.resources.menu_back.texture);
-        for(var i = 0; i < 99; i++){
-            if(osu.skins.resources["menu_back_"+i]){
-                backFrames.push(osu.skins.resources["menu_back_"+i].texture);
-            }else{
-                break;
+
+
+        if(osu.skins.resources.menu_back_0){
+            for(var i = 0; i < 99; i++){
+                if(osu.skins.resources["menu_back_"+i]){
+                    backFrames.push(osu.skins.resources["menu_back_"+i].texture);
+                }else{
+                    break;
+                }
             }
+        }else{
+            backFrames.push(osu.skins.resources.menu_back.texture);
         }
 
 
