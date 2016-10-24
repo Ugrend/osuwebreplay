@@ -215,16 +215,31 @@ osu.ui.interface.osugame = {
     },
     create_skip_container: function () {
         this.skip_container = new PIXI.Container();
-        var skip_texture =  osu.skins.resources.play_skip.texture;
-        var skip_sprite = new PIXI.Sprite(skip_texture);
-        skip_sprite.anchor.set(0.5);
-        skip_sprite.x = this.calculate_x(512);
-        skip_sprite.y = this.calculate_y(384);
-        skip_sprite.interactive = true;
-        skip_sprite.on("mouseup", this.skip_intro.bind(this));
+
+        var skipFrames = [];
+        if(osu.skins.resources.play_skip_0){
+            for(var i = 0 ; i< 99; i++){
+                if(osu.skins.resources["play_skip_"+i]){
+                    skipFrames.push(osu.skins.resources["play_skip_"+i].texture);
+                }else{
+                    break;
+                }
+            }
+        }else{
+            skipFrames.push(osu.skins.resources.play_skip.texture);
+        }
+
+        var skipAnimation = new PIXI.extras.MovieClip(skipFrames);
+        skipAnimation.anchor.set(0.5);
+        skipAnimation.x = this.calculate_x(512);
+        skipAnimation.y = this.calculate_y(384);
+        skipAnimation.interactive = true;
+        skipAnimation.on("mouseup", this.skip_intro.bind(this));
+        skipAnimation.animationSpeed = 0.1;
+        skipAnimation.play();
         this.skip_container.visible = false;
 
-        this.skip_container.addChild(skip_sprite);
+        this.skip_container.addChild(skipAnimation);
         this.master_container.addChild(this.skip_container);
 
     },
