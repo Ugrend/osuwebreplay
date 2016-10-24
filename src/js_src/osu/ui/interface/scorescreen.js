@@ -312,19 +312,32 @@ osu.ui.interface.scorescreen = {
         replay_Sprite.on("mouseup", this.start_replay.bind(this));
         replay_Sprite.on("touchend", this.start_replay.bind(this));
 
-        var backpng = osu.skins.resources.menu_back.texture;
-        var back_Sprite = new PIXI.Sprite(backpng);
-        back_Sprite.position.x = this.getRenderWidth() *.1;
-        back_Sprite.position.y = this.getRenderHeight() *.9;
-        back_Sprite.interactive = true;
-        back_Sprite.width = this.getRenderWidth() *.2;
-        back_Sprite.height = this.getRenderHeight() *.2;
-        back_Sprite.anchor.set(0.5);
-        back_Sprite.on("mouseup", this.exit.bind(this));
-        back_Sprite.on("touchend", this.exit.bind(this));
+
+        var backFrames = [];
+        backFrames.push(osu.skins.resources.menu_back.texture);
+        for(var i = 0; i < 99; i++){
+            if(osu.skins.resources["menu_back_"+i]){
+                backFrames.push(osu.skins.resources["menu_back_"+i].texture);
+            }else{
+                break;
+            }
+        }
+
+
+        var backAnimation = new PIXI.extras.MovieClip(backFrames);
+        backAnimation.position.x = this.getRenderWidth() *.1;
+        backAnimation.position.y = this.getRenderHeight() *.9;
+        backAnimation.interactive = true;
+        backAnimation.width = this.getRenderWidth() *.2;
+        backAnimation.height = this.getRenderHeight() *.2;
+        backAnimation.anchor.set(0.5);
+        backAnimation.on("mouseup", this.exit.bind(this));
+        backAnimation.on("touchend", this.exit.bind(this));
+        backAnimation.animationSpeed = 0.1;
+        backAnimation.play();
 
         this.master_container.addChild(gradeSprite);
-        for(var i = 0; i < this.mods.length ; i++ ){
+        for(i = 0; i < this.mods.length ; i++ ){
             if(this.mods[i].icon != ""){
                 var modpng = osu.skins.resources[this.mods[i].icon].texture;
                 var modSprite = new PIXI.Sprite(modpng);
@@ -336,7 +349,7 @@ osu.ui.interface.scorescreen = {
         }
 
         this.master_container.addChild(replay_Sprite);
-        this.master_container.addChild(back_Sprite);
+        this.master_container.addChild(backAnimation);
 
     },
     exit: function () {
