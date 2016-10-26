@@ -4,17 +4,27 @@
  */
 
 
-//TODO: this needs to be placed in skins once coded
-var ballTextures = [];
-for(var i = 0; i< osu.skins.sliderb.length; i++){
-    ballTextures.push(PIXI.Texture.fromImage(osu.skins.sliderb[i]));
-}
-
 
 osu = osu || {};
 osu.objects = osu.objects || {};
 osu.objects.Slider = class Slider{
     constructor(hitObject){
+        //TODO: fix sliderFollowTexture
+        //Should do this better however we only really need to load these once, it would be inefficient to load the textures over and over for every slider
+        if(!osu.objects.ballTextures){
+            osu.objects.ballTextures = [];
+            if(osu.skins.resources.sliderb0){
+                for(var i = 0; i < 99; i++){
+                    if(osu.skins.resources["sliderb"+i]){
+                        osu.objects.ballTextures.push(osu.skins.resources["sliderb"+i].texture);
+                    }else{
+                        break;
+                    }
+                }
+            }
+        }
+
+
         this.hitObject = hitObject;
         this.last_draw_time  =0;
         this.drawn = false;
@@ -209,7 +219,7 @@ osu.objects.Slider = class Slider{
         sliderFollowSprite.width = this.hitObject.size *2;
         sliderFollowSprite.anchor.set(0.5);
 
-        var sliderBall = new PIXI.extras.MovieClip(ballTextures);
+        var sliderBall = new PIXI.extras.MovieClip(osu.objects.ballTextures);
         sliderBall.animationSpeed = 1.2;
         sliderBall.anchor.set(0.5);
         sliderBall.width = this.hitObject.size;
