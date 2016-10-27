@@ -326,7 +326,7 @@ osu.objects.Slider = class Slider{
             }
             if(this.hitObject.repeatCount > 0){
                 //TODO: i feel like this is wrong and im overcomplicating it but im tired and this works
-                var elpased_time = (cur_time-this.nextRepeatTime) - this.hitObject.startTime;
+                var elapsed_time = (cur_time-this.nextRepeatTime) - this.hitObject.startTime;
 
                 if(this.hitObject.repeatCount % 2 == 0){
                     this.arrowSliderEnd.visible = true;
@@ -338,7 +338,7 @@ osu.objects.Slider = class Slider{
                     }
                 }
 
-                var t = (elpased_time / this.timePerRepeat);
+                var t = (elapsed_time / this.timePerRepeat);
                 if(this.sliderDirectionBackwards){
                     t = 1-t;
                 }
