@@ -65,6 +65,33 @@
     {{/beatmaps}}
 
 </script>
+
+<div class="modal fade" id="delete_beatmap_modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Delete Map</h4>
+            </div>
+            <div class="modal-body">
+
+                <label class="checkbox-inline" for="delete_other_difficulties">Delete other difficulties</label>
+                <input type="checkbox" id="delete_other_difficulties">
+
+
+                <label class="checkbox-inline"  for="delete_assets">Delete assets</label>
+                <input type="checkbox" id="delete_assets">
+                <p class="bg-danger">Warning: How assets are stored, deleting assets may delete other map/skin assets</p>
+                <button id="deleteMapButton" class="form-control btn-danger">Delete Map</button>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <div id="loading">loading...</div>
 <div class="hidden" id="no_beatmaps_replays"><p class="h3">Drag in some beatmaps and replays to begin!</p></div>
 
@@ -194,6 +221,10 @@
         </div>
     </div>
 </div>
+
+
+
+
 
 <script type="text/javascript" src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
 <script type="text/javascript" src="static/libs/js/jquery-ui.js"></script>

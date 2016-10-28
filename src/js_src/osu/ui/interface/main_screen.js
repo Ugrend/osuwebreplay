@@ -76,6 +76,10 @@ osu.ui.interface.mainscreen = {
             this.$background_dim_slider = $("#background_dim");
             this.$skin_select = $("#skin_select");
             this.cached_dom = true;
+            this.$deleteBeatmapModel = $("#delete_beatmap_modal");
+            this.$deleteButton = this.$deleteBeatmapModel.find("#deleteMapButton");
+            this.$deleteOtherDifficultiesCheckBox = this.$deleteBeatmapModel.find("#delete_other_difficulties");
+            this.$deleteAssetsCheckBox = this.$deleteBeatmapModel.find("#delete_assets");
         }
 
     },
@@ -153,6 +157,13 @@ osu.ui.interface.mainscreen = {
                 self.highlight_beatmap(clickedObject);
                 self.select_beatmap(md5sum, false);
             });
+            //on right click allow deleting of map/etc
+            this.$beatmap_section_html.on('contextmenu',".beatmap_preview",function (e) {
+                e.preventDefault();
+                self.deletion_id = $(this).attr("id");
+                self.$deleteBeatmapModel.modal('show');
+            });
+
 
             //on replay click open replay
             $(this.$replay_section_html).on("click",".replay_preview", function (event) {
