@@ -165,6 +165,8 @@ osu.ui.interface.mainscreen = {
             });
 
 
+            this.$deleteButton.on("click", self.delete_map.bind(self));
+
             //on replay click open replay
             $(this.$replay_section_html).on("click",".replay_preview", function (event) {
                 osu.audio.sound.play_sound(osu.audio.sound.MENUHIT);
@@ -197,6 +199,15 @@ osu.ui.interface.mainscreen = {
 
 
     },
+
+    delete_map(id,other_difficulties,include_assets){
+        //check id if object, if so came from ui not console
+        if(typeof id == "object"){
+
+        }
+
+    },
+
     highlight_beatmap($beatmapHtml){
         this.$currentSelectionHtml =$beatmapHtml;
         this.$beatmap_section_html.find(".song_preview_row").removeClass('song_preview_unselected').removeClass('song_preview_mouseover').removeClass('song_preview_selected').addClass('song_preview_unselected');

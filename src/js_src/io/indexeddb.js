@@ -98,7 +98,7 @@ var database = {
         }
     },
     get_count: function (table, onsuccess) {
-        var countReq = this.__db.transaction([table], "readonly").objectStore(table).count()
+        var countReq = this.__db.transaction([table], "readonly").objectStore(table).count();
         countReq.onsuccess = function () {
             onsuccess(countReq.result);
         }
