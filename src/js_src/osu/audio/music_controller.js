@@ -62,6 +62,9 @@ osu.audio.music =  {
     play: function(){
         this.__audio.play()
     },
+    pause: function () {
+        this.__audio.pause();
+    },
     set_playback_speed: function (rate) {
         this.__audio.playbackRate = rate;
 

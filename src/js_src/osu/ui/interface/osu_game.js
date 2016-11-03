@@ -58,6 +58,8 @@ osu.ui.interface.osugame = {
     keyPresses: [],
     currentKeyPress: 0,
     lasthit_id: 1000,
+    paused: false,
+    paused_time: 0,
 
 
     currentMap: function () {
@@ -914,38 +916,59 @@ osu.ui.interface.osugame = {
 
     },
 
-    game_loop: function () {
-        this.render_replay_frame();
-        this.renderKeyPress();
-        if (!this.has_started && this.audioLeadIn == 0) {
-            if (this.is_doubletime) osu.audio.music.set_playback_speed(1.5);
-            osu.audio.music.start();
-            this.date_started = Date.now();
-            this.has_started = true;
-        } else {
-            if (!this.countdown_started) {
-                var self = this;
-                this.date_started = Date.now();
-                setTimeout(function () {
-                    self.audioLeadIn = 0;
-                }, this.audioLeadIn);
-                this.countdown_started = true;
+    toggle_pause: function () {
+        if(!paused){
+            this.paused = true;
+            if(this.has_started){
+                this.paused_time = Date.now();
+                osu.audio.music.pause();
             }
-            var curTime = Date.now() - this.date_started;
-            this.update_timer_percentage(curTime/this.audioLeadIn, osu.helpers.constants.TIMER_INTRO_COLOUR);
+            return;
         }
-        var time = Date.now();
-        if (this.has_started) {
-            this.curMapTime = time - this.date_started;
-            if (this.skipTime ==-1 || this.skipTime > -1 && this.skipTime < this.curMapTime) {
-                this.skip_container.visible = false;
-            }else{
-                this.update_timer_percentage(this.curMapTime/this.skipTime, osu.helpers.constants.TIMER_INTRO_COLOUR);
-                this.skip_container.visible = true;
-            }
-            this.render_object();
+        this.paused = false;
+        if(this.has_started){
+            osu.audio.music.play();
+        }
 
+    },
+
+    game_loop: function () {
+        if(!this.paused){
+            this.render_replay_frame();
+            this.renderKeyPress();
+            if (!this.has_started && this.audioLeadIn == 0) {
+                if (this.is_doubletime) osu.audio.music.set_playback_speed(1.5);
+                osu.audio.music.start();
+                this.date_started = Date.now();
+                this.has_started = true;
+            } else {
+                if (!this.countdown_started) {
+                    var self = this;
+                    this.date_started = Date.now();
+                    setTimeout(function () {
+                        self.audioLeadIn = 0;
+                    }, this.audioLeadIn);
+                    this.countdown_started = true;
+                }
+                var curTime = Date.now() - this.date_started;
+                this.update_timer_percentage(curTime/this.audioLeadIn, osu.helpers.constants.TIMER_INTRO_COLOUR);
+            }
+            var time = Date.now();
+            if (this.has_started) {
+                var pausedSeconds = this.paused_time - time;
+                this.curMapTime = time - this.date_started - pausedSeconds;
+                this.paused_time = 0;
+                if (this.skipTime ==-1 || this.skipTime > -1 && this.skipTime < this.curMapTime) {
+                    this.skip_container.visible = false;
+                }else{
+                    this.update_timer_percentage(this.curMapTime/this.skipTime, osu.helpers.constants.TIMER_INTRO_COLOUR);
+                    this.skip_container.visible = true;
+                }
+                this.render_object();
+
+            }
         }
+
 
         if(!this.finished) setTimeout(this.game_loop.bind(this), 1);
 
