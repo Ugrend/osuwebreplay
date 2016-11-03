@@ -226,7 +226,7 @@ osu.ui.interface.mainscreen = {
                 for(i = 0; i < this.beatmaps.length ; i++){
                     beatmap = this.beatmaps[i];
                     if(beatmap.beatmapsetid == beatmapSet) {
-                        delete_array.append(beatmap.md5sum);
+                        delete_array.push(beatmap.md5sum);
                     }
                 }
             }
