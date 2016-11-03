@@ -201,10 +201,20 @@ osu.ui.interface.mainscreen = {
     },
 
     delete_map(id,other_difficulties,include_assets){
+        var self = this;
         //check id if object, if so came from ui not console
         if(typeof id == "object"){
-
+            id = this.deletion_id;
+            other_difficulties = this.$deleteOtherDifficultiesCheckBox.is(':checked');
+            include_assets = this.$deleteAssetsCheckBox.is(':checked');
         }
+
+        database.delete_data(database.TABLES.BEATMAPS,id,function (e) {
+            self.$beatmap_section_html.find("#ab0b3aab2c943b5edae665571a779a4e").hide()
+        });
+
+
+
 
     },
 
@@ -328,7 +338,6 @@ osu.ui.interface.mainscreen = {
         if(this.key_count == this.processed_count){
             this.beatmaps.sort(function (a,b) {
                 if (a.title < b.title)
-                    return -1;
                     return -1;
                 if (a.title > b.title)
                     return 1;
