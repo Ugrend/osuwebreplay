@@ -208,10 +208,50 @@ osu.ui.interface.mainscreen = {
             other_difficulties = this.$deleteOtherDifficultiesCheckBox.is(':checked');
             include_assets = this.$deleteAssetsCheckBox.is(':checked');
         }
+        self.$beatmap_section_html.find("#" +id).hide();
+        if(other_difficulties){
+            var delete_array = [];
 
-        database.delete_data(database.TABLES.BEATMAPS,id,function (e) {
-            self.$beatmap_section_html.find("#ab0b3aab2c943b5edae665571a779a4e").hide()
-        });
+            var parentMap = false;
+            for(var i = 0; i < this.beatmaps.length ; i++){
+                var beatmap = this.beatmaps[i];
+                if(beatmap.md5sum == id) {
+                    parentMap = beatmap;
+                    break;
+                }
+            }
+            if(parentMap){
+                var beatmapSet = parentMap.beatmapsetid;
+
+                for(i = 0; i < this.beatmaps.length ; i++){
+                    beatmap = this.beatmaps[i];
+                    if(beatmap.beatmapsetid == beatmapSet) {
+                        delete_array.append(beatmap.md5sum);
+                    }
+                }
+            }
+            for(i = 0 ; i< delete_array.length; i++){
+                self.$beatmap_section_html.find("#" +delete_array[i]).hide();
+                database.delete_data(database.TABLES.BEATMAPS,delete_array[i]);
+            }
+
+        }
+        if(include_assets){
+            database.get_data(database.TABLES.BEATMAPS,id,function (result) {
+                var beatmap = result.data;
+                for(var i = 0; i<beatmap.files.length; i++){
+                    database.delete_data(database.TABLES.ASSETS,beatmap.files[i].md5sum);
+                }
+                database.delete_data(database.TABLES.BEATMAPS,id)
+            });
+
+
+
+        }
+        if(!other_difficulties && !include_assets){
+            database.delete_data(database.TABLES.BEATMAPS,id);
+
+        }
 
 
 
