@@ -2,6 +2,8 @@
  * filereader.js
  * Created by Ugrend on 6/2/2016.
  */
+
+
 if(typeof window.FileReader === "undefined"){
     dragDropLabel.innerHTML = "Shit won't work on this browser :("
 }
@@ -20,11 +22,15 @@ else {
         reader.onloadend = function (event) {
 
             console.log(event);
+
             if(event.target.readyState === 2){
 
                 if(event.target.result.constructor.name == "ArrayBuffer" ){
                     var replay_data = new Uint8Array(event.target.result);
-                    var b64encoded = btoa(String.fromCharCode.apply(null, replay_data));
+                    //This explodes on chrome
+                    //var b64encoded = btoa(String.fromCharCode.apply(null, replay_data));
+                    var b64encoded = btoa(Uint8ToString(replay_data));
+
                     osu.webapi.replays.uploadReplay(file,md5(b64encoded));
                     ReplayParser(replay_data, function (replay_data) {
                         replay = replay_data; //TODO: not be essentially global

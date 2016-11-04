@@ -9,6 +9,18 @@ if(DEBUG) {
     APIURL = "http://ugrend.com:8080/api/";
 }
 
+//From http://stackoverflow.com/questions/12710001/how-to-convert-uint8-array-to-base64-encoded-string
+//fixes RangeError: Maximum call stack size exceeded on chrome
+function Uint8ToString(u8a){
+    var CHUNK_SZ = 0x8000;
+    var c = [];
+    for (var i=0; i < u8a.length; i+=CHUNK_SZ) {
+        c.push(String.fromCharCode.apply(null, u8a.subarray(i, i+CHUNK_SZ)));
+    }
+    return c.join("");
+}
+
+
 var mainArea = document.getElementById('main_zone');
 var dragDropZone = document.getElementById('dragdrop');
 var dragDropLabel = document.getElementById('drag_label');

@@ -13,7 +13,7 @@
 var ReplayParser = function(replay_data, callback){
     event_handler.emit(event_handler.EVENTS.REPLAY_LOADING);
     //https://osu.ppy.sh/wiki/Osr_%28file_format%29
-    var b64EncodedMd5 = md5(btoa(String.fromCharCode.apply(null, replay_data)));
+    var b64EncodedMd5 = md5(btoa(Uint8ToString(replay_data)));
     var RP = {
         replay_bytes: replay_data,
 
