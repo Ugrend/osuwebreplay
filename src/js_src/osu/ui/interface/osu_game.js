@@ -131,6 +131,35 @@ osu.ui.interface.osugame = {
 
 
     },
+
+    create_pause_screen_container: function () {
+        this.pauseScreenContainer = new PIXI.Container();
+        this.pauseScreenContainer.visible = false;
+        var overlayTexture = osu.skins.resources.pause_overlay.texture;
+        this.overlaySprite = new PIXI.Sprite(overlayTexture);
+        this.overlaySprite.width = this.getRenderWidth();
+        this.overlaySprite.height = this.getRenderHeight();
+        this.pauseScreenContainer.addChild(this.overlaySprite);
+
+
+        var resumeButtonTexture = osu.skins.resources.pause_continue.texture;
+        this.resumeButtonSprite = new PIXI.Sprite(resumeButtonTexture);
+        this.resumeButtonSprite.position.x = this.getRenderWidth() /2;
+        this.resumeButtonSprite.position.y = this.getRenderHeight() *.4;
+        this.resumeButtonSprite.anchor.set(0.5);
+        this.pauseScreenContainer.addChild(this.resumeButtonSprite);
+
+
+        var backButtonTexture = osu.skins.resources.pause_back.texture;
+        this.backButtonSprite = new PIXI.Sprite(backButtonTexture);
+        this.backButtonSprite.position.x = this.getRenderWidth() /2;
+        this.backButtonSprite.position.y = this.getRenderHeight() *.6;
+        this.backButtonSprite.anchor.set(0.5);
+        this.pauseScreenContainer.addChild(this.backButtonSprite);
+
+        this.master_container.addChild(this.pauseScreenContainer);
+    },
+
     tint_untint_key: function (key, do_tint) {
         if (do_tint) {
             key.tint = 0xFFFF00;
@@ -459,6 +488,7 @@ osu.ui.interface.osugame = {
         this.create_fail_container();
         this.create_play_warn_arrows_container();
         this.create_cursor();
+        this.create_pause_screen_container();
         this.create_settings_icon_container();
 
     },
@@ -495,6 +525,7 @@ osu.ui.interface.osugame = {
     end_replay: function () {
         this.finished = true;
         this.has_started = false;
+        osu.ui.interface.mainscreen.show_main_screen();
     },
     bind_events: function () {
         if (!this.events_bound) {
@@ -923,12 +954,14 @@ osu.ui.interface.osugame = {
     toggle_pause: function () {
         if(!this.paused){
             this.paused = true;
+            this.pauseScreenContainer.visible = true;
             if(this.has_started){
                 this.paused_time = Date.now();
                 osu.audio.music.pause();
             }
             return;
         }
+        this.pauseScreenContainer.visible = false;
         this.paused = false;
         if(this.has_started){
             osu.audio.music.play();
