@@ -494,11 +494,12 @@ osu.ui.interface.osugame = {
     },
     end_replay: function () {
         this.finished = true;
+        this.has_started = false;
     },
     bind_events: function () {
         if (!this.events_bound) {
             event_handler.on(event_handler.EVENTS.SETTINGS_CHANGED, this.create_dimmer.bind(this));
-            event_handler.on(event_handler.EVENTS.STOP_REPLAY, this.end_replay.bind(this));
+            event_handler.on(event_handler.EVENTS.STOP_REPLAY, this.toggle_pause.bind(this));
             this.events_bound = true;
         }
 
@@ -539,6 +540,9 @@ osu.ui.interface.osugame = {
     },
 
     initGame: function () {
+        //reset pause so we dont incorrectly think we are paused
+        this.paused = false;
+        this.paused_time = 0;
         event_handler.off(event_handler.EVENTS.RENDER, "replay_text"); //unsubscrbe incase another replay closed early
         this.keyPresses = [];
         this.currentKeyPress = 0;
@@ -917,7 +921,7 @@ osu.ui.interface.osugame = {
     },
 
     toggle_pause: function () {
-        if(!paused){
+        if(!this.paused){
             this.paused = true;
             if(this.has_started){
                 this.paused_time = Date.now();
@@ -934,9 +938,15 @@ osu.ui.interface.osugame = {
 
     game_loop: function () {
         if(!this.paused){
+            if(this.paused_time>0){
+                //Increase the date started time by the amount of time it has been paused for this should make everything remain insync
+                this.date_started += Date.now() - this.paused_time;
+                this.paused_time = 0;
+            }
+
             this.render_replay_frame();
             this.renderKeyPress();
-            if (!this.has_started && this.audioLeadIn == 0) {
+            if (!this.has_started && this.audioLeadIn == 0 && !this.finished) {
                 if (this.is_doubletime) osu.audio.music.set_playback_speed(1.5);
                 osu.audio.music.start();
                 this.date_started = Date.now();
@@ -950,13 +960,13 @@ osu.ui.interface.osugame = {
                     }, this.audioLeadIn);
                     this.countdown_started = true;
                 }
-                var curTime = Date.now() - this.date_started;
+                var curTime = Date.now() - this.date_started - this.paused_time;
                 this.update_timer_percentage(curTime/this.audioLeadIn, osu.helpers.constants.TIMER_INTRO_COLOUR);
             }
             var time = Date.now();
             if (this.has_started) {
-                var pausedSeconds = this.paused_time - time;
-                this.curMapTime = time - this.date_started - pausedSeconds;
+
+                this.curMapTime = time - this.date_started;
                 this.paused_time = 0;
                 if (this.skipTime ==-1 || this.skipTime > -1 && this.skipTime < this.curMapTime) {
                     this.skip_container.visible = false;

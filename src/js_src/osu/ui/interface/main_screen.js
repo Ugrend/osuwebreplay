@@ -188,7 +188,10 @@ osu.ui.interface.mainscreen = {
                     if(self.loaded && !self.displaying_main_screen){
                         //if a replay is playing we can stop it
                         event_handler.emit(event_handler.EVENTS.STOP_REPLAY);
-                        self.show_main_screen();
+                        if(!osu.ui.interface.osugame.has_started){
+                            self.show_main_screen();
+                        }
+
                     }
                 }
 
