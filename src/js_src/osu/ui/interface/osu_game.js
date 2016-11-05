@@ -762,10 +762,13 @@ osu.ui.interface.osugame = {
     },
 
     move_replay_text: function () {
-        if (this.replay_text.x < (-this.replay_text.width + 5)) {
-            this.replay_text.x = this.getRenderWidth();
+        if(!this.paused){
+            if (this.replay_text.x < (-this.replay_text.width + 5)) {
+                this.replay_text.x = this.getRenderWidth();
+            }
+            this.replay_text.x -= 2;
         }
-        this.replay_text.x -= 2;
+
     },
 
     renderKeyPress: function () {
