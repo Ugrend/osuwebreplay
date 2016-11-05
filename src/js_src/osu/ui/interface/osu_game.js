@@ -147,6 +147,9 @@ osu.ui.interface.osugame = {
         this.resumeButtonSprite.position.x = this.getRenderWidth() /2;
         this.resumeButtonSprite.position.y = this.getRenderHeight() *.4;
         this.resumeButtonSprite.anchor.set(0.5);
+        this.resumeButtonSprite.interactive = true;
+        this.resumeButtonSprite.on("mouseup", this.toggle_pause.bind(this));
+        this.resumeButtonSprite.on("touchend", this.toggle_pause.bind(this));
         this.pauseScreenContainer.addChild(this.resumeButtonSprite);
 
 
@@ -155,7 +158,14 @@ osu.ui.interface.osugame = {
         this.backButtonSprite.position.x = this.getRenderWidth() /2;
         this.backButtonSprite.position.y = this.getRenderHeight() *.6;
         this.backButtonSprite.anchor.set(0.5);
+        this.backButtonSprite.interactive = true;
+        this.backButtonSprite.on("mouseup", this.end_replay.bind(this));
+        this.backButtonSprite.on("touchend", this.end_replay.bind(this));
+
         this.pauseScreenContainer.addChild(this.backButtonSprite);
+
+
+
 
         this.master_container.addChild(this.pauseScreenContainer);
     },
