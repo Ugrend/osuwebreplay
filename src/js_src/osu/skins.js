@@ -120,6 +120,7 @@ osu.skins = {
 
     init: function () {
         var self = this;
+        this.skins = []; //clear existing skins incase this is a refresh
         database.getAll('skins',function (result) {
             for(var i=0; i < result.length; i++ ){
                 self.skins.push({
@@ -200,8 +201,8 @@ osu.skins = {
             }
 
         }
-
-        PIXI.loader.add(skinArray).on("progress",self.loadProgressHandler.bind(self)).load(self._loaded.bind(self));
+        var loader = new PIXI.loaders.Loader();
+        loader.add(skinArray).on("progress",self.loadProgressHandler.bind(self)).load(self._loaded.bind(self));
     },
 
     loadProgressHandler: function (loader, resources) {
@@ -219,6 +220,10 @@ osu.skins = {
         event_handler.emit(event_handler.EVENTS.RESOURCES_LOADED);
         this.loaded = true;
         osu.skins.onloaded();
+        //quick hack to prevent skin changing doing weird things.
+        osu.skins.onloaded = function () {
+
+        };
     },
     //AUDIO
 

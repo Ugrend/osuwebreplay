@@ -97,6 +97,7 @@ osu.ui.interface.mainscreen = {
 
             this.$skin_select.on('change',function () {
                 osu.settings.SETTINGS.selected_skin = self.$skin_select.val();
+                osu.skins.init();
             });
 
 
