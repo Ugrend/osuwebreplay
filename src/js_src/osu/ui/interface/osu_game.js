@@ -172,9 +172,11 @@ osu.ui.interface.osugame = {
 
     tint_untint_key: function (key, do_tint) {
         if (do_tint) {
+            key.scale = {x:1.1,y:1.1};
             key.tint = 0xFFFF00;
         }
         else {
+            key.scale = {x:1,y:1};
             key.tint = 0xFFFFFF;
         }
     },
@@ -196,7 +198,7 @@ osu.ui.interface.osugame = {
 
 
         this.keypress_1.x = this.getRenderWidth() - 40;
-        this.keypress_1.y = this.getRenderHeight() / 2 - 50;
+        this.keypress_1.y = this.getRenderHeight() / 2 - 55;
         this.keypress_1.anchor.set(0.5);
         this.keypress_1_Text.anchor.set(0.5);
         this.keypress_1_Text.x = this.keypress_1.x;
@@ -211,14 +213,14 @@ osu.ui.interface.osugame = {
         this.keypress_2_Text.y = this.keypress_2.y;
 
         this.keypress_3.x = this.getRenderWidth() - 40;
-        this.keypress_3.y = this.getRenderHeight() / 2 + 50;
+        this.keypress_3.y = this.getRenderHeight() / 2 + 55;
         this.keypress_3.anchor.set(0.5);
         this.keypress_3_Text.anchor.set(0.5);
         this.keypress_3_Text.x = this.keypress_3.x;
         this.keypress_3_Text.y = this.keypress_3.y;
 
         this.keypress_4.x = this.getRenderWidth() - 40;
-        this.keypress_4.y = this.getRenderHeight() / 2 + 100;
+        this.keypress_4.y = this.getRenderHeight() / 2 + 110;
         this.keypress_4.anchor.set(0.5);
         this.keypress_4_Text.anchor.set(0.5);
         this.keypress_4_Text.x = this.keypress_4.x;
