@@ -145,7 +145,7 @@ osu.ui.interface.osugame = {
         var resumeButtonTexture = osu.skins.resources.pause_continue.texture;
         this.resumeButtonSprite = new PIXI.Sprite(resumeButtonTexture);
         this.resumeButtonSprite.position.x = this.getRenderWidth() /2;
-        this.resumeButtonSprite.position.y = this.getRenderHeight() *.4;
+        this.resumeButtonSprite.position.y = this.getRenderHeight() *.26;
         this.resumeButtonSprite.anchor.set(0.5);
         this.resumeButtonSprite.interactive = true;
         this.resumeButtonSprite.on("mouseup", this.toggle_pause.bind(this));
@@ -156,7 +156,7 @@ osu.ui.interface.osugame = {
         var backButtonTexture = osu.skins.resources.pause_back.texture;
         this.backButtonSprite = new PIXI.Sprite(backButtonTexture);
         this.backButtonSprite.position.x = this.getRenderWidth() /2;
-        this.backButtonSprite.position.y = this.getRenderHeight() *.6;
+        this.backButtonSprite.position.y = this.getRenderHeight() *.74;
         this.backButtonSprite.anchor.set(0.5);
         this.backButtonSprite.interactive = true;
         this.backButtonSprite.on("mouseup", this.end_replay.bind(this));
