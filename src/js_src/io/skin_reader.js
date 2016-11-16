@@ -74,7 +74,7 @@ var SkinReader = function(skin_zip, callback) {
                             processing_complete();
                         });
 
-                    } else if (extension == "png" || extension == "wav") {
+                    } else if (extension == "png" || extension == "wav" || extension == "mp3") {
 
                         var filename = entries[i].filename.split("/");
                         if(filename.length > 1 )filename = filename[1]; else filename = filename[0];
@@ -91,7 +91,7 @@ var SkinReader = function(skin_zip, callback) {
                                 });
                             })(filename);
 
-                        } else {
+                        } else if(extension == "wav") {
 
                             (function (filename) {
                                 if(DEBUG)console.log(filename);
@@ -104,6 +104,19 @@ var SkinReader = function(skin_zip, callback) {
                                     database.insert_data(database.TABLES.ASSETS, md5sum, data, processing_complete, processing_complete)
                                 });
                             })(filename);
+                        }else{
+                            (function (filename) {
+                                if(DEBUG)console.log(filename);
+                                entries[i].getData(new zip.Data64URIWriter('audio/mpeg'), function (data) {
+                                    var md5sum = md5(data);
+                                    skins.assets.push({
+                                        filename: filename,
+                                        md5sum: md5sum
+                                    });
+                                    database.insert_data(database.TABLES.ASSETS, md5sum, data, processing_complete, processing_complete)
+                                });
+                            })(filename);
+
                         }
                     } else {
                         processing_complete();

@@ -87,7 +87,6 @@ osu.ui.interface.mainscreen = {
     bind_events: function () {
         //init script can be called multiple times if no maps/replays exist
         if(!this.events_bound){
-            osu.audio.sound.init();
 
             var self = this;
             this.$save_asset_servers_btn.on('click', function () {

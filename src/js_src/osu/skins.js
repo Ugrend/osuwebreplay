@@ -161,8 +161,8 @@ osu.skins = {
         var _loaded = 0;
         for(var i = 0; i < _length; i++){
             var fileExt = assets[i].filename.split('.').pop();
+            var name = assets[i].filename.split('.')[0].toLowerCase().replace(/-|@/g,"_");
             if(fileExt.toLowerCase() == "png"){
-                var name = assets[i].filename.split('.')[0].toLowerCase().replace(/-|@/g,"_");
                 (function (name) {
                     database.get_data(database.TABLES.ASSETS,assets[i].md5sum, function (result) {
                         _loaded++;
@@ -175,9 +175,25 @@ osu.skins = {
                         if(_loaded >= _length){
                             cb(current_skin);
                         }
-                    })
+                    });
                 })(name);
-            }else{
+            }else if(fileExt.toLowerCase() == "wav" || fileExt.toLowerCase() == "mp3"){
+                (function (name) {
+                    database.get_data(database.TABLES.ASSETS,assets[i].md5sum, function (result) {
+                        _loaded++;
+                        osu.skins.audio[name] = result.data;
+                        if(_loaded >= _length){
+                            cb(current_skin);
+                        }
+                    }, function () {
+                        _loaded++;
+                        if(_loaded >= _length){
+                            cb(current_skin);
+                        }
+                    });
+                })(name);
+            }
+            else{
                 _loaded++;
                 if(_loaded >= _length){
                     cb(current_skin);
@@ -220,6 +236,7 @@ osu.skins = {
         event_handler.emit(event_handler.EVENTS.RESOURCES_LOADED);
         this.loaded = true;
         osu.skins.onloaded();
+        osu.audio.sound.init();
         //quick hack to prevent skin changing doing weird things.
         osu.skins.onloaded = function () {
 
@@ -228,49 +245,49 @@ osu.skins = {
     //AUDIO
 
     audio: {
-        applause: 'data/applause.wav',
-        combobreak: 'data/combobreak.wav',
-        count1s: 'data/count1s.wav',
-        count2s: 'data/count2s.wav',
-        count3s: 'data/count3s.wav',
-        drum_hitclap: 'data/drum-hitclap.wav',
-        drum_hitfinish: 'data/drum-hitfinish.wav',
-        drum_hitfinish2: 'data/drum-hitfinish2.wav',
-        drum_hitnormal: 'data/drum-hitnormal.wav',
-        drum_hitnormal19: 'data/drum-hitnormal19.wav',
-        drum_hitnormal2: 'data/drum-hitnormal2.wav',
-        drum_hitwhistle: 'data/drum-hitwhistle.wav',
-        drum_sliderslide: 'data/drum-sliderslide.wav',
-        drum_slidertick: 'data/drum-slidertick.wav',
-        drum_sliderwhistle: 'data/drum-sliderwhistle.wav',
-        failsound: 'data/failsound.wav',
-        gos: 'data/gos.wav',
-        menuback: 'data/menuback.wav',
-        menuclick: 'data/menuclick.wav',
-        menuhit: 'data/menuhit.wav',
-        normal_hitclap: 'data/normal-hitclap.wav',
-        normal_hitfinish: 'data/normal-hitfinish.wav',
-        normal_hitnormal: 'data/normal-hitnormal.wav',
-        normal_hitwhistle: 'data/normal-hitwhistle.wav',
-        normal_sliderslide: 'data/normal-sliderslide.wav',
-        normal_slidertick: 'data/normal-slidertick.wav',
-        normal_sliderwhistle: 'data/normal-sliderwhistle.wav',
-        readys: 'data/readys.wav',
-        sectionfail: 'data/sectionfail.wav',
-        sectionpass: 'data/sectionpass.wav',
-        shutter: 'data/shutter.wav',
-        soft_hitclap: 'data/soft-hitclap.wav',
-        soft_hitclap19: 'data/soft-hitclap19.wav',
-        soft_hitfinish: 'data/soft-hitfinish.wav',
-        soft_hitnormal: 'data/soft-hitnormal.wav',
-        soft_hitwhistle: 'data/soft-hitwhistle.wav',
-        soft_sliderslide: 'data/soft-sliderslide.wav',
-        soft_sliderslide2: 'data/soft-sliderslide2.wav',
-        soft_slidertick: 'data/soft-slidertick.wav',
-        soft_sliderwhistle: 'data/soft-sliderwhistle.wav',
-        spinnerbonus: 'data/spinnerbonus.wav',
-        spinner_osu: 'data/spinner-osu.wav',
-        spinnerspin: 'data/spinnerspin.wav',
+        applause: 'resources/applause.wav',
+        combobreak: 'resources/combobreak.wav',
+        count1s: 'resources/count1s.wav',
+        count2s: 'resources/count2s.wav',
+        count3s: 'resources/count3s.wav',
+        drum_hitclap: 'resources/drum-hitclap.wav',
+        drum_hitfinish: 'resources/drum-hitfinish.wav',
+        drum_hitfinish2: 'resources/drum-hitfinish2.wav',
+        drum_hitnormal: 'resources/drum-hitnormal.wav',
+        drum_hitnormal19: 'resources/drum-hitnormal19.wav',
+        drum_hitnormal2: 'resources/drum-hitnormal2.wav',
+        drum_hitwhistle: 'resources/drum-hitwhistle.wav',
+        drum_sliderslide: 'resources/drum-sliderslide.wav',
+        drum_slidertick: 'resources/drum-slidertick.wav',
+        drum_sliderwhistle: 'resources/drum-sliderwhistle.wav',
+        failsound: 'resources/failsound.wav',
+        gos: 'resources/gos.wav',
+        menuback: 'resources/menuback.wav',
+        menuclick: 'resources/menuclick.wav',
+        menuhit: 'resources/menuhit.wav',
+        normal_hitclap: 'resources/normal-hitclap.wav',
+        normal_hitfinish: 'resources/normal-hitfinish.wav',
+        normal_hitnormal: 'resources/normal-hitnormal.wav',
+        normal_hitwhistle: 'resources/normal-hitwhistle.wav',
+        normal_sliderslide: 'resources/normal-sliderslide.wav',
+        normal_slidertick: 'resources/normal-slidertick.wav',
+        normal_sliderwhistle: 'resources/normal-sliderwhistle.wav',
+        readys: 'resources/readys.wav',
+        sectionfail: 'resources/sectionfail.wav',
+        sectionpass: 'resources/sectionpass.wav',
+        shutter: 'resources/shutter.wav',
+        soft_hitclap: 'resources/soft-hitclap.wav',
+        soft_hitclap19: 'resources/soft-hitclap19.wav',
+        soft_hitfinish: 'resources/soft-hitfinish.wav',
+        soft_hitnormal: 'resources/soft-hitnormal.wav',
+        soft_hitwhistle: 'resources/soft-hitwhistle.wav',
+        soft_sliderslide: 'resources/soft-sliderslide.wav',
+        soft_sliderslide2: 'resources/soft-sliderslide2.wav',
+        soft_slidertick: 'resources/soft-slidertick.wav',
+        soft_sliderwhistle: 'resources/soft-sliderwhistle.wav',
+        spinnerbonus: 'resources/spinnerbonus.wav',
+        spinner_osu: 'resources/spinner-osu.wav',
+        spinnerspin: 'resources/spinnerspin.wav',
 
 
     }
