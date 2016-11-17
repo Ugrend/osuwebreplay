@@ -804,6 +804,10 @@ osu.ui.interface.osugame = {
 
     renderKeyPress: function () {
         for(var i = this.currentKeyPress; i < this.keyPresses.length; i++){
+            //is this getting looped over when we skip?
+            if(this.paused){
+                break;
+            }
             var keyPress = this.keyPresses[i];
             if(keyPress.t <= this.curMapTime){
                 var tint_1 = keyPress.K1;
@@ -1012,11 +1016,47 @@ osu.ui.interface.osugame = {
         //we then need to set the replay frame position to the correct point in time
         //we then need to set the date_started time to be at a point where the calculations work as normal
 
-        //TODO: Keypresses, combo/score/acc/etc and break screens
+        //TODO:  break screens
 
         this.paused = true; //pause game to prevent weird stuff from happening
         osu.audio.music.pause();
         osu.audio.music.set_position(t/1000);
+
+
+
+
+        //reset score/combo
+
+        this.performance.totalHits = 0;
+        this.performance.h300 = 0;
+        this.performance.h100 = 0;
+        this.performance.h50 = 0;
+        this.performance.hMiss  = 0;
+        this.performance.combo  = 0;
+        this.performance.score  = 0;
+        this.performance.accuracy = 100;
+
+        var addScore = function (hitobject, performance) {
+            switch(hitobject.hitType){
+                case 'HIT_MISS':
+                    performance.addMiss();
+                    break;
+                case 'HIT_50':
+                    performance.add50();
+                    break;
+                case 'HIT_100':
+                    performance.add100();
+                    break;
+                case 'HIT_300':
+                    performance.add300();
+                    break;
+            }
+
+        };
+
+
+        //Reset Hitobjects
+
         this.hit_object_container.removeChildren(0);
         this.oldest_object_position = 0; //should sync it self back up
         for(var i = 0; i< this.hit_objects.length; i++){
@@ -1024,6 +1064,7 @@ osu.ui.interface.osugame = {
             if(hitobject.is_circle){
                 if(hitobject.hitTime < t){
                     hitobject.destroy();
+                    addScore(hitobject, this.performance)
                 }else{
                     hitobject.reset();
                 }
@@ -1031,6 +1072,7 @@ osu.ui.interface.osugame = {
             }else{
                 if(hitobject.endTime < t){
                     hitobject.destroy();
+                    addScore(hitobject, this.performance)
                 }else{
                     hitobject.reset();
                 }
@@ -1038,6 +1080,7 @@ osu.ui.interface.osugame = {
             }
         }
 
+        //reset Replay frames
         for(i = 0; i < this.replay_data.length; i++) {
             var replayTime = this.replay_data[i].t - this.replayDiff - this.skipTime;
             if (replayTime >= t){
@@ -1051,8 +1094,56 @@ osu.ui.interface.osugame = {
             }
         }
 
+        //reset keypresses
+
+        this.key_1_count = 0;
+        this.key_2_count = 0;
+        this.key_3_count = 0;
+        this.key_4_count = 0;
+        this.lasthit_id = -1;
+        this.currentKeyPress = 0;
+
+        for(i=0;  i<this.keyPresses.length; i++){
+            var keyPress = this.keyPresses[i];
+            if(keyPress.t <= t){
+                this.currentKeyPress = i;
+                if(keyPress.REPLAYHIT && this.lasthit_id != keyPress.ID){
+                    if(keyPress.K1){
+                        this.key_1_count++;
+                    }
+                    if(keyPress.K2){
+                        this.key_2_count++;
+                    }
+                    if(keyPress.M1){
+                        this.key_3_count++;
+                    }
+                    if(keyPress.M2){
+                        this.key_4_count++;
+                    }
+
+                    this.lasthit_id = keyPress.ID;
+                }
+
+
+            }
+            else{
+                break;
+            }
+
+
+        }
+        this.keypress_1_Text.text = (this.key_1_count > 0 && this.key_1_count.toString() || "K1");
+        this.keypress_2_Text.text = (this.key_2_count > 0 && this.key_2_count.toString() || "K2");
+        this.keypress_3_Text.text = (this.key_3_count > 0 && this.key_3_count.toString() || "M1");
+        this.keypress_4_Text.text = (this.key_4_count > 0 && this.key_4_count.toString() || "M2");
+
+
+
+
+
 
         this.date_started = Date.now() - t;
+        this.curMapTime = t;
         this.paused = false;
         osu.audio.music.play();
 

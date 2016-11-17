@@ -24,7 +24,7 @@ osu.game.Perforamnce = class Performance{
         this.h100 =0;
         this.h50 = 0;
         this.hMiss  = 0;
-        this.accuracy = 0;
+        this.accuracy = 1;
     }
 
     add300(){
