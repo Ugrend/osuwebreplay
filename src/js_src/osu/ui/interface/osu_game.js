@@ -587,7 +587,6 @@ osu.ui.interface.osugame = {
         this.paused = false;
         this.paused_time = 0;
         event_handler.off(event_handler.EVENTS.RENDER, "replay_text"); //unsubscrbe incase another replay closed early
-        this.keyPresses = [];
         this.currentKeyPress = 0;
         this.key_1_count = 0;
         this.key_2_count = 0;
@@ -596,7 +595,6 @@ osu.ui.interface.osugame = {
         this.$footer = osu.ui.interface.mainscreen.$footer || $("#footer");
         this.$footer.attr('style','');
         this.$footer.css('display', 'none');
-
         osu.ui.renderer.start();
         this.offSetDetails = this.calculateLetterBox();
         this.create_master_container();
@@ -608,7 +606,6 @@ osu.ui.interface.osugame = {
         this.countdown_started = false;
         this.curr_replay_frame = 0;
         this.expected_replay_movment_time = null;
-        this.hit_objects = [];
         this.oldest_object_position = 0;
         this.warning_arrow_times = [];
         this.is_hidden = false;
@@ -687,38 +684,52 @@ osu.ui.interface.osugame = {
             this.approachTime = (1200 - ((approachRate - 5) * 150));
         }
         if (this.is_doubletime) this.approachTime = this.approachTime - (this.approachTime * .33);
+        if(!this.beatmap.been_rendered){
+            this.keyPresses = [];
+            this.hit_objects = [];
+            for (i = 0; i < this.beatmap.map_data.hit_objects.length; i++){
 
-        for (i = 0; i < this.beatmap.map_data.hit_objects.length; i++){
+                var hitObject = new osu.objects.HitObject(this.beatmap.map_data.hit_objects[i], circleSize, this.approachTime, this);
+                if (comboNum == 0 || hitObject.newCombo) {
+                    comboNum = 1;
+                    if (comboColour == osu.skins.COMBO_COLOURS.length - 1) {
+                        comboColour = 0;
+                    }
+                    else {
+                        comboColour++;
+                    }
+                } else {
+                    comboNum++;
+                }
+                hitObject.colour = osu.skins.COMBO_COLOURS[comboColour];
+                hitObject.combo = comboNum;
+                //https://osu.ppy.sh/wiki/Song_Setup#Overall_Difficulty
+                hitObject.hitOffset = {
+                    HIT_300: 79.5 - (overallDifficulty * 6),
+                    HIT_100: 139.5 - (overallDifficulty * 8),
+                    HIT_50: 199.5 - (overallDifficulty * 10),
+                    HIT_MISS: 500 - (overallDifficulty * 10)
+                };
 
-            var hitObject = new osu.objects.HitObject(this.beatmap.map_data.hit_objects[i], circleSize, this.approachTime, this);
-            if (comboNum == 0 || hitObject.newCombo) {
-                comboNum = 1;
-                if (comboColour == osu.skins.COMBO_COLOURS.length - 1) {
-                    comboColour = 0;
-                }
-                else {
-                    comboColour++;
-                }
-            } else {
-                comboNum++;
+                this.hit_objects.push(hitObject);
             }
-            hitObject.colour = osu.skins.COMBO_COLOURS[comboColour];
-            hitObject.combo = comboNum;
-            //https://osu.ppy.sh/wiki/Song_Setup#Overall_Difficulty
-            hitObject.hitOffset = {
-                HIT_300: 79.5 - (overallDifficulty * 6),
-                HIT_100: 139.5 - (overallDifficulty * 8),
-                HIT_50: 199.5 - (overallDifficulty * 10),
-                HIT_MISS: 500 - (overallDifficulty * 10)
-            };
+            osu.objects.HitObjectParser.create_stacks(this.hit_objects, parseFloat(this.beatmap.map_data.general.StackLeniency) || 0.7, unScaledDiameter, this.is_hardrock);
+            this.keyPresses = osu.calculateReplay(this.hit_objects,this.replay_data, unScaledDiameter);
+            osu.objects.HitObjectParser.initialiseHitObjects(this.hit_objects);
+            osu.objects.HitObjectParser.calculate_follow_points(this.hit_objects, this);
 
-            this.hit_objects.push(hitObject);
+            this.beatmap.been_rendered = true;
+        }else{
+            for(var i = 0; i < this.hit_objects.length; i++){
+                this.hit_objects[i].reset();
+            }
+
         }
 
-        osu.objects.HitObjectParser.create_stacks(this.hit_objects, parseFloat(this.beatmap.map_data.general.StackLeniency) || 0.7, unScaledDiameter, this.is_hardrock);
-        this.keyPresses = osu.calculateReplay(this.hit_objects,this.replay_data, unScaledDiameter);
-        osu.objects.HitObjectParser.initialiseHitObjects(this.hit_objects);
-        osu.objects.HitObjectParser.calculate_follow_points(this.hit_objects, this);
+
+
+
+
 
         this.audioLeadIn = parseInt(this.beatmap.map_data.general.AudioLeadIn);
         if (this.is_doubletime) this.audioLeadIn = this.audioLeadIn * osu.helpers.constants.DOUBLE_TIME_MULTI;

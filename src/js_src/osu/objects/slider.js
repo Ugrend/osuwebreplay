@@ -344,16 +344,16 @@ osu.objects.Slider = class Slider{
             if(!this.drawnFollow){
                 this.hitObject.game.hit_object_container.addChild(this.sliderFollowContainer);
             }
-            if(this.hitObject.repeatCount > 0){
+            if(this.repeatCount > 0){
                 //TODO: i feel like this is wrong and im overcomplicating it but im tired and this works
                 var elapsed_time = (cur_time-this.nextRepeatTime) - this.hitObject.startTime;
 
-                if(this.hitObject.repeatCount % 2 == 0){
+                if(this.repeatCount % 2 == 0){
                     this.arrowSliderEnd.visible = true;
                     this.arrowSliderStart.visible = false;
                 }else{
                     this.arrowSliderEnd.visible = false;
-                    if(this.hitObject.repeatCount != 1){
+                    if(this.repeatCount != 1){
                         this.arrowSliderStart.visible = true;
                     }
                 }
@@ -363,7 +363,7 @@ osu.objects.Slider = class Slider{
                     t = 1-t;
                 }
                 if(t >= 1 || t < 0){
-                    this.hitObject.repeatCount -=1;
+                    this.repeatCount -=1;
                     this.nextRepeatTime += this.timePerRepeat;
                     this.sliderDirectionBackwards = !this.sliderDirectionBackwards;
                     t = 1;
