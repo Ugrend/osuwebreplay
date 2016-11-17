@@ -641,8 +641,8 @@ osu.ui.interface.osugame = {
                     endTime *= osu.helpers.constants.DOUBLE_TIME_MULTI;
                 }
 
-                this.break_times.push(startTime);
-                this.warning_arrow_times.push(endTime);
+                this.break_times.push({t:startTime, played:false});
+                this.warning_arrow_times.push({t:endTime, played:false});
             }
         }
         var comboNum = 0;
@@ -771,7 +771,7 @@ osu.ui.interface.osugame = {
                 this.replayDiff = this.replay_data[2].t * -1;
             }
             this.skipTime = skipFrame.t;
-            this.warning_arrow_times.push(this.skipTime);
+            this.warning_arrow_times.push({t:this.skipTime, played:false});
         }
         else{
             if (this.replay_data[2].t < 0) {
@@ -886,15 +886,15 @@ osu.ui.interface.osugame = {
 
 
         for (var x = 0; x < this.warning_arrow_times.length; x++) {
-            if (time > this.warning_arrow_times[x]) {
-                this.warning_arrow_times.splice(x, 1);
+            if (time > this.warning_arrow_times[x].t + 3000 && !this.warning_arrow_times[x].played) {
+                this.warning_arrow_times[x].played = true;
                 this.flash_warning_arrows();
                 break;
             }
         }
         for (var x = 0; x < this.break_times.length; x++) {
-            if (time > this.break_times[x] + 2000) {
-                this.break_times.splice(x, 1);
+            if (time > this.break_times[x].t + 2000 && !this.break_times[x].played) {
+                this.break_times[x].played = true;
                 //TODO: check performance to toggle correct break screen
                 this.show_success();
                 break;
@@ -1022,8 +1022,13 @@ osu.ui.interface.osugame = {
         osu.audio.music.pause();
         osu.audio.music.set_position(t/1000);
 
-
-
+        //reset break screens / warning arrows
+        for(var i = 0; i< this.break_times.length; i++){
+                this.break_times[i].played = (t>this.break_times[i].t);
+        }
+        for(i = 0; i< this.warning_arrow_times.length; i++){
+            this.warning_arrow_times[i].played = (t>this.warning_arrow_times[i].t);
+        }
 
         //reset score/combo
 
@@ -1059,7 +1064,7 @@ osu.ui.interface.osugame = {
 
         this.hit_object_container.removeChildren(0);
         this.oldest_object_position = 0; //should sync it self back up
-        for(var i = 0; i< this.hit_objects.length; i++){
+        for(i = 0; i< this.hit_objects.length; i++){
             var hitobject = this.hit_objects[i];
             if(hitobject.is_circle){
                 if(hitobject.hitTime < t){
