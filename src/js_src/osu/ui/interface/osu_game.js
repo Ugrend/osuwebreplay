@@ -886,14 +886,14 @@ osu.ui.interface.osugame = {
 
 
         for (var x = 0; x < this.warning_arrow_times.length; x++) {
-            if (time > this.warning_arrow_times[x].t + 3000 && !this.warning_arrow_times[x].played) {
+            if (time > this.warning_arrow_times[x].t + 2000 && !this.warning_arrow_times[x].played) {
                 this.warning_arrow_times[x].played = true;
                 this.flash_warning_arrows();
                 break;
             }
         }
         for (var x = 0; x < this.break_times.length; x++) {
-            if (time > this.break_times[x].t + 2000 && !this.break_times[x].played) {
+            if (time > this.break_times[x].t + 1000 && !this.break_times[x].played) {
                 this.break_times[x].played = true;
                 //TODO: check performance to toggle correct break screen
                 this.show_success();
