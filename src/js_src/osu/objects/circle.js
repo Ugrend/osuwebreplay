@@ -33,7 +33,14 @@ osu.objects.Circle = class Circle{
 
     }
 
-
+    reset(){
+        //Reset the object so that it can be used again
+        this.last_draw_time = 0;
+        this.drawn = false;
+        this.destroyed = false;
+        this.beenHit = false;
+        this.isScoreAble = true;
+    }
 
 
 

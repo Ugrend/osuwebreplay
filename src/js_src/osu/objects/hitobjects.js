@@ -81,6 +81,14 @@ osu.objects.HitObject = class HitObject{
         this.initialised = true;
     }
 
+    reset(){
+        this.drawn = false;
+        this.object.reset();
+        if(this.followPoint){
+            this.followPoint.reset();
+        }
+    }
+
     draw(cur_time){
         if(!this.drawn){
             this.game.hit_object_container.addChild(this.ScorePoint.getContainer());

@@ -72,6 +72,26 @@ osu.objects.Slider = class Slider{
         this.scoreBreak = false; //if the slider has been exited early
 
     }
+
+    reset(){
+        //Reset the object so that it can be used again
+        this.beenHit = false;
+        this.nextRepeatTime = 0;
+        this.sliderDirectionBackwards = false;
+        this.repeatCount = this.hitObject.repeatCount;
+        this.startCircle.reset();
+        this.startCircle.isScoreAble = false;
+        this.drawnFollow = false;
+        this.drawn = false;
+        this.destroyed = false;
+        this.last_draw_time  =0;
+        this.hitSounds = [];
+        for(var i = 0 ; i < this.hitObject.edges.length;i++){
+            this.hitSounds.push(osu.audio.HitSound.getHitSounds(this.hitObject.edges[i].sounds, this.hitObject.timing, (i==0)));
+        }
+    }
+
+
     init(){
         this.beenHit = false;
         this.nextRepeatTime = 0;

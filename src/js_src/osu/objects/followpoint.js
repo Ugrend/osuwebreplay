@@ -40,6 +40,12 @@ osu.objects.FollowPoint = class FollowPoint{
         }
     }
 
+    reset(){
+        this.destroyed = false;
+        this.drawn = false;
+    }
+
+
     draw(cur_time){
         if(this.destroyed){
             return false;

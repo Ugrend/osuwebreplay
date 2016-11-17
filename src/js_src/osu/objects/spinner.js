@@ -14,6 +14,16 @@ osu.objects.Spinner = class Spinner{
         this.rotations = [];
         this.currentRotation = 0;
     }
+
+    reset(){
+        //Reset the object so that it can be used again
+        this.drawn = false;
+        this.destroyed = false;
+        this.beenHit = false;
+        this.isScoreAble = true;
+        this.currentRotation = 0;
+    }
+
     init(){
         this.drawn = false;
         this.destroyed = false;
