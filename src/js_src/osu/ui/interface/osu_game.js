@@ -729,6 +729,11 @@ osu.ui.interface.osugame = {
 
         if (!replay.been_rendered) {
             for (var i = 0; i < this.replay_data.length; i++) {
+                //This is a workaround yay :D
+                this.replay_data[i].orig_x = this.replay_data[i].x;
+                this.replay_data[i].orig_y = this.replay_data[i].y;
+                this.replay_data[i].orig_t = this.replay_data[i].t;
+
                 this.replay_data[i].x = this.calculate_x(this.replay_data[i].x);
                 this.replay_data[i].y = this.calculate_y(this.replay_data[i].y);
                 if (this.is_doubletime) {

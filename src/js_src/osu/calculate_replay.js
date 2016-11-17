@@ -12,13 +12,13 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
     //returns an array of when keys were pressed at what time and if it was a hit
     var isIn = function(objectPos,curPos, radius){
         //check if vector is in circle/slider
-        var distance = Math.hypot(objectPos.x - curPos.x, objectPos.y - curPos.y)
+        var distance = Math.hypot(objectPos.x - (curPos.orig_x || curPos.x), objectPos.y - (curPos.orig_y || curPos.y))
         var result = distance <= radius;
         return result;
     };
 
 
-    var replayOffset = replayframes[2].t *-1;
+    var replayOffset = (replayframes[2].orig_t || replayframes[2].t) *-1;
     if(replayOffset < 0) replayOffset =1;
     var lastFrame = 2;
 
@@ -78,7 +78,8 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
         var REPLAYHIT = false;
         for(true; lastFrame < replayframes.length; lastFrame++){
             var replayFrame = replayframes[lastFrame];
-            var difference = hitTime - (replayFrame.t -replayOffset);
+            if(typeof replayFrame != "object") break; //Last frame seems to be a string
+            var difference = hitTime - ((replayFrame.orig_t || replayFrame.t)  -replayOffset);
 
             if(hitObject.is_circle && difference < hitObject.hitOffset.HIT_50*-1){
                 break;
@@ -140,28 +141,28 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
                 if(difference <= hitObject.hitOffset.HIT_300){
                     //Hit is a 300
                     hitObject.hitType = 'HIT_300';
-                    hitObject.hitTime = replayFrame.t - replayOffset;
+                    hitObject.hitTime = (replayFrame.orig_t || replayFrame.t) - replayOffset;
                     IS_HIT = true;
                     REPLAYHIT = true;
                     circleHit = true;
                 }else if (difference <= hitObject.hitOffset.HIT_100){
                     //Hit is a 100
                     hitObject.hitType = 'HIT_100';
-                    hitObject.hitTime = replayFrame.t - replayOffset;
+                    hitObject.hitTime = (replayFrame.orig_t || replayFrame.t) - replayOffset;
                     IS_HIT = true;
                     REPLAYHIT = true;
                     circleHit = true;
                 }else if (difference  <= hitObject.hitOffset.HIT_50){
                     //Hit is a 50
                     hitObject.hitType = 'HIT_50';
-                    hitObject.hitTime = replayFrame.t - replayOffset;
+                    hitObject.hitTime = (replayFrame.orig_t || replayFrame.t) - replayOffset;
                     IS_HIT = true;
                     REPLAYHIT = true;
                     circleHit = true;
                 }else if (difference  <= hitObject.hitOffset.HIT_MISS){
                     //Hit to early and is a miss
                     hitObject.hitType = 'HIT_MISS';
-                    hitObject.hitTime = replayFrame.t - replayOffset;
+                    hitObject.hitTime = (replayFrame.orig_t || replayFrame.t) - replayOffset;
                     IS_HIT = true;
                     REPLAYHIT = true;
                     circleHit = true;
@@ -176,7 +177,7 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
                 SMOKE: SMOKE,
                 REPLAYHIT: circleHit,
                 ID: i,
-                t: replayFrame.t -replayOffset
+                t: (replayFrame.orig_t || replayFrame.t) -replayOffset
             });
             
             if(REPLAYHIT && hitObject.is_circle){
@@ -236,11 +237,11 @@ osu.calculateReplay = function (hitobjects, replayframes, unscaledCircleSize) {
             if(hitObject.is_spinner){
                 var centerPoint = {x:osu.helpers.constants.OSU_GAME_WIDTH/2,
                     y:osu.helpers.constants.OSU_GAME_HEIGHT/2};
-                var angle = Math.atan2(centerPoint.y - replayFrame.y, centerPoint.x - replayFrame.x);
+                var angle = Math.atan2(centerPoint.y - (replayFrame.orig_y || replayFrame.y), centerPoint.x - (replayFrame.orig_x || replayFrame.x));
                 if(keyDown){
                     hitObject.object.rotations.push({
                         a: angle,
-                        t: replayFrame.t
+                        t: (replayFrame.orig_t || replayFrame.t)
                     });
                 }
             }
