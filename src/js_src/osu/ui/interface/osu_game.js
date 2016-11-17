@@ -1003,6 +1003,63 @@ osu.ui.interface.osugame = {
 
     },
 
+
+    go_to: function (t) {
+        //this will take a time in ms and then go to that point in the map
+        //we need to remove everything from the hitobject container
+        //we then need to destroy every object prior to the point we are skiping to so that it does not get rendered
+        //we then need to reset any object past the point we are skiping to so that if they have already been drawn it wont break things
+        //we then need to set the replay frame position to the correct point in time
+        //we then need to set the date_started time to be at a point where the calculations work as normal
+
+        //TODO: Keypresses, combo/score/acc/etc and break screens
+
+        this.paused = true; //pause game to prevent weird stuff from happening
+        osu.audio.music.pause();
+        osu.audio.music.set_position(t/1000);
+        this.hit_object_container.removeChildren(0);
+        this.oldest_object_position = 0; //should sync it self back up
+        for(var i = 0; i< this.hit_objects.length; i++){
+            var hitobject = this.hit_objects[i];
+            if(hitobject.is_circle){
+                if(hitobject.hitTime < t){
+                    hitobject.destroy();
+                }else{
+                    hitobject.reset();
+                }
+
+            }else{
+                if(hitobject.endTime < t){
+                    hitobject.destroy();
+                }else{
+                    hitobject.reset();
+                }
+
+            }
+        }
+
+        for(i = 0; i < this.replay_data.length; i++) {
+            var replayTime = this.replay_data[i].t - this.replayDiff - this.skipTime;
+            if (replayTime >= t){
+                if(i>0){
+                    this.oldestReplayFrame = i -1;
+                }
+                else{
+                    this.oldestReplayFrame = 0;
+                }
+                break;
+            }
+        }
+
+
+        this.date_started = Date.now() - t;
+        this.paused = false;
+        osu.audio.music.play();
+
+
+    },
+
+
     game_loop: function () {
         if(!this.paused){
             if(this.paused_time>0){

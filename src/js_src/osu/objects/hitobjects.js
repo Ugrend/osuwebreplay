@@ -26,7 +26,7 @@ osu.objects.HitObject = class HitObject{
             HIT_MISS: 500
         };
 
-
+        this.destroyed = false;
         $.extend(this, hitObjectData);
 
 
@@ -82,6 +82,7 @@ osu.objects.HitObject = class HitObject{
     }
 
     reset(){
+        this.destroyed = false;
         this.drawn = false;
         this.object.reset();
         if(this.followPoint){
@@ -89,7 +90,12 @@ osu.objects.HitObject = class HitObject{
         }
     }
 
+    destroy(){
+        this.destroyed = true;
+    }
+
     draw(cur_time){
+        if(this.destroyed) return false;
         if(!this.drawn){
             this.game.hit_object_container.addChild(this.ScorePoint.getContainer());
             this.drawn = true;
