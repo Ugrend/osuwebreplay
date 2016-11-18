@@ -1026,8 +1026,7 @@ osu.ui.interface.osugame = {
         //we then need to set the replay frame position to the correct point in time
         //we then need to set the date_started time to be at a point where the calculations work as normal
 
-        //TODO:  break screens
-
+        this.smokeContainer.removeChildren(0);
         this.paused = true; //pause game to prevent weird stuff from happening
         osu.audio.music.pause();
         osu.audio.music.set_position(t/1000);
