@@ -412,6 +412,7 @@ osu.ui.interface.mainscreen = {
         }
     },
     show_main_screen: function () {
+        osu.ui.interface.replaycontroller.hideBar();
         document.getElementById("loading").className = "hidden";
         document.getElementById("no_beatmaps_replays").className = "hidden";
         document.getElementById("container").className = "";

@@ -330,12 +330,12 @@ osu.ui.interface.scorescreen = {
 
 
         var backAnimation = new PIXI.extras.MovieClip(backFrames);
-        backAnimation.position.x = this.getRenderWidth() *.1;
-        backAnimation.position.y = this.getRenderHeight() *.9;
+        backAnimation.position.x = this.getRenderWidth() *.05;
+        backAnimation.position.y = this.getRenderHeight() - 50;
         backAnimation.interactive = true;
-        backAnimation.width = this.getRenderWidth() *.2;
-        backAnimation.height = this.getRenderHeight() *.2;
-        backAnimation.anchor.set(0.5);
+        //backAnimation.width = this.getRenderWidth() *.2;
+        //backAnimation.height = this.getRenderHeight() *.2;
+        backAnimation.anchor.set(0.5,1);
         backAnimation.on("mouseup", this.exit.bind(this));
         backAnimation.on("touchend", this.exit.bind(this));
         backAnimation.animationSpeed = 0.1;
@@ -424,6 +424,12 @@ osu.ui.interface.scorescreen = {
     },
 
     renderScoreScreen: function(){
+        osu.ui.interface.replaycontroller.bindEvents();
+        osu.ui.interface.replaycontroller.showPlayIcon();
+        osu.ui.interface.replaycontroller.set_position(0);
+        osu.ui.interface.replaycontroller.set_duration(this.beatmap.map_data.time_length+2000);
+        osu.ui.interface.replaycontroller.disable_progressbar();
+        osu.ui.interface.replaycontroller.showBar();
         this.$footer = osu.ui.interface.mainscreen.$footer || $("#footer");
         this.$footer.attr('style','');
         this.$footer.css('display', 'none');

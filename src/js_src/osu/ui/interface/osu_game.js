@@ -792,7 +792,8 @@ osu.ui.interface.osugame = {
             osu.ui.interface.replaycontroller.set_duration(this.beatmap.map_data.time_length+2000);
             this.delayEnd *= osu.helpers.constants.DOUBLE_TIME_MULTI;
         }
-
+        osu.ui.interface.replaycontroller.enable_progressbar();
+        osu.ui.interface.replaycontroller.showPauseIcon();
         event_handler.on(event_handler.EVENTS.RENDER, this.move_replay_text.bind(this), "replay_text")
 
 
@@ -997,6 +998,8 @@ osu.ui.interface.osugame = {
 
     toggle_pause: function () {
         if(!this.paused){
+            osu.ui.interface.replaycontroller.showPlayIcon();
+
             this.paused = true;
             this.pauseScreenContainer.visible = true;
             if(this.has_started){
@@ -1005,6 +1008,7 @@ osu.ui.interface.osugame = {
             }
             return;
         }
+        osu.ui.interface.replaycontroller.showPauseIcon();
         this.pauseScreenContainer.visible = false;
         this.paused = false;
         if(this.has_started){

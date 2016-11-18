@@ -32,9 +32,9 @@ osu.ui.interface.replaycontroller = {
     },
 
     convertMs: function (t) {
-
-        var seconds = parseInt((t/1000)%60)
-        var minutes = parseInt((t/(1000*60))%60)
+;
+        var seconds = parseInt((t/1000)%60);
+        var minutes = parseInt((t/(1000*60))%60);
         var hours = parseInt((t/(1000*60*60))%24);
 
         hours = (hours < 10) ? "0" + hours : hours;
@@ -61,12 +61,37 @@ osu.ui.interface.replaycontroller = {
         this.__$volume.val(osu.settings.SETTINGS.master_volume * 100);
     },
 
+    showPauseIcon: function () {
+        this.__$togglePlayButton.prop({src: 'data/player-pause-icon.png'})
+    },
+    showPlayIcon: function () {
+        this.__$togglePlayButton.prop({src: 'data/player-play-icon.png'})
+    },
+
+    disable_progressbar: function () {
+        this.__$progressBar.prop('disabled', true)
+
+    },
+    enable_progressbar: function () {
+        this.__$progressBar.prop('disabled', false)
+    },
+
 
     bindEvents: function () {
 
         if(!this.__eventsBound){
             var self = this;
             this.__setVolume();
+            this.__$togglePlayButton.on('click', function () {
+               if(osu.ui.interface.scorescreen.replayStarted){
+                   osu.ui.interface.osugame.toggle_pause();
+               }else{
+                   console.log('ayyyyyyd');
+                   osu.ui.interface.scorescreen.start_replay();
+               }
+
+
+            });
             event_handler.on(event_handler.EVENTS.SETTINGS_CHANGED, this.__setVolume.bind(this));
             this.__$volume.on('input', function () {
                 osu.settings.SETTINGS.master_volume = self.__$volume.val() /100;
