@@ -501,7 +501,7 @@ osu.ui.interface.osugame = {
         this.create_play_warn_arrows_container();
         this.create_cursor();
         this.create_pause_screen_container();
-        this.create_settings_icon_container();
+        //this.create_settings_icon_container();
 
     },
     flash_warning_arrows: function () {
@@ -583,7 +583,9 @@ osu.ui.interface.osugame = {
     },
 
     initGame: function () {
+        osu.ui.interface.replaycontroller.bindEvents();
         //reset pause so we dont incorrectly think we are paused
+
         this.paused = false;
         this.paused_time = 0;
         event_handler.off(event_handler.EVENTS.RENDER, "replay_text"); //unsubscrbe incase another replay closed early
@@ -784,11 +786,15 @@ osu.ui.interface.osugame = {
             }
 
         }
-
+        osu.ui.interface.replaycontroller.set_duration(this.beatmap.map_data.time_length+2000);
         this.delayEnd = this.beatmap.map_data.time_length + 2500;
-        if(this.is_doubletime) this.delayEnd *= osu.helpers.constants.DOUBLE_TIME_MULTI;
+        if(this.is_doubletime) {
+            osu.ui.interface.replaycontroller.set_duration(this.beatmap.map_data.time_length+2000);
+            this.delayEnd *= osu.helpers.constants.DOUBLE_TIME_MULTI;
+        }
 
         event_handler.on(event_handler.EVENTS.RENDER, this.move_replay_text.bind(this), "replay_text")
+
 
     },
 
@@ -915,7 +921,7 @@ osu.ui.interface.osugame = {
 
             }
         }
-
+        osu.ui.interface.replaycontroller.set_position(this.curMapTime);
 
         if(this.curMapTime - this.skipTime > 0){
             this.update_timer_percentage(this.curMapTime/this.beatmap.map_data.time_length, osu.helpers.constants.TIMER_SONG_COLOUR);
@@ -1077,7 +1083,10 @@ osu.ui.interface.osugame = {
             }else{
                 if(hitobject.endTime < t){
                     hitobject.destroy();
-                    addScore(hitobject, this.performance)
+                    if(hitobject.is_slider){
+                        addScore(hitobject, this.performance)
+                    }
+
                 }else{
                     hitobject.reset();
                 }
