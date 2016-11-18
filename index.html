@@ -221,11 +221,35 @@
             </div>
         </div>
     </div>
+
+
+
+
 </div>
 
 
 
+<div id="replay_control_zone">
+    <div id="replay_controls">
+        <input type="image" src="data/player-play-icon.png"  id="toggle_play_replay" />
+        <p>1:43 / 3:43</p>
+        <input id="replay_progress" min="0" max="1545781" value="0" type="range">
 
+        <div id="replay_volume_zone">
+
+
+                    <img src="data/player-volume-icon.png">
+
+            <input id="replay_master_volume"  min="0" max="100" value="100" type="range">
+
+
+        </div>
+        <input type="image" src="data/player-settings-icon.png"  id="open_config_button" />
+    </div>
+
+
+
+</div>
 
 <script type="text/javascript" src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
 <script type="text/javascript" src="static/libs/js/jquery-ui.js"></script>
@@ -240,5 +264,7 @@
 <script src="static/js/osureplay.js"></script>
 
 <h4 style="position: absolute; top: 0; left: 0; border: 0; color: red" ><br><b>ALPHA BUILD- Things may be broken or incomplete!</b></h4>
+
+
 </body>
 </html>

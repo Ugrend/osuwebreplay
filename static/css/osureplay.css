@@ -147,6 +147,7 @@ body {
 #render_zone {
     min-height:100%;
     position:relative;
+    z-index: 1;
 }
 #header {
     background:#ff0;
@@ -164,6 +165,7 @@ body {
     color: #9f9f9f;
     vertical-align: bottom;
     background: rgba(0,0,0,1);
+    z-index: 3;
 
 }
 #close_settings{
@@ -172,6 +174,62 @@ body {
 
 #show_asset_config{
     color: black;
+}
+#replay_control_zone{
+    /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#000000+0,000000+100&0+0,0.65+100 */
+    background: -moz-linear-gradient(top, rgba(0,0,0,0) 0%, rgba(0,0,0,0.65) 100%); /* FF3.6-15 */
+    background: -webkit-linear-gradient(top, rgba(0,0,0,0) 0%,rgba(0,0,0,0.65) 100%); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(to bottom, rgba(0,0,0,0) 0%,rgba(0,0,0,0.65) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00000000', endColorstr='#a6000000',GradientType=0 ); /* IE6-9 */
+    z-index:2;
+    position:absolute;
+    bottom: 0px;
+    left: 0px;
+    width: 100%;
+    height: 50px;
+}
+
+#replay_controls{
+    left: 10px;
+    position:relative;
+}
+
+#replay_controls>p{
+    display:inline;
+    position: relative;
+    bottom: 15px;
+    left: 40px;
+    color: white;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+#replay_progress{
+    position: relative;
+    display: inline;
+    bottom: 10px;
+    left: 50px;
+    width: 50%;
+}
+
+#replay_volume_zone{
+    position: absolute;
+    right: 10%;
+    bottom: 15px;
+    max-width: 15%;
+}
+#replay_volume_zone>img{
+    position: relative !important;
+    display: inline;
+    right:50%;
+    top: 30px;
+
+}
+#replay_master_volume{
+
+}
+#open_config_button{
+    position: absolute;
+    right:1%;
 }
 .modal {
     text-align: center;
