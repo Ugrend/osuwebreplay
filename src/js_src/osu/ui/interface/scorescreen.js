@@ -48,7 +48,7 @@ osu.ui.interface.scorescreen = {
     },
 
     score_font_style: {
-        font: 'bold ' + Math.round((osu.ui.renderer.renderHeight + osu.ui.renderer.renderWidth)/32).toString() + 'px  Lucida Sans Unicode',
+        font: 'bold ' + Math.round((osu.ui.renderer.renderHeight + osu.ui.renderer.renderWidth)/36).toString() + 'px  Lucida Sans Unicode',
         fill: '#FFFFFF'
     },
 

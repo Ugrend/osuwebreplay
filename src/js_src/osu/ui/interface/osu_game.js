@@ -343,10 +343,10 @@ osu.ui.interface.osugame = {
     },
     create_replay_by_text: function () {
         this.replay_text = new PIXI.Text(this.replay_played_by_text, {
-            font: "30px Arial",
+            font: Math.round((osu.ui.renderer.renderHeight + osu.ui.renderer.renderWidth)/150) +"px Arial",
             fill: "#FFFFFF"
         });
-        this.replay_text.y = this.getRenderHeight() / 8;
+        this.replay_text.y = this.getRenderHeight() * .18;
         this.replay_text.x = this.getRenderWidth() / 2;
         this.master_container.addChild(this.replay_text);
     },
@@ -355,7 +355,7 @@ osu.ui.interface.osugame = {
             if (this.mods[i].icon != "") {
                 var modpng = osu.skins.resources[this.mods[i].icon].texture;
                 var modSprite = new PIXI.Sprite(modpng);
-                modSprite.position.y = this.getRenderHeight() / 5;
+                modSprite.position.y = this.getRenderHeight() *.22;
                 modSprite.position.x = (this.getRenderWidth() * .95) - (i * 50);
                 modSprite.anchor.set(0.5);
                 this.master_container.addChild(modSprite);
@@ -377,8 +377,8 @@ osu.ui.interface.osugame = {
         this.master_container.addChild(this.settingIconContainer);
     },
     create_timer_container: function () {
-        this.timerX = this.getRenderWidth() - (this.getRenderWidth()*.11);
-        this.timerY = this.getRenderHeight() * .1;
+        this.timerX = this.getRenderWidth() - (this.getRenderWidth()*.115);
+        this.timerY = this.getRenderHeight() * .13;
         var timerContainer = new PIXI.Container();
         var baseCircle = new PIXI.Graphics();
         baseCircle.lineStyle(4,0xFFFFFF);
@@ -460,7 +460,7 @@ osu.ui.interface.osugame = {
 
     createScoreContainer: function () {
 
-        var style = { font: 'bold 80px Arial', fill: '#FFFFFF', align: 'center', stroke: '#000000', strokeThickness: 6 };
+        var style = { font: 'bold '+Math.round((osu.ui.renderer.renderHeight + osu.ui.renderer.renderWidth)/36)+'px Arial', fill: '#FFFFFF', align: 'center', stroke: '#000000', strokeThickness: 6 };
         this.scoreText = new PIXI.Text("0",style);
         this.scoreText.anchor.set(1,0);
         this.scoreText.y = 0 ;
@@ -472,7 +472,7 @@ osu.ui.interface.osugame = {
         var style = { font: 'bold 50px Arial', fill: '#FFFFFF', align: 'center', stroke: '#000000', strokeThickness: 6 };
         this.accuracyText = new PIXI.Text("0.00%",style);
         this.accuracyText.anchor.set(1,0.5);
-        this.accuracyText.y = this.getRenderHeight() * .1 ;
+        this.accuracyText.y = this.getRenderHeight() * .13 ;
         this.accuracyText.x = this.getRenderWidth()  ;
 
         var scoreContainer = new PIXI.Container();
