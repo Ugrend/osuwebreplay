@@ -28,7 +28,9 @@ osu.audio.music =  {
             this.playing = false;
         }
         this.set_playback_speed(1);//reset playback speed if was playing DT/HT
-        this.__audio.onended = this.repeat.bind(this);
+
+        //TODO: this is corrupting datauri audio on chrome some how
+        //this.__audio.onended = this.repeat.bind(this);
 
     },
     set_volume: function () {
