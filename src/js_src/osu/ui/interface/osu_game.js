@@ -1029,7 +1029,12 @@ osu.ui.interface.osugame = {
         this.smokeContainer.removeChildren(0);
         this.paused = true; //pause game to prevent weird stuff from happening
         osu.audio.music.pause();
-        osu.audio.music.set_position(t/1000);
+        if(this.is_doubletime){
+            osu.audio.music.set_position((t / osu.helpers.constants.DOUBLE_TIME_MULTI)/1000);
+        }else{
+            osu.audio.music.set_position(t/1000);
+        }
+
 
         //reset break screens / warning arrows
         for(var i = 0; i< this.break_times.length; i++){
