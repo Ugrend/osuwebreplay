@@ -789,7 +789,7 @@ osu.ui.interface.osugame = {
         osu.ui.interface.replaycontroller.set_duration(this.beatmap.map_data.time_length+2000);
         this.delayEnd = this.beatmap.map_data.time_length + 2500;
         if(this.is_doubletime) {
-            osu.ui.interface.replaycontroller.set_duration(this.beatmap.map_data.time_length+2000);
+            osu.ui.interface.replaycontroller.set_duration(this.beatmap.map_data.time_length * osu.helpers.constants.DOUBLE_TIME_MULTI);
             this.delayEnd *= osu.helpers.constants.DOUBLE_TIME_MULTI;
         }
         osu.ui.interface.replaycontroller.enable_progressbar();

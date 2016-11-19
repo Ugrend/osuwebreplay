@@ -54,3 +54,9 @@
     position: absolute;
     right:1%;
 }
+
+#open_config_button_other{
+    position: absolute;
+    right:0.5%;
+    bottom:2px;
+}

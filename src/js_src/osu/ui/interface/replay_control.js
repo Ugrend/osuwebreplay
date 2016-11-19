@@ -86,7 +86,6 @@ osu.ui.interface.replaycontroller = {
                if(osu.ui.interface.scorescreen.replayStarted){
                    osu.ui.interface.osugame.toggle_pause();
                }else{
-                   console.log('ayyyyyyd');
                    osu.ui.interface.scorescreen.start_replay();
                }
 
@@ -98,6 +97,10 @@ osu.ui.interface.replaycontroller = {
             });
             this.__$progressBar.on('input', function () {
                osu.ui.interface.osugame.go_to(self.__$progressBar.val());
+            });
+
+            this.__$configButton.on('click', function () {
+                osu.ui.interface.osugame.toggle_settings();
             });
 
             this.__eventsBound = true;
