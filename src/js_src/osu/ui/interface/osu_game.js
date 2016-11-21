@@ -60,6 +60,7 @@ osu.ui.interface.osugame = {
     lasthit_id: 1000,
     paused: false,
     paused_time: 0,
+    starting_pos: 0,
 
 
     currentMap: function () {
@@ -1188,6 +1189,9 @@ osu.ui.interface.osugame = {
                 osu.audio.music.start();
                 this.date_started = Date.now();
                 this.has_started = true;
+                if(this.starting_pos > 0){
+                    this.go_to(this.starting_pos);
+                }
             } else {
                 if (!this.countdown_started) {
                     var self = this;

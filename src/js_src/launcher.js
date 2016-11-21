@@ -15,9 +15,7 @@ else {
                 osu.ui.interface.mainscreen.init();
 
                 if (window.location.href.match(/\?./)) {
-                    var queryDict = {};
-                    location.search.substr(1).split("&").forEach(function(item) {queryDict[item.split("=")[0]] = item.split("=")[1]});
-                    console.log(queryDict);
+                    var queryDict = getParams();
                     if(queryDict.r){
                         osu.webapi.replays.loadReplay(queryDict.r);
                     }

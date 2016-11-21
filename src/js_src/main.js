@@ -20,6 +20,12 @@ function Uint8ToString(u8a){
     return c.join("");
 }
 
+var getParams = function () {
+    var queryDict = {};
+    location.search.substr(1).split("&").forEach(function(item) {queryDict[item.split("=")[0]] = item.split("=")[1]});
+    return queryDict;
+};
+
 
 var mainArea = document.getElementById('main_zone');
 var dragDropZone = document.getElementById('dragdrop');

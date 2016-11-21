@@ -365,6 +365,30 @@ osu.ui.interface.scorescreen = {
     start_replay: function(){
         var self = this;
 
+        var params = getParams();
+        if('t' in params){
+            var time = 0;
+            var hourRegex = /([0-9]+)h/g;
+            var minRegex = /([0-9]+)m/g;
+            var secRegex = /([0-9]+)s/g;
+            var hourMatch = hourRegex.exec(params.t);
+            var minMatch = minRegex.exec(params.t);
+            var secMatch = secRegex.exec(params.t);
+            if(hourMatch && hourMatch[1]){
+                time += hourMatch[1] * 3600000;
+            }
+            if(hourMatch && hourMatch[1]){
+                time += hourMatch[1] * 3600000;
+            }
+            if(minMatch && minMatch[1]){
+                time += minMatch[1] * 60000;
+            }
+            if(secMatch && secMatch[1]){
+                time += secMatch[1] * 1000;
+            }
+            osu.ui.interface.osugame.starting_pos = time;
+        }
+
         if(osu.audio.music.__audio.readyState != 4 && osu.audio.music.__audio.src != "" && !osu.audio.music.__audio.error){
             setTimeout(function () {
                 if(!self.loading){
@@ -471,6 +495,14 @@ osu.ui.interface.scorescreen = {
         osu.audio.music.start();
         document.getElementById("replay_url_area").className = "";
         document.getElementById("open_config_button_other").className = "";
+
+        var params = getParams();
+
+        if('ap' in params){
+            if(params.ap == "1" || params.ap == "t"){
+                this.start_replay();
+            }
+        }
     }
 
 };
