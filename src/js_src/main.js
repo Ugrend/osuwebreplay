@@ -4,10 +4,8 @@
  */
 
 var DEBUG = true;
-var APIURL = "/api/";
-if(DEBUG) {
-    APIURL = "http://ugrend.com:8080/api/";
-}
+var APIURL = "https://ugrend.com/osu/api/";
+
 
 //From http://stackoverflow.com/questions/12710001/how-to-convert-uint8-array-to-base64-encoded-string
 //fixes RangeError: Maximum call stack size exceeded on chrome
