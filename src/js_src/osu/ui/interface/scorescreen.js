@@ -465,6 +465,16 @@ osu.ui.interface.scorescreen = {
         osu.ui.renderer.addChild(this.master_container);
         var $replayURL = $("#replay_url");
         $replayURL.val("");
+        var paramURL = "";
+        var params = getParams();
+
+        for(var k in params){
+            if(params.hasOwnProperty(k)){
+                if(k != "r"){
+                    paramURL += "&"+k+ '=' + params[k];
+                }
+            }
+        }
         $.ajax({
             url : APIURL + "replays",
             type: 'GET',
@@ -473,8 +483,8 @@ osu.ui.interface.scorescreen = {
             success: function (data) {
                 if(data){
                     if(data.status  != "error"){
-                        $replayURL.val(window.location.href.split('?')[0] + "?r=" + data);
-                        window.history.pushState(data, 'osu Replays', '?r='+data);
+                        $replayURL.val(window.location.href.split('?')[0] + "?r=" + data + paramURL);
+                        window.history.pushState(data, 'osu Replays', '?r='+data + paramURL);
                     }
 
                 }
@@ -496,7 +506,6 @@ osu.ui.interface.scorescreen = {
         document.getElementById("replay_url_area").className = "";
         document.getElementById("open_config_button_other").className = "";
 
-        var params = getParams();
 
         if('ap' in params){
             if(params.ap == "1" || params.ap == "t"){
