@@ -39,6 +39,7 @@ osu.objects.Slider = class Slider{
         this.hidden_time = this.hitObject.approachRate / 3.3;
         this.sliderDirectionBackwards = false;
         this.drawnFollow = false;
+        this.followDestroyed = false;
         this.totalTime = (this.hitObject.endTime - this.hitObject.startTime);
         this.timePerRepeat = this.totalTime / this.hitObject.repeatCount;
         this.nextRepeatTime = 0;
@@ -305,6 +306,9 @@ osu.objects.Slider = class Slider{
         //object is no longer rendered but still might have some logic (eg being missed, is hidden etc)
         if(this.destroyed && !drawCircle){
             if(cur_time > this.hitObject.endTime + 500){
+                if(!this.followDestroyed) {
+                    this.hitObject.game.hit_object_container.removeChild(this.sliderFollowContainer);
+                }
                 return false;
             }
         }
@@ -377,6 +381,7 @@ osu.objects.Slider = class Slider{
 
             }else{
                 this.hitObject.game.hit_object_container.removeChild(this.sliderFollowContainer);
+                this.followDestroyed = true;
             }
 
 
