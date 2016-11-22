@@ -468,9 +468,18 @@ osu.ui.interface.scorescreen = {
         var paramURL = "";
         var params = getParams();
 
+        var autoplay = false;
+
+
+        if('ap' in params){
+            if(params.ap == "1" || params.ap == "t"){
+                autoplay = true;
+            }
+        }
+
         for(var k in params){
             if(params.hasOwnProperty(k)){
-                if(k != "r"){
+                if(k != "r" && k != 'ap'){
                     paramURL += "&"+k+ '=' + params[k];
                 }
             }
@@ -507,11 +516,9 @@ osu.ui.interface.scorescreen = {
         document.getElementById("open_config_button_other").className = "";
 
 
-        if('ap' in params){
-            if(params.ap == "1" || params.ap == "t"){
+            if(autoplay){
                 this.start_replay();
             }
-        }
     }
 
 };
