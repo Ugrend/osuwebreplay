@@ -42,6 +42,7 @@ osu.objects.Slider = class Slider{
         this.followDestroyed = false;
         this.totalTime = (this.hitObject.endTime - this.hitObject.startTime);
         this.timePerRepeat = this.totalTime / this.hitObject.repeatCount;
+        if(this.hitObject.game.is_doubletime) this.timePerRepeat *= osu.helpers.constants.DOUBLE_TIME_MULTI; //yay hacks
         this.nextRepeatTime = 0;
         this.hitSounds = [];
         this.repeatCount = this.hitObject.repeatCount;
@@ -364,6 +365,7 @@ osu.objects.Slider = class Slider{
             }
             if(this.repeatCount > 0){
                 //TODO: i feel like this is wrong and im overcomplicating it but im tired and this works
+                //WTF SLEEPY ME
                 var elapsed_time = (cur_time-this.nextRepeatTime) - this.hitObject.startTime;
 
                 this.displayRepeatArrow();
