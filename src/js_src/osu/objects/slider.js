@@ -90,6 +90,7 @@ osu.objects.Slider = class Slider{
         for(var i = 0 ; i < this.hitObject.edges.length;i++){
             this.hitSounds.push(osu.audio.HitSound.getHitSounds(this.hitObject.edges[i].sounds, this.hitObject.timing, (i==0)));
         }
+        this.displayRepeatArrow();
     }
 
 
@@ -255,11 +256,24 @@ osu.objects.Slider = class Slider{
             this.hitSounds.push(osu.audio.HitSound.getHitSounds(this.hitObject.edges[i].sounds, this.hitObject.timing, (i==0)));
         }
 
-
+        this.displayRepeatArrow();
 
         this.initialised = true;
     }
 
+    displayRepeatArrow(){
+        if(this.repeatCount > 0) {
+            if (this.repeatCount % 2 == 0) {
+                this.arrowSliderEnd.visible = true;
+                this.arrowSliderStart.visible = false;
+            } else {
+                this.arrowSliderEnd.visible = false;
+                if (this.repeatCount != 1) {
+                    this.arrowSliderStart.visible = true;
+                }
+            }
+        }
+    }
 
 
     updatePositions(){
@@ -352,15 +366,7 @@ osu.objects.Slider = class Slider{
                 //TODO: i feel like this is wrong and im overcomplicating it but im tired and this works
                 var elapsed_time = (cur_time-this.nextRepeatTime) - this.hitObject.startTime;
 
-                if(this.repeatCount % 2 == 0){
-                    this.arrowSliderEnd.visible = true;
-                    this.arrowSliderStart.visible = false;
-                }else{
-                    this.arrowSliderEnd.visible = false;
-                    if(this.repeatCount != 1){
-                        this.arrowSliderStart.visible = true;
-                    }
-                }
+                this.displayRepeatArrow();
 
                 var t = (elapsed_time / this.timePerRepeat);
                 if(this.sliderDirectionBackwards){
