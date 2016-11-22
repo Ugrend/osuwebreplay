@@ -650,7 +650,7 @@ osu.ui.interface.osugame = {
         }
         var comboNum = 0;
         var comboColour = 0;
-        var approachRate = parseInt(this.beatmap.map_data.difficulty.ApproachRate);
+        var approachRate = parseInt(this.beatmap.map_data.difficulty.ApproachRate) || 7;
         var overallDifficulty = this.beatmap.map_data.difficulty.OverallDifficulty;
         var difficultyCircleSize = parseInt(this.beatmap.map_data.difficulty.CircleSize);
         var hpDrain = parseInt(this.beatmap.map_data.difficulty.HPDrainRate);
