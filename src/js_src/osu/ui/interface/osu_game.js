@@ -987,7 +987,6 @@ osu.ui.interface.osugame = {
                     this.cursor.y = y;
                     i++;
                     this.oldestReplayFrame =i;
-                    break;
                 }
             }else{
                 break;
