@@ -1220,7 +1220,7 @@ osu.ui.interface.osugame = {
         }
 
 
-        if(!this.finished) setTimeout(this.game_loop.bind(this), 1);
+        if(!this.finished) window.requestAnimationFrame(this.game_loop.bind(this));
 
     }
 
