@@ -250,8 +250,8 @@ osu.beatmaps.BeatmapLoader = {
             this.background = this.__get_asset_from_md5(this.__lookup_file_md5(this.map_data.events[0][2].replace(/"/g, '')));
             this.map_name = this.map_data.metadata.Artist + " - " + this.map_data.metadata.Title + " [" + this.map_data.metadata.Version + "]";
             this.author = this.map_data.metadata.Creator;
-            if(this.song_md5sum == "76e7fb7b5077cad2e8540f7dec55cfd1" &&!this.song){
-                this.song = "data/Rostik - Liquid (Paul Rosenthal Remix).mp3";
+            if(this.song_md5sum == "f25f5aa010a42f3618aea72ed8cfceaf" &&!this.song){
+                this.song = "data/RenatusSoleily.mp3";
             }
 
             if(!this.song){
