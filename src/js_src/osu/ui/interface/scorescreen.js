@@ -492,8 +492,7 @@ osu.ui.interface.scorescreen = {
             success: function (data) {
                 if(data){
                     if(data.status  != "error"){
-                        $replayURL.val(window.location.href.split('?')[0] + "?r=" + data + paramURL);
-                        window.history.pushState(data, 'osu Replays', '?r='+data + paramURL);
+                       $replayURL.val(window.location.href.split('?')[0] + "?r=" + data + paramURL);window.history.pushState(data, 'osu Replays', '?r='+data + paramURL);
                     }
 
                 }
