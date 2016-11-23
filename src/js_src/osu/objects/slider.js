@@ -78,6 +78,7 @@ osu.objects.Slider = class Slider{
     reset(){
         //Reset the object so that it can be used again
         this.beenHit = false;
+        this.sliderFollowContainer.visible = true;
         this.nextRepeatTime = 0;
         this.sliderDirectionBackwards = false;
         this.repeatCount = this.hitObject.repeatCount;
@@ -322,6 +323,8 @@ osu.objects.Slider = class Slider{
         if(this.destroyed && !drawCircle){
             if(cur_time > this.hitObject.endTime + 500){
                 if(!this.followDestroyed) {
+                    //if we alt tab or get a big lag spike some reason the object is not removed so this is a workaround
+                    this.sliderFollowContainer.visible = false;
                     this.hitObject.game.hit_object_container.removeChild(this.sliderFollowContainer);
                 }
                 return false;
@@ -389,6 +392,8 @@ osu.objects.Slider = class Slider{
 
             }else{
                 this.hitObject.game.hit_object_container.removeChild(this.sliderFollowContainer);
+                //if we alt tab or get a big lag spike some reason the object is not removed so this is a workaround
+                this.sliderFollowContainer.visible = false;
                 this.followDestroyed = true;
             }
 
