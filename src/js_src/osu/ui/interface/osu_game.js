@@ -1103,18 +1103,8 @@ osu.ui.interface.osugame = {
         }
 
         //reset Replay frames
-        for(i = 0; i < this.replay_data.length; i++) {
-            var replayTime = this.replay_data[i].t - this.replayDiff - this.skipTime;
-            if (replayTime >= t){
-                if(i>0){
-                    this.oldestReplayFrame = i -1;
-                }
-                else{
-                    this.oldestReplayFrame = 0;
-                }
-                break;
-            }
-        }
+        this.oldestReplayFrame = 0;
+
 
         //reset keypresses
 
