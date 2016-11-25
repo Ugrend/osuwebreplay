@@ -817,7 +817,11 @@ osu.ui.interface.osugame = {
                 break;
             }
             var keyPress = this.keyPresses[i];
-            if(keyPress.t <= this.curMapTime){
+            var t = keyPress.t;
+            if(this.is_doubletime){
+                t *= osu.helpers.constants.DOUBLE_TIME_MULTI;
+            }
+            if(t <= this.curMapTime){
                 var tint_1 = keyPress.K1;
                 var tint_2 = keyPress.K2;
                 var tint_3 = keyPress.M1;
