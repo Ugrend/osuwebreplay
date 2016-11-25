@@ -1026,6 +1026,9 @@ osu.ui.interface.osugame = {
         //we then need to set the replay frame position to the correct point in time
         //we then need to set the date_started time to be at a point where the calculations work as normal
 
+        var waspaused = this.paused;
+
+
         this.smokeContainer.removeChildren(0);
         this.paused = true; //pause game to prevent weird stuff from happening
         osu.audio.music.pause();
@@ -1156,8 +1159,12 @@ osu.ui.interface.osugame = {
 
         this.date_started = Date.now() - t;
         this.curMapTime = t;
-        this.paused = false;
-        osu.audio.music.play();
+
+        if(!waspaused){
+            this.paused = false;
+            osu.audio.music.play();
+        }
+
 
 
     },
