@@ -61,7 +61,12 @@ osu.ui.interface.osugame = {
     paused: false,
     paused_time: 0,
     starting_pos: 0,
+    playbackMulti: 1,
+    modPlayBackMulti: 1,
 
+    getPlayBackMulti: function () {
+        return this.modPlayBackMulti * this.playbackMulti;
+    },
 
     currentMap: function () {
         return this.beatmap;
@@ -586,7 +591,9 @@ osu.ui.interface.osugame = {
     initGame: function () {
         osu.ui.interface.replaycontroller.bindEvents();
         //reset pause so we dont incorrectly think we are paused
-
+        this.playbackMulti = 1;
+        $("#replay_playback_speed").val(1);
+        this.modPlayBackMulti = 1;
         this.paused = false;
         this.paused_time = 0;
         event_handler.off(event_handler.EVENTS.RENDER, "replay_text"); //unsubscrbe incase another replay closed early
@@ -633,17 +640,19 @@ osu.ui.interface.osugame = {
             if (mod == "HT") this.is_halftime = true;
 
         }
+        if(this.is_doubletime){
+            this.modPlayBackMulti *= 1.5;
+        }
+        if(this.is_halftime){
+            this.modPlayBackMulti *=0.75;
+        }
+
 
         for (i = 0; i < this.beatmap.map_data.events.length; i++) {
             //2 looks to be breaks
             if (this.beatmap.map_data.events[i][0] == "2") {
                 var startTime = parseInt(this.beatmap.map_data.events[i][1]);
-                var endTime = parseInt(this.beatmap.map_data.events[i][2]) - 2300
-                if (this.is_doubletime) {
-                    startTime *= osu.helpers.constants.DOUBLE_TIME_MULTI;
-                    endTime *= osu.helpers.constants.DOUBLE_TIME_MULTI;
-                }
-
+                var endTime = parseInt(this.beatmap.map_data.events[i][2]) - 2300;
                 this.break_times.push({t:startTime, played:false});
                 this.warning_arrow_times.push({t:endTime, played:false});
             }
@@ -686,7 +695,6 @@ osu.ui.interface.osugame = {
         } else {
             this.approachTime = (1200 - ((approachRate - 5) * 150));
         }
-        if (this.is_doubletime) this.approachTime = this.approachTime - (this.approachTime * .33);
         if(!this.beatmap.been_rendered){
             this.keyPresses = [];
             this.hit_objects = [];
@@ -735,7 +743,6 @@ osu.ui.interface.osugame = {
 
 
         this.audioLeadIn = parseInt(this.beatmap.map_data.general.AudioLeadIn);
-        if (this.is_doubletime) this.audioLeadIn = this.audioLeadIn * osu.helpers.constants.DOUBLE_TIME_MULTI;
 
 
         //calculate x,y prior as processing slowly casues it to get out of sync
@@ -750,11 +757,7 @@ osu.ui.interface.osugame = {
 
                 this.replay_data[i].x = this.calculate_x(this.replay_data[i].x);
                 this.replay_data[i].y = this.calculate_y(this.replay_data[i].y);
-                if (this.is_doubletime) {
-                    //seems replay data also needs to be speed up
-                    //TODO: Check if i need to worry about the negative values
-                    this.replay_data[i].t *= osu.helpers.constants.DOUBLE_TIME_MULTI;
-                }
+
 
             }
             replay.been_rendered = true;
@@ -781,7 +784,6 @@ osu.ui.interface.osugame = {
                 this.replayDiff = this.replay_data[2].t * -1;
                 if (this.audioLeadIn == 0) {
                     this.audioLeadIn =  this.replayDiff;
-                    if (this.is_doubletime) this.audioLeadIn *= osu.helpers.constants.DOUBLE_TIME_MULTI;
                 }
 
             }
@@ -789,10 +791,6 @@ osu.ui.interface.osugame = {
         }
         osu.ui.interface.replaycontroller.set_duration(this.beatmap.map_data.time_length+2000);
         this.delayEnd = this.beatmap.map_data.time_length + 2500;
-        if(this.is_doubletime) {
-            osu.ui.interface.replaycontroller.set_duration(this.beatmap.map_data.time_length * osu.helpers.constants.DOUBLE_TIME_MULTI);
-            this.delayEnd *= osu.helpers.constants.DOUBLE_TIME_MULTI;
-        }
         osu.ui.interface.replaycontroller.enable_progressbar();
         osu.ui.interface.replaycontroller.showPauseIcon();
         event_handler.on(event_handler.EVENTS.RENDER, this.move_replay_text.bind(this), "replay_text")
@@ -818,9 +816,6 @@ osu.ui.interface.osugame = {
             }
             var keyPress = this.keyPresses[i];
             var t = keyPress.t;
-            if(this.is_doubletime){
-                t *= osu.helpers.constants.DOUBLE_TIME_MULTI;
-            }
             if(t <= this.curMapTime){
                 var tint_1 = keyPress.K1;
                 var tint_2 = keyPress.K2;
@@ -951,10 +946,7 @@ osu.ui.interface.osugame = {
     skip_intro: function () {
         if(this.skipTime && this.curMapTime < this.skipTime){
             osu.audio.sound.play_sound(osu.audio.sound.MENUHIT);
-            osu.audio.music.set_position(this.skipTime / 1000);
-            this.curMapTime = this.skipTime;
-            var elapsed_time = Date.now() - this.date_started;
-            this.date_started -= (this.skipTime - elapsed_time);
+            this.go_to(this.skipTime);
         }
 
     },
@@ -1030,18 +1022,16 @@ osu.ui.interface.osugame = {
         //we then need to set the replay frame position to the correct point in time
         //we then need to set the date_started time to be at a point where the calculations work as normal
 
+
+
         var waspaused = this.paused;
 
 
         this.smokeContainer.removeChildren(0);
         this.paused = true; //pause game to prevent weird stuff from happening
         osu.audio.music.pause();
-        if(this.is_doubletime){
-            osu.audio.music.set_position((t / osu.helpers.constants.DOUBLE_TIME_MULTI)/1000);
-        }else{
-            osu.audio.music.set_position(t/1000);
-        }
-
+        osu.audio.music.set_position(t/1000);
+        //
 
         //reset break screens / warning arrows
         for(var i = 0; i< this.break_times.length; i++){
@@ -1110,8 +1100,23 @@ osu.ui.interface.osugame = {
         }
 
         //reset Replay frames
-        this.oldestReplayFrame = 0;
+        var curMapTime = t;
+        if(this.skipTime>0) curMapTime += this.skipTime;
+        for(i=0; i < this.replay_data.length; i++){
+            var repT = this.replay_data[i].t - this.replayDiff;
+            if(curMapTime >= repT){
 
+                if(this.replay_data[i].x > 0 && this.replay_data[i].y > 0){
+                    i++;
+                    this.oldestReplayFrame =i;
+                }
+            }else{
+                break;
+            }
+        }
+
+        console.log(this.oldestReplayFrame);
+        console.log(curMapTime);
 
         //reset keypresses
 
@@ -1124,7 +1129,7 @@ osu.ui.interface.osugame = {
 
         for(i=0;  i<this.keyPresses.length; i++){
             var keyPress = this.keyPresses[i];
-            if(keyPress.t <= t){
+            if(keyPress.t <= curMapTime){
                 this.currentKeyPress = i;
                 if(keyPress.REPLAYHIT && this.lasthit_id != keyPress.ID){
                     if(keyPress.K1){
@@ -1157,12 +1162,11 @@ osu.ui.interface.osugame = {
         this.keypress_4_Text.text = (this.key_4_count > 0 && this.key_4_count.toString() || "M2");
 
 
-
-
-
-
-        this.date_started = Date.now() - t;
+        this.date_started = Date.now() - (t/ this.getPlayBackMulti());
         this.curMapTime = t;
+
+
+
 
         if(!waspaused){
             this.paused = false;
@@ -1172,42 +1176,58 @@ osu.ui.interface.osugame = {
 
 
     },
+    setPlayBackMulti: function (rate) {
+        if(rate <= 0) return; //dont allow 0 or less time as it will break everything;
+        var waspaused = this.paused;
+        this.paused = true;
+        var curTime = (Date.now() - this.date_started - this.paused_time);
+        var oldTime = curTime * this.getPlayBackMulti();
+        this.playbackMulti = rate;
+        var newTime = curTime * this.getPlayBackMulti();;
 
+        var difference = (oldTime - newTime)/this.getPlayBackMulti() || 0;
+
+        this.date_started = this.date_started - difference;
+
+        osu.audio.music.set_playback_speed(this.getPlayBackMulti());
+        this.paused = waspaused;
+    },
 
     game_loop: function () {
+
+        if(!this.has_started && !this.countdown_started){
+            this.date_started = Date.now();
+        }
+
+
+        var curTime = (Date.now() - this.date_started - this.paused_time) * this.getPlayBackMulti();
         if(!this.paused){
             if(this.paused_time>0){
                 //Increase the date started time by the amount of time it has been paused for this should make everything remain insync
                 this.date_started += Date.now() - this.paused_time;
                 this.paused_time = 0;
+                curTime = (Date.now() - this.date_started - this.paused_time) * this.getPlayBackMulti();
             }
 
             this.render_replay_frame();
             this.renderKeyPress();
-            if (!this.has_started && this.audioLeadIn == 0 && !this.finished) {
-                if (this.is_doubletime) osu.audio.music.set_playback_speed(1.5);
+            if (!this.has_started && curTime > this.audioLeadIn && !this.finished) {
+                osu.audio.music.set_playback_speed(this.getPlayBackMulti());
                 osu.audio.music.start();
-                this.date_started = Date.now();
                 this.has_started = true;
+                this.date_started = Date.now();
+                curTime = (Date.now() - this.date_started - this.paused_time) * this.getPlayBackMulti();
                 if(this.starting_pos > 0){
                     this.go_to(this.starting_pos);
                 }
             } else {
-                if (!this.countdown_started) {
-                    var self = this;
-                    this.date_started = Date.now();
-                    setTimeout(function () {
-                        self.audioLeadIn = 0;
-                    }, this.audioLeadIn);
-                    this.countdown_started = true;
-                }
-                var curTime = Date.now() - this.date_started - this.paused_time;
+                this.countdown_started = true;
                 this.update_timer_percentage(curTime/this.audioLeadIn, osu.helpers.constants.TIMER_INTRO_COLOUR);
             }
-            var time = Date.now();
+
             if (this.has_started) {
 
-                this.curMapTime = time - this.date_started;
+                this.curMapTime = curTime;
                 this.paused_time = 0;
                 if (this.skipTime ==-1 || this.skipTime > -1 && this.skipTime < this.curMapTime) {
                     this.skip_container.visible = false;

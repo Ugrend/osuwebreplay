@@ -513,8 +513,7 @@ osu.ui.interface.scorescreen = {
         osu.audio.music.start();
         document.getElementById("replay_url_area").className = "";
         document.getElementById("open_config_button_other").className = "";
-
-
+        document.getElementById("playback_ratio_area").className = "col-lg-1";
             if(autoplay){
                 this.start_replay();
             }

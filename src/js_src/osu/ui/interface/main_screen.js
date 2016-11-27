@@ -88,6 +88,11 @@ osu.ui.interface.mainscreen = {
         //init script can be called multiple times if no maps/replays exist
         if(!this.events_bound){
 
+
+            $("#replay_playback_speed").on('change', function (e) {
+                osu.ui.interface.osugame.setPlayBackMulti(e.currentTarget.value);
+            });
+
             $("#open_config_button_other").on('click', function () {
                 osu.ui.interface.osugame.toggle_settings();
             });
@@ -423,6 +428,7 @@ osu.ui.interface.mainscreen = {
         document.getElementById("main_menu").className = "";
         document.getElementById("render_zone").className = "hidden";
         document.getElementById("replay_url_area").className = "hidden";
+        document.getElementById("playback_ratio_area").className = "hidden";
         document.getElementById("open_config_button_other").className = "hidden";
 
         this.$asset_server_url.val(osu.settings.SETTINGS.asset_server);

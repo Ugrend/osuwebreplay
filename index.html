@@ -168,6 +168,7 @@
 
 
 
+
             <div id="skin_settings" class="hidden">
                 <label for="use_beatmap_skin">Use beatmap Skins</label>
                 <input id="use_beatmap_skin" type="checkbox">
@@ -179,7 +180,13 @@
 
         </div>
 
+        <div class="col-lg-1 hidden" id="playback_ratio_area">
+                <label for="replay_playback_speed">Playback Speed:</label>
+                <input class="input-sm" id="replay_playback_speed" type="number" min="0" max="10" step="0.1" value="1"/>
+        </div>
+
         <div class="col-lg-2">
+
             <div id="skin_select_field">
                 <label for="skin_select">Select Skin</label>
                 <select id="skin_select" class="form-control">
@@ -233,6 +240,8 @@
 <div id="replay_control_zone" style="display:none">
     <div id="replay_controls">
         <input type="image" src="data/player-pause-icon.png"  id="toggle_play_replay" />
+
+
         <p id="replay_current_time">00:00</p><p> / </p><p id="replay_duration">00:00</p>
         <input id="replay_progress" min="0" max="1545781" value="0" type="range">
 
@@ -245,6 +254,7 @@
 
 
         </div>
+
         <input type="image" src="data/player-settings-icon.png" class="open_config_button" id="open_config_button" />
     </div>
 
