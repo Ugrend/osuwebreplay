@@ -20,8 +20,8 @@ osu.audio.music =  {
 
             Basically had some weird problems with Chrome and datauri audio where switching sources/moving positions
             would sometimes corrupt the audio playing.
-            To fix this i thought i would trie using a audio libary to see if it solved this problem
-            However this introudced a new problem, howlerjs didn't seem to work with CORS when the remote source did not allow remote domains,
+            To fix this i thought i would try using a audio library to see if it solved this problem
+            However this introduced a new problem, howlerjs didn't seem to work with CORS when the remote source did not allow remote domains,
             Since the problem didn't affect url sources i decided to use both, howlerjs for datauri and standard Audio for everything else.
 
          */
