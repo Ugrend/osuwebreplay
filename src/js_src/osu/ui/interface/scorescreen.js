@@ -389,7 +389,7 @@ osu.ui.interface.scorescreen = {
             osu.ui.interface.osugame.starting_pos = time;
         }
 
-        if(osu.audio.music.__audio.readyState != 4 && osu.audio.music.__audio.src != "" && !osu.audio.music.__audio.error){
+        if(!osu.audio.music.loaded()){
             setTimeout(function () {
                 if(!self.loading){
 
