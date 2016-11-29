@@ -641,10 +641,10 @@ osu.ui.interface.osugame = {
 
         }
         if(this.is_doubletime){
-            this.modPlayBackMulti *= 1.5;
+            this.modPlayBackMulti *= osu.helpers.constants.DOUBLE_TIME_MULTI;
         }
         if(this.is_halftime){
-            this.modPlayBackMulti *=0.75;
+            this.modPlayBackMulti *= osu.helpers.constants.HALF_TIME_MULTI;
         }
 
 
@@ -669,12 +669,12 @@ osu.ui.interface.osugame = {
 
 
         if (this.is_hardrock) {
-            approachRate *=  1.4;
-            overallDifficulty *= 1.4;
+            approachRate *=  osu.helpers.constants.HR_DIFFICULTY_MULTI;
+            overallDifficulty *= osu.helpers.constants.HR_DIFFICULTY_MULTI;
         }
         if (this.is_easy){
-            approachRate *=0.5;
-            overallDifficulty *= 0.5;
+            approachRate *= osu.helpers.constants.EZ_DIFFICULTY_MULTI;
+            overallDifficulty *= osu.helpers.constants.EZ_DIFFICULTY_MULTI;
         }
         approachRate = Math.min(approachRate,10);
         overallDifficulty = Math.min(overallDifficulty,10);
