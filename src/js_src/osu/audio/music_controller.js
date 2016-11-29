@@ -46,13 +46,15 @@ osu.audio.music =  {
             }
             if(this.using_howl){
                 this.__audio = new Howl({
-                    src:[src]
+                    src:[src],
+                    onend:this.repeat.bind(this)
                 });
             }else{
                 if(this.__audio instanceof Audio){
                     this.__audio.currentSrc = src;
                 }else{
                     this.__audio = new Audio(src);
+                    this.__audio.onended = this.repeat.bind(this);
                 }
 
             }
@@ -62,8 +64,6 @@ osu.audio.music =  {
         }
         this.set_playback_speed(1);//reset playback speed if was playing DT/HT
 
-        //TODO: this is corrupting datauri audio on chrome some how
-        //this.__audio.onended = this.repeat.bind(this);
 
     },
     set_volume: function () {
