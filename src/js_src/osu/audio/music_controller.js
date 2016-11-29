@@ -42,7 +42,7 @@ osu.audio.music =  {
             }
             if(this.__audio instanceof Audio){
                 this.__audio.pause();
-                this.__audio.currentSrc = "";
+                this.__audio.src = "";
             }
             if(this.using_howl){
                 this.__audio = new Howl({
@@ -51,7 +51,7 @@ osu.audio.music =  {
                 });
             }else{
                 if(this.__audio instanceof Audio){
-                    this.__audio.currentSrc = src;
+                    this.__audio.src = src;
                 }else{
                     this.__audio = new Audio(src);
                     this.__audio.onended = this.repeat.bind(this);
