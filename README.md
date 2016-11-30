@@ -59,6 +59,7 @@ Alternatively you can run ```grunt watch``` to have it monitor for changes
 * [typeahead.js](https://github.com/twitter/typeahead.js/) - Used for beatmap/replay search
 * [PNotify](https://github.com/sciactive/pnotify) - Used for notifications
 * [howler.js](https://github.com/goldfire/howler.js) - Used for music playback
+* [Bootstrap](http://getbootstrap.com/) - Used for styling.
 
 ## Author
 
