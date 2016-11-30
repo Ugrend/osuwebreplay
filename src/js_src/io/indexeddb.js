@@ -75,10 +75,13 @@ var database = {
     insert_data: function (table, md5sum, data, onsuccess, onerror) {
         if (this.__started) {
             var transaction = this.__db.transaction([table], "readwrite").objectStore(table).add(data, md5sum);
-            transaction.onsuccess =   onsuccess;
+            transaction.onsuccess =   onsuccess || function () {};
             transaction.onerror = function(e){
                 console.log(e.target.error);
-                onerror(e);
+                if(onerror){
+                    onerror(e);
+                }
+
             };
         }
         else {

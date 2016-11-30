@@ -203,17 +203,26 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
                 var background_file_name = beatmap.parsed.events[0][2].replace(/"/g, '');
                 var thumbnail = "";
                 for (var x = 0; x < beatMap.assets.length; x++) {
-                    beatmap.files.push(
-                        {
-                            md5sum: beatMap.assets[x].md5sum,
-                            filename: beatMap.assets[x].filename
-                        }
-                    );
                     if (beatMap.assets[x].filename == background_file_name) {
+                        beatmap.files.push(
+                            {
+                                md5sum: beatMap.assets[x].md5sum,
+                                filename: beatMap.assets[x].filename
+                            }
+                        );
+                        //i know this is async but im hoping it shouldn't cause problems also duplicate insertions wont break anything
+                        database.insert_data(database.TABLES.ASSETS, beatMap.assets[x].md5sum, beatMap.assets[x].data);
                         beatmap.background = beatMap.assets[x].md5sum;
                         thumbnail = create_thumbnail(beatMap.assets[x].data);
                     }
                     if(beatMap.assets[x].filename == beatmap.parsed.general.AudioFilename){
+                        beatmap.files.push(
+                            {
+                                md5sum: beatMap.assets[x].md5sum,
+                                filename: beatMap.assets[x].filename
+                            }
+                        );
+                        database.insert_data(database.TABLES.ASSETS, beatMap.assets[x].md5sum, beatMap.assets[x].data);
                         beatmap.song = beatMap.assets[x].md5sum;
                     }
 
@@ -279,7 +288,7 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
                                     data: data,
                                     md5sum: md5sum,
                                 });
-                                database.insert_data(database.TABLES.ASSETS, md5sum, data, processing_complete, processing_complete);
+                                processing_complete();
                             }, function (current, total) {
 
                             });
@@ -297,7 +306,7 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
                                     data: data,
                                     md5sum: md5sum
                                 });
-                                database.insert_data(database.TABLES.ASSETS, md5sum, data, processing_complete, processing_complete);
+                                processing_complete();
                             }, function (current, total) {
 
                             });
@@ -316,8 +325,8 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
                                     data: data,
                                     md5sum: md5sum
                                 });
+                                processing_complete();
 
-                                database.insert_data(database.TABLES.ASSETS, md5sum, data, processing_complete, processing_complete);
                             }, function (current, total) {
 
                             });
@@ -336,7 +345,7 @@ var BeatmapReader = function (beatmap_zip_file, callback) {
                                     data: data,
                                     md5sum: md5sum
                                 });
-                                database.insert_data(database.TABLES.ASSETS, md5sum, data, processing_complete, processing_complete);
+                                processing_complete();
                             }, function (current, total) {
 
                             });
