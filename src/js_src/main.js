@@ -6,6 +6,9 @@
 var DEBUG = true;
 var APIURL = "https://ugrend.com/osu/api/";
 
+function hidePrototypeWarning() {
+    document.getElementById('prototype-warning').className = "hidden";
+}
 
 //From http://stackoverflow.com/questions/12710001/how-to-convert-uint8-array-to-base64-encoded-string
 //fixes RangeError: Maximum call stack size exceeded on chrome
