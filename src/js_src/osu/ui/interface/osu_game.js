@@ -776,7 +776,7 @@ osu.ui.interface.osugame = {
             if (this.replay_data[2].t > 0) {
                 this.replayDiff = this.replay_data[2].t * -1;
             }
-            this.skipTime = skipFrame.t;
+            this.skipTime = parseInt(skipFrame.t);
             this.warning_arrow_times.push({t:this.skipTime, played:false});
         }
         else{
@@ -1022,7 +1022,7 @@ osu.ui.interface.osugame = {
         //we then need to set the replay frame position to the correct point in time
         //we then need to set the date_started time to be at a point where the calculations work as normal
 
-
+        t = parseInt(t);
 
         var waspaused = this.paused;
 
@@ -1100,7 +1100,7 @@ osu.ui.interface.osugame = {
         }
 
         //reset Replay frames
-        var curMapTime = t;
+        var curMapTime = parseInt(t);
         if(this.skipTime>0) curMapTime += this.skipTime;
         for(i=0; i < this.replay_data.length; i++){
             var repT = this.replay_data[i].t - this.replayDiff;
@@ -1114,9 +1114,6 @@ osu.ui.interface.osugame = {
                 break;
             }
         }
-
-        console.log(this.oldestReplayFrame);
-        console.log(curMapTime);
 
         //reset keypresses
 
