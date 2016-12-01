@@ -365,6 +365,15 @@ osu.ui.interface.scorescreen = {
     start_replay: function(){
         var self = this;
 
+        if(replay.type != "0"){
+            new PNotify({
+                title: 'Game mode unsupported',
+                text: "Currently only osu! game mode is supported :(",
+                type: 'error'
+            });
+            return;
+        }
+
         var params = getParams();
         if('t' in params){
             var time = 0;
