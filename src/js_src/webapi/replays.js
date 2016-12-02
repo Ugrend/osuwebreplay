@@ -36,15 +36,7 @@ osu.webapi.replays = {
     },
 
     loadReplay: function(id){
-        var _base64ToUint8Array = function(base64) {
-            var binary_string =  window.atob(base64);
-            var len = binary_string.length;
-            var bytes = new Uint8Array( len );
-            for (var i = 0; i < len; i++)        {
-                bytes[i] = binary_string.charCodeAt(i);
-            }
-            return bytes
-        };
+
 
         $.ajax({
             url : APIURL + "replays",
@@ -53,7 +45,7 @@ osu.webapi.replays = {
             dataType: 'json',
             success : function(data) {
                 if(data.status == "success"){
-                    ReplayParser(_base64ToUint8Array(data.data), function (replay_data) {
+                    ReplayParser(base64ToUint8Array(data.data), function (replay_data) {
                         replay = replay_data; //TODO: not be essentially global
                         loadBeatMap();
                     });

@@ -20,6 +20,18 @@ else {
                         osu.webapi.replays.loadReplay(queryDict.r);
                     }
                 }
+                else{
+                    //allow loading replay data from # so can load in replay frame from a iframe
+                    if(location.hash.replace(/#/,"") != ""){
+
+                        var replayB64 = decodeURI(location.hash.replace(/#/,""));
+                        location.hash = "";
+                        ReplayParser(base64ToUint8Array(replayB64), function (replay_data) {
+                            replay = replay_data; //TODO: not be essentially global
+                            loadBeatMap();
+                        });
+                    }
+                }
             };
 
 
