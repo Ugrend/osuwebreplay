@@ -385,9 +385,15 @@ osu.objects.Slider = class Slider{
 
                 var moveTo = this.curves.get_point(t);
 
-                this.sliderFollowContainer.position.x = moveTo.x;
-                this.sliderFollowContainer.position.y = moveTo.y;
-                this.sliderFollowContainer.rotation = moveTo.angle;
+
+                if(moveTo){
+                    this.sliderFollowContainer.position.x = moveTo.x;
+                    this.sliderFollowContainer.position.y = moveTo.y;
+                    this.sliderFollowContainer.rotation = moveTo.angle;
+                }else{
+                    console.log('why u gotta put in dem troll maps');
+                }
+
 
             }else{
                 this.hitObject.game.hit_object_container.removeChild(this.sliderFollowContainer);
