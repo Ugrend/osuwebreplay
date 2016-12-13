@@ -203,10 +203,15 @@ osu.beatmaps.BeatmapLoader = {
                 this.map_data = this.__beatmap.parsed;
                 this.required_files = this.__beatmap.files;
                 this.__files_needed = this.__beatmap.files.slice(0);
-                var file_to_get = this.__files_needed.pop().md5sum;
-                database.get_data(database.TABLES.ASSETS, file_to_get, this.__load_assets_from_db.bind(this), function (e) {
-                    event_handler.emit(event_handler.EVENTS.DB_ERROR, e.event.error);
-                });
+                if(this.__files_needed && this.__files_needed.length){
+                    var file_to_get = this.__files_needed.pop().md5sum;
+                    database.get_data(database.TABLES.ASSETS, file_to_get, this.__load_assets_from_db.bind(this), function (e) {
+                        event_handler.emit(event_handler.EVENTS.DB_ERROR, e.event.error);
+                    });
+                }
+                else{
+                    this.__load_assets_from_db();
+                }
             } else {
                 event_handler.emit(event_handler.EVENTS.BEATMAP_NOTFOUND, result.md5sum);
             }
@@ -214,10 +219,10 @@ osu.beatmaps.BeatmapLoader = {
         __load_assets_from_db: function (result) {
             if (result && result.data) {
                 this.assets.push(result);
-            } else {
+            } else if(result) {
                 event_handler.emit(event_handler.EVENTS.ASSET_NOT_FOUND, result.md5sum)
             }
-            if (this.__files_needed.length) {
+            if (this.__files_needed && this.__files_needed.length) {
                 var file_to_get = this.__files_needed.pop().md5sum;
                 database.get_data(database.TABLES.ASSETS, file_to_get, this.__load_assets_from_db.bind(this), function (e) {
                     event_handler.emit(event_handler.EVENTS.DB_ERROR, e.event.error);

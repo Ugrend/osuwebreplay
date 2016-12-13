@@ -5,6 +5,7 @@
 
 var DEBUG = true;
 var APIURL = "https://ugrend.com/osu/api/";
+//var APIURL = "http://localhost:8080/api/";
 
 function hidePrototypeWarning() {
     document.getElementById('prototype-warning').className = "hidden";
