@@ -21,7 +21,35 @@ osu.webapi.tasks = {
                 dataType: 'json',
                 success: function (data) {
                     if(data.data.state == "SUCCESS"){
-                        //TODO: update assets
+                        database.get_data(database.TABLES.BEATMAPS,map_hash, function (d) {
+                            var map = d.data;
+                            var assets = data.data.result;
+                            //dont add if already there
+                            for(var i = 0; i < assets.length; i++){
+                                for(var j =0; j< map.files.length ; j++){
+                                    if(assets[i]['filename'] == map.files[j]['filename']){
+                                        assets.splice(i,1);
+                                    }
+                                }
+                            }
+                            for(i =0 ; i< assets.length; i++ ){
+                                map.files.push(assets[i]);
+                            }
+
+                            if(!map.song){
+                                var filename = map.parsed.general.AudioFilename;
+                                for(i = 0; i< map.files.length ; i++){
+                                    if(filename == map.files[i]['filename']){
+                                        map.song = map.files[i]['filename']
+                                    }
+                                }
+                            }
+
+                            database.update_data(database.TABLES.BEATMAPS,map_hash,map)
+                        });
+
+
+
                     }else if(data.data.state == "PENDING"){
                         //only try this 10times as if somehow we get wrong task id the task will always be in pending
                         if(attempt < 10){
