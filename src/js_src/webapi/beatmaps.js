@@ -77,6 +77,15 @@ osu.webapi.beatmaps = {
                 beatmap.thumbnail = "NOT_CALCULATED";
                 beatmap.md5sum = id;
                 database.insert_data(database.TABLES.BEATMAPS, beatmap.md5sum, beatmap, function () {
+                    //when calling for a map the server does not have, the server will first find the osu file over other files for the client
+                    //It will give us a task id which we can watch to see if we have got the assets
+                    //Once the task is done we can then update the map with the correct assets
+
+                    if(!data.data.assets.length && data.data.task_id){
+                        osu.webapi.tasks.checkForMapAssets(beatmap.md5sum,  data.data.task_id)
+                    }
+
+
                     callback(true);
                 }, function () {
                     callback(true);

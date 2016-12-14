@@ -210,6 +210,8 @@ osu.beatmaps.BeatmapLoader = {
                     });
                 }
                 else{
+                    //refresh assets
+                    osu.webapi.tasks.checkForMapAssets(this.__beatmap.md5sum);
                     this.__load_assets_from_db();
                 }
             } else {
@@ -238,9 +240,11 @@ osu.beatmaps.BeatmapLoader = {
         __beatmap_loaded: function () {
             if (this.beatmap_found) {
                 this.__process_beatmap();
+                //we only call onsuccess if we have the song, if we dont the findAudio api call will call the success function
                 if(this.song){
                     this.onsuccess(this);
                 }
+
 
             } else {
                 event_handler.emit(event_handler.EVENTS.BEATMAP_NOTFOUND, this.md5sum);

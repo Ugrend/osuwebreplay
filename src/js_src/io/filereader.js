@@ -39,9 +39,12 @@ else {
                 }
                 else{
                     //We want it to be mpeg not mp3 (firefox is mpeg chrome is mp3)
-                    event.target.result = event.target.result.replace('audio/mp3','audio/mpeg');
-                    var md5sum = md5(event.target.result);
-                    database.insert_data(database.TABLES.ASSETS, md5sum, event.target.result, function () {}, function () {});
+                    //this used to just replace itself eg: event.target.result = event.target.result.replace('audio/mp3','audio/mpeg');
+                    //However this just stoped working on chrome for no good reason, the string would never get replaced
+                    //I have to clone the string for this to work on chrome
+                    var insertResult = event.target.result.replace('audio/mp3','audio/mpeg');
+                    var md5sum = md5(insertResult);
+                    database.insert_data(database.TABLES.ASSETS, md5sum, insertResult, function () {}, function () {});
                 }
 
             }else{
