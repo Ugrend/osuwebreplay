@@ -40,7 +40,7 @@ osu.webapi.audio = {
                 $.ajax({
                     url: APIURL + "beatmaps",
                     type: 'GET',
-                    data: {id: beatmap.md5sum, validate_only: true},
+                    data: {bmhash: beatmap.md5sum, validate_only: true},
                     dataType: 'json',
                     success: function (data) {
                         if (data) {
@@ -48,6 +48,9 @@ osu.webapi.audio = {
                             beatmap.song = osu.settings.SETTINGS.song_url+ "/" +beatmap_id;
                             callback(beatmap);
                         }
+                    },
+                    error: function () {
+                        callback(beatmap);
                     }
                 });
         }

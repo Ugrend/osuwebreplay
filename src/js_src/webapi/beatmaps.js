@@ -47,7 +47,7 @@ osu.webapi.beatmaps = {
         $.ajax({
             url: APIURL + "beatmaps",
             type: 'GET',
-            data: {id: id},
+            data: {bmhash: id},
             dataType: 'json',
             success: function (data) {
 
