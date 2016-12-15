@@ -22,13 +22,34 @@ osu.webapi.tasks = {
 
         if(!map.song){
             var filename = map.parsed.general.AudioFilename;
+            var trustedFile = false;
             for(i = 0; i< map.files.length ; i++){
                 if(filename == map.files[i]['filename']){
+                    if(map.files[i]['trusted']){
+                        trustedFile = i;
+                    }
                     map.song = map.files[i]['md5sum']
                 }
             }
+            if(trustedFile === 0 || trustedFile){
+                map.song = map.files[trustedFile]['md5sum']
+            }
         }
-
+        if(!map.background){
+            filename = map.parsed.events[0][2].replace(/"/g, '');
+            trustedFile = false;
+            for(i = 0; i< map.files.length ; i++){
+                if(filename == map.files[i]['filename']){
+                    if(map.files[i]['trusted']){
+                        trustedFile = i;
+                    }
+                    map.background = map.files[i]['md5sum']
+                }
+            }
+            if(trustedFile === 0 || trustedFile){
+                map.background = map.files[trustedFile]['md5sum']
+            }
+        }
     },
 
     checkForMapAssets: function (map_hash, task_id, attempt) {
