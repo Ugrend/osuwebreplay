@@ -511,7 +511,7 @@ osu.ui.interface.scorescreen = {
 
         osu.audio.music.init(this.beatmap.song, this.beatmap.song_md5sum);
         osu.audio.music.preview_screen = true;
-        if(osu.audio.music.__audio.readyState != 4 && (osu.audio.music.__audio.src != "" || !osu.audio.music.__audio.error)){
+        if(osu.audio.music.__audio && osu.audio.music.__audio.readyState != 4 && (osu.audio.music.__audio.src != "" || !osu.audio.music.__audio.error)){
             //if it is external we want to reset the position to 0 so it doesnt break bufffering
             osu.audio.music.set_position(0);
             osu.audio.music.preview_screen = false;
