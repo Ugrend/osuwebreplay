@@ -270,24 +270,10 @@ osu.beatmaps.BeatmapLoader = {
 
         },
         __lookup_file_md5: function (filename) {
-            var returnTrusted;
-            var returnUnTrusted;
             for (var i = 0; i < this.required_files.length; i++) {
                 if (this.required_files[i].filename == filename) {
-                    if(this.required_files[i].trusted){
-                        returnTrusted = i;
-                    }
-                    if(!returnTrusted){
-                        returnUnTrusted = i;
-                    }
-
+                    return this.required_files[i].md5sum;
                 }
-            }
-            if(returnTrusted){
-                return this.required_files[returnTrusted].md5sum;
-            }
-            else if(returnUnTrusted){
-                return this.required_files[returnUnTrusted].md5sum;
             }
         },
         __get_asset_from_md5: function (md5) {

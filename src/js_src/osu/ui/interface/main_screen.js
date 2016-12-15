@@ -26,6 +26,7 @@ osu.ui.interface.mainscreen = {
     beatmapSearch: null,
     replaySearch: null,
     $currentSelectionHtml: "",
+    launched_replay_from_url: false,
 
 
     init: function () {
@@ -49,6 +50,28 @@ osu.ui.interface.mainscreen = {
         });
         event_handler.on(event_handler.EVENTS.BEATMAP_LOADED,this.on_load_file.bind(this));
         //event_handler.on(event_handler.EVENTS.REPLAY_LOADED, this.on_load_file.bind(this)); // we may not care about a new replay
+
+    },
+
+    launchReplayFromURL: function () {
+        if (window.location.href.match(/\?./)) {
+            var queryDict = getParams();
+            if(queryDict.r){
+                osu.webapi.replays.loadReplay(queryDict.r);
+            }
+        }
+        else{
+            //allow loading replay data from # so can load in replay frame from a iframe
+            if(location.hash.replace(/#/,"") != ""){
+
+                var replayB64 = decodeURI(location.hash.replace(/#/,""));
+                location.hash = "";
+                ReplayParser(base64ToUint8Array(replayB64), function (replay_data) {
+                    replay = replay_data; //TODO: not be essentially global
+                    loadBeatMap();
+                });
+            }
+        }
 
     },
     cacheDom: function () {
@@ -463,13 +486,21 @@ osu.ui.interface.mainscreen = {
         this.$footer.find('#skin_select_field').attr('style','');
         this.loaded = true;
         this.displaying_main_screen = true;
-        if(!this.current_selection){
+        if(!this.current_selection && this.beatmaps.length){
             //select random beatmap
             this.select_beatmap(this.beatmaps[Math.floor(Math.random()*this.beatmaps.length)].md5sum, true);
-        }else{
+        }else if(this.beatmaps.length){
             this.current_selection.load_background();
         }
         this.$beatmap_search_field.focus();
+
+        if(!this.launched_replay_from_url){
+            //We need to wait for mainscreen to load before we try launch replay as it can prevent the replay from every actually loading
+            //once we have loaded it atleast once we wont try again
+            this.launched_replay_from_url = true;
+            this.launchReplayFromURL();
+        }
+
     },
     hide_main_screen: function () {
         console.log(this.$footer.css('display'));
