@@ -1,0 +1,2 @@
+*.png -crlf -diff
+*.mp3 -crlf -diff
