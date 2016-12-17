@@ -37,6 +37,11 @@ osu.webapi.audio = {
 
 
         if(osu.settings.SETTINGS.song_url && (!(osu.settings.SETTINGS.asset_server && checkedLocal && songFound))){
+            if(beatmap.__beatmap.beatmapid){
+                beatmap.song = osu.settings.SETTINGS.song_url+ "/" +beatmap.beatmapid;
+                callback(beatmap);
+            }
+            else{
                 $.ajax({
                     url: APIURL + "beatmaps",
                     type: 'GET',
@@ -53,6 +58,9 @@ osu.webapi.audio = {
                         callback(beatmap);
                     }
                 });
+            }
+
+
         }
 
         if(!osu.settings.SETTINGS.song_url && !songFound){
