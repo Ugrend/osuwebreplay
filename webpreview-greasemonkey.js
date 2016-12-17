@@ -1,12 +1,12 @@
 // ==UserScript==
 // @name        osuWebReplay
 // @namespace   https://ugrend.com
-// @include     https://osu.ppy.sh/p/beatmap*
 // @include     https://osu.ppy.sh/s/*
 // @include     https://osu.ppy.sh/b/*
 // @include     https://osu.ppy.sh/u/*
 // @version     1
 // @grant       none
+// @downloadURL https://raw.githubusercontent.com/Ugrend/mmmyeh/master/webpreview-greasemonkey.js
 // ==/UserScript==
 
 
