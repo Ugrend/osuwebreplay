@@ -3473,7 +3473,9 @@ osu.objects.Curve = class Curve {
             Although that may just be a placebo ¯\_(ツ)_/¯
 
             This prob did help slightly as it does seem to do less non-incremental GC's which seemed to cause the lockups
-            However my hunch is that the performance drops are caused by texImage2D 
+            However my hunch is that the performance drops are caused by texImage2D
+
+            NOTE: yeh i was right this is a placebo, performance hit comes from pixijs text updates
          */
         beziers = null;
 
