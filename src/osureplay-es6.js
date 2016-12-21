@@ -3461,8 +3461,21 @@ osu.objects.Curve = class Curve {
                 p.push(beziers[i].compute(1));
             }
             this.points = this.points.concat(p);
-        }
 
+        }
+        /*
+            Firefox was getting intermittent stutter on maps with lots of objects
+            Performance recording indicated it was getting locked up by constant GC's
+            Memory allocation seemed to be all Beziers.
+            At this point the object has already been computed and the bezier object is no longer needed
+            This should be orphaned already and been GC'd however that doesnt look like its the case
+            Setting this array to null removed all the Beziers from allocated memory  and performance 'seemed' to increase
+            Although that may just be a placebo ¯\_(ツ)_/¯
+
+            This prob did help slightly as it does seem to do less non-incremental GC's which seemed to cause the lockups
+            However my hunch is that the performance drops are caused by texImage2D 
+         */
+        beziers = null;
 
     }
 
