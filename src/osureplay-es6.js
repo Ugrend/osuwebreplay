@@ -4212,12 +4212,21 @@ osu.objects.Slider = class Slider{
         sliderGraphics.drawCircle(finalPoint.x,finalPoint.y, (this.hitObject.size*.9)/2.15);
 
 
+        //seems to be a bug with generateTexture or its now meant to be used differently
+        //https://github.com/pixijs/pixi.js/issues/3446
+        //changing the location of the graphics fixes it tho so plz no remove this code even though it looks redundant
+        //bounds need to be calculated before moving graphics as it will calculate it as 0 afterwards
+        var bounds = sliderGraphics.getBounds();
+        sliderGraphics.x +=1;
+        sliderGraphics.x -=1;
 
-        var t = sliderGraphics.generateTexture();
+
+
+        var t = sliderGraphics.generateCanvasTexture();
 
         var sprite = new PIXI.Sprite(t);
-        sprite.position.x = sliderGraphics.getBounds().x;
-        sprite.position.y = sliderGraphics.getBounds().y;
+        sprite.position.x = bounds.x;
+        sprite.position.y = bounds.y;
         sprite.alpha = 0.6;
         sprite.cacheAsBitmap = true;
         sliderGraphics.clear();
@@ -5731,7 +5740,12 @@ osu.ui.interface.osugame = {
         baseCircle.drawCircle(0, 0,25);
         baseCircle.beginFill(0xFFFFFF,2);
         baseCircle.drawCircle(0,0,1);
-        var baseCircleTexture = baseCircle.generateTexture();
+        //seems to be a bug with generateTexture or its now meant to be used differently
+        //https://github.com/pixijs/pixi.js/issues/3446
+        //changing the location of the graphics fixes it tho so plz no remove this code even though it looks redundant
+        baseCircle.x +=1;
+        baseCircle.x -=1;
+        var baseCircleTexture = baseCircle.generateCanvasTexture();
         var baseCircleSprite = new PIXI.Sprite(baseCircleTexture);
         baseCircleSprite.position.x = this.timerX;
         baseCircleSprite.position.y = this.timerY;
