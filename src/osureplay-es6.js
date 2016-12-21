@@ -5862,11 +5862,12 @@ osu.ui.interface.osugame = {
         this.hit_object_container = new PIXI.Container();
 
         this.create_background();
+        this.createSmokeContainer();
         this.create_key_press();
         this.create_mod_container();
         this.create_replay_by_text();
         this.create_timer_container();
-        this.createSmokeContainer();
+
         this.createScoreContainer();
         this.master_container.addChild(this.hit_object_container);
         this.create_skip_container();
