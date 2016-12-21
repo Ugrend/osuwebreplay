@@ -144,7 +144,7 @@
         <div class="col-lg-1">
             <label></label>
             <button type="button" id="show_asset_config" class="btn" data-toggle="modal" data-target="#asset_server_config_model">
-               Configure Asset Servers
+               Configure Resources
             </button>
         </div>
 
@@ -205,12 +205,13 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="myModalLabel">Asset Server Configuration</h4>
+                <h4 class="modal-title" id="myModalLabel">Resource Configuration</h4>
             </div>
             <div class="modal-body">
-                <p>As I do not wish to have any issues with copyright, by default this website will not provide any song data for the Replays.</p>
-                <p>However you can add servers here where it can find song data for the replays.</p>
-                <p>Alternatively you can also just drag in the song or osz file into the browser which will make it available at all times</p>
+                <p>As I do not wish to have any possible issues with copyright, by default this website will not provide any song data for the Replays.</p>
+                <p>However if you know of a service/website that can provide songs you can add it here.</p>
+                <p>Alternativly if you have the osz file you can drag it into the browser window and it will store the song locally for you.</p>
+                <p>You can also just drag in the mp3 file itself if you have it</p>
                 <br>
                 <br>
                 <p>Beatmap loader URL will take the param of the osu! beatmap id and return the song for the map</p>
@@ -218,9 +219,10 @@
                 <p><b>129891</b> is the beatmap id for FREEDOM DiVE (4D)</p>
                 <b>eg: http://urlforbeatmaps.com/osu/a/</b>
                 <p>The url should be able to take a param of that ID and it should return the song for the map</p>
-                <p>In this case <b>http://urlforbeatmaps/a/129891</b> should return the song for freedom dive</p>
+                <p>In this case <b>http://urlforbeatmaps.com/osu/a/129891</b> should return the song for freedom dive</p>
                 <label for="song_server_url">Beatmap Loader URL:</label>
                 <input id="song_server_url" class="form-control" type="text">
+                <p class="small">(note if my api goes down this feature will break for older maps)</p>
 
             </div>
             <div class="modal-footer">
