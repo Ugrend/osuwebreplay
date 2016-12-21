@@ -1,6 +1,6 @@
 /*!
  * pixi.js - v4.3.0
- * Compiled Fri, 16 Dec 2016 17:40:07 UTC
+ * Compiled Fri, 16 Dec 2016 17:45:57 UTC
  *
  * pixi.js is licensed under the MIT License.
  * http://www.opensource.org/licenses/mit-license
@@ -4858,6 +4858,8 @@
     };
 
 },{}],30:[function(require,module,exports){
+    arguments[4][3][0].apply(exports,arguments)
+},{"dup":3}],31:[function(require,module,exports){
     'use strict'
 
     module.exports = function parseURI (str, opts) {
@@ -4889,7 +4891,7 @@
         return uri
     }
 
-},{}],31:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
     'use strict';
 
     var parseUri        = require('parse-uri');
@@ -5383,7 +5385,7 @@
     Loader.LOAD_TYPE = Resource.LOAD_TYPE;
     Loader.XHR_RESPONSE_TYPE = Resource.XHR_RESPONSE_TYPE;
 
-},{"./Resource":32,"./async":33,"eventemitter3":3,"parse-uri":30}],32:[function(require,module,exports){
+},{"./Resource":33,"./async":34,"eventemitter3":30,"parse-uri":31}],33:[function(require,module,exports){
     'use strict';
 
     var EventEmitter    = require('eventemitter3');
@@ -6297,7 +6299,7 @@
         map[extname] = val;
     }
 
-},{"eventemitter3":3,"parse-uri":30}],33:[function(require,module,exports){
+},{"eventemitter3":30,"parse-uri":31}],34:[function(require,module,exports){
     'use strict';
 
     /**
@@ -6498,7 +6500,7 @@
         return q;
     }
 
-},{}],34:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
     /* eslint no-magic-numbers: 0 */
     'use strict';
 
@@ -6568,7 +6570,7 @@
         }
     };
 
-},{}],35:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
     /* eslint global-require: 0 */
     'use strict';
 
@@ -6585,7 +6587,7 @@
 
     module.exports.async = require('./async');
 
-},{"./Loader":31,"./Resource":32,"./async":33,"./middlewares/caching/memory":36,"./middlewares/parsing/blob":37}],36:[function(require,module,exports){
+},{"./Loader":32,"./Resource":33,"./async":34,"./middlewares/caching/memory":37,"./middlewares/parsing/blob":38}],37:[function(require,module,exports){
     'use strict';
 
 // a simple in-memory cache for resources
@@ -6609,7 +6611,7 @@
         };
     };
 
-},{}],37:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
     'use strict';
 
     var Resource = require('../../Resource');
@@ -6678,7 +6680,7 @@
         };
     };
 
-},{"../../Resource":32,"../../b64":34}],38:[function(require,module,exports){
+},{"../../Resource":33,"../../b64":35}],39:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -7170,7 +7172,7 @@
     core.WebGLRenderer.registerPlugin('accessibility', AccessibilityManager);
     core.CanvasRenderer.registerPlugin('accessibility', AccessibilityManager);
 
-},{"../core":61,"./accessibleTarget":39,"ismobilejs":4}],39:[function(require,module,exports){
+},{"../core":62,"./accessibleTarget":40,"ismobilejs":4}],40:[function(require,module,exports){
     "use strict";
 
     exports.__esModule = true;
@@ -7229,7 +7231,7 @@
         _accessibleDiv: false
     };
 
-},{}],40:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -7254,7 +7256,7 @@
 
     function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-},{"./AccessibilityManager":38,"./accessibleTarget":39}],41:[function(require,module,exports){
+},{"./AccessibilityManager":39,"./accessibleTarget":40}],42:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -7321,7 +7323,7 @@
 
     exports.default = Shader;
 
-},{"./settings":97,"pixi-gl-core":12}],42:[function(require,module,exports){
+},{"./settings":98,"pixi-gl-core":12}],43:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -7637,7 +7639,7 @@
         LINEAR_HORIZONTAL: 1
     };
 
-},{}],43:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -7980,7 +7982,7 @@
 
     exports.default = Bounds;
 
-},{"../math":66}],44:[function(require,module,exports){
+},{"../math":67}],45:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -8592,7 +8594,7 @@
     exports.default = Container;
     Container.prototype.containerUpdateTransform = Container.prototype.updateTransform;
 
-},{"../utils":117,"./DisplayObject":45}],45:[function(require,module,exports){
+},{"../utils":118,"./DisplayObject":46}],46:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -9326,7 +9328,7 @@
     exports.default = DisplayObject;
     DisplayObject.prototype.displayObjectUpdateTransform = DisplayObject.prototype.updateTransform;
 
-},{"../const":42,"../math":66,"../settings":97,"./Bounds":43,"./Transform":46,"./TransformStatic":48,"eventemitter3":3}],46:[function(require,module,exports){
+},{"../const":43,"../math":67,"../settings":98,"./Bounds":44,"./Transform":47,"./TransformStatic":49,"eventemitter3":3}],47:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -9514,7 +9516,7 @@
 
     exports.default = Transform;
 
-},{"../math":66,"./TransformBase":47}],47:[function(require,module,exports){
+},{"../math":67,"./TransformBase":48}],48:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -9601,7 +9603,7 @@
 
     TransformBase.IDENTITY = new TransformBase();
 
-},{"../math":66}],48:[function(require,module,exports){
+},{"../math":67}],49:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -9818,7 +9820,7 @@
 
     exports.default = TransformStatic;
 
-},{"../math":66,"./TransformBase":47}],49:[function(require,module,exports){
+},{"../math":67,"./TransformBase":48}],50:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -10971,7 +10973,7 @@
 
     Graphics._SPRITE_TEXTURE = null;
 
-},{"../const":42,"../display/Bounds":43,"../display/Container":44,"../math":66,"../renderers/canvas/CanvasRenderer":73,"../sprites/Sprite":98,"../textures/RenderTexture":108,"../textures/Texture":109,"../utils":117,"./GraphicsData":50,"./utils/bezierCurveTo":52}],50:[function(require,module,exports){
+},{"../const":43,"../display/Bounds":44,"../display/Container":45,"../math":67,"../renderers/canvas/CanvasRenderer":74,"../sprites/Sprite":99,"../textures/RenderTexture":109,"../textures/Texture":110,"../utils":118,"./GraphicsData":51,"./utils/bezierCurveTo":53}],51:[function(require,module,exports){
     "use strict";
 
     exports.__esModule = true;
@@ -11088,7 +11090,7 @@
 
     exports.default = GraphicsData;
 
-},{}],51:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -11357,7 +11359,7 @@
 
     _CanvasRenderer2.default.registerPlugin('graphics', CanvasGraphicsRenderer);
 
-},{"../../const":42,"../../renderers/canvas/CanvasRenderer":73}],52:[function(require,module,exports){
+},{"../../const":43,"../../renderers/canvas/CanvasRenderer":74}],53:[function(require,module,exports){
     "use strict";
 
     exports.__esModule = true;
@@ -11407,7 +11409,7 @@
         return path;
     }
 
-},{}],53:[function(require,module,exports){
+},{}],54:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -11660,7 +11662,7 @@
 
     _WebGLRenderer2.default.registerPlugin('graphics', GraphicsRenderer);
 
-},{"../../const":42,"../../renderers/webgl/WebGLRenderer":80,"../../renderers/webgl/utils/ObjectRenderer":90,"../../utils":117,"./WebGLGraphicsData":54,"./shaders/PrimitiveShader":55,"./utils/buildCircle":56,"./utils/buildPoly":58,"./utils/buildRectangle":59,"./utils/buildRoundedRectangle":60}],54:[function(require,module,exports){
+},{"../../const":43,"../../renderers/webgl/WebGLRenderer":81,"../../renderers/webgl/utils/ObjectRenderer":91,"../../utils":118,"./WebGLGraphicsData":55,"./shaders/PrimitiveShader":56,"./utils/buildCircle":57,"./utils/buildPoly":59,"./utils/buildRectangle":60,"./utils/buildRoundedRectangle":61}],55:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -11797,7 +11799,7 @@
 
     exports.default = WebGLGraphicsData;
 
-},{"pixi-gl-core":12}],55:[function(require,module,exports){
+},{"pixi-gl-core":12}],56:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -11842,7 +11844,7 @@
 
     exports.default = PrimitiveShader;
 
-},{"../../../Shader":41}],56:[function(require,module,exports){
+},{"../../../Shader":42}],57:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -11930,7 +11932,7 @@
         }
     }
 
-},{"../../../const":42,"../../../utils":117,"./buildLine":57}],57:[function(require,module,exports){
+},{"../../../const":43,"../../../utils":118,"./buildLine":58}],58:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -12139,7 +12141,7 @@
         indices.push(indexStart - 1);
     }
 
-},{"../../../math":66,"../../../utils":117}],58:[function(require,module,exports){
+},{"../../../math":67,"../../../utils":118}],59:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -12224,7 +12226,7 @@
         }
     }
 
-},{"../../../utils":117,"./buildLine":57,"earcut":2}],59:[function(require,module,exports){
+},{"../../../utils":118,"./buildLine":58,"earcut":2}],60:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -12299,7 +12301,7 @@
         }
     }
 
-},{"../../../utils":117,"./buildLine":57}],60:[function(require,module,exports){
+},{"../../../utils":118,"./buildLine":58}],61:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -12441,7 +12443,7 @@
         return points;
     }
 
-},{"../../../utils":117,"./buildLine":57,"earcut":2}],61:[function(require,module,exports){
+},{"../../../utils":118,"./buildLine":58,"earcut":2}],62:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -12815,7 +12817,7 @@
         return new _CanvasRenderer2.default(width, height, options);
     }
 
-},{"./Shader":41,"./const":42,"./display/Bounds":43,"./display/Container":44,"./display/DisplayObject":45,"./display/Transform":46,"./display/TransformBase":47,"./display/TransformStatic":48,"./graphics/Graphics":49,"./graphics/GraphicsData":50,"./graphics/canvas/CanvasGraphicsRenderer":51,"./graphics/webgl/GraphicsRenderer":53,"./math":66,"./renderers/canvas/CanvasRenderer":73,"./renderers/canvas/utils/CanvasRenderTarget":75,"./renderers/webgl/WebGLRenderer":80,"./renderers/webgl/filters/Filter":82,"./renderers/webgl/filters/spriteMask/SpriteMaskFilter":85,"./renderers/webgl/managers/WebGLManager":89,"./renderers/webgl/utils/ObjectRenderer":90,"./renderers/webgl/utils/Quad":91,"./renderers/webgl/utils/RenderTarget":92,"./settings":97,"./sprites/Sprite":98,"./sprites/canvas/CanvasSpriteRenderer":99,"./sprites/canvas/CanvasTinter":100,"./sprites/webgl/SpriteRenderer":102,"./text/Text":104,"./text/TextStyle":105,"./textures/BaseRenderTexture":106,"./textures/BaseTexture":107,"./textures/RenderTexture":108,"./textures/Texture":109,"./textures/TextureUvs":110,"./textures/VideoBaseTexture":111,"./ticker":113,"./utils":117,"pixi-gl-core":12}],62:[function(require,module,exports){
+},{"./Shader":42,"./const":43,"./display/Bounds":44,"./display/Container":45,"./display/DisplayObject":46,"./display/Transform":47,"./display/TransformBase":48,"./display/TransformStatic":49,"./graphics/Graphics":50,"./graphics/GraphicsData":51,"./graphics/canvas/CanvasGraphicsRenderer":52,"./graphics/webgl/GraphicsRenderer":54,"./math":67,"./renderers/canvas/CanvasRenderer":74,"./renderers/canvas/utils/CanvasRenderTarget":76,"./renderers/webgl/WebGLRenderer":81,"./renderers/webgl/filters/Filter":83,"./renderers/webgl/filters/spriteMask/SpriteMaskFilter":86,"./renderers/webgl/managers/WebGLManager":90,"./renderers/webgl/utils/ObjectRenderer":91,"./renderers/webgl/utils/Quad":92,"./renderers/webgl/utils/RenderTarget":93,"./settings":98,"./sprites/Sprite":99,"./sprites/canvas/CanvasSpriteRenderer":100,"./sprites/canvas/CanvasTinter":101,"./sprites/webgl/SpriteRenderer":103,"./text/Text":105,"./text/TextStyle":106,"./textures/BaseRenderTexture":107,"./textures/BaseTexture":108,"./textures/RenderTexture":109,"./textures/Texture":110,"./textures/TextureUvs":111,"./textures/VideoBaseTexture":112,"./ticker":114,"./utils":118,"pixi-gl-core":12}],63:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -13004,7 +13006,7 @@
 
     exports.default = GroupD8;
 
-},{"./Matrix":63}],63:[function(require,module,exports){
+},{"./Matrix":64}],64:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -13523,7 +13525,7 @@
 
     exports.default = Matrix;
 
-},{"./Point":65}],64:[function(require,module,exports){
+},{"./Point":66}],65:[function(require,module,exports){
     "use strict";
 
     exports.__esModule = true;
@@ -13654,7 +13656,7 @@
 
     exports.default = ObservablePoint;
 
-},{}],65:[function(require,module,exports){
+},{}],66:[function(require,module,exports){
     "use strict";
 
     exports.__esModule = true;
@@ -13745,7 +13747,7 @@
 
     exports.default = Point;
 
-},{}],66:[function(require,module,exports){
+},{}],67:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -13833,7 +13835,7 @@
 
     function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-},{"./GroupD8":62,"./Matrix":63,"./ObservablePoint":64,"./Point":65,"./shapes/Circle":67,"./shapes/Ellipse":68,"./shapes/Polygon":69,"./shapes/Rectangle":70,"./shapes/RoundedRectangle":71}],67:[function(require,module,exports){
+},{"./GroupD8":63,"./Matrix":64,"./ObservablePoint":65,"./Point":66,"./shapes/Circle":68,"./shapes/Ellipse":69,"./shapes/Polygon":70,"./shapes/Rectangle":71,"./shapes/RoundedRectangle":72}],68:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -13947,7 +13949,7 @@
 
     exports.default = Circle;
 
-},{"../../const":42,"./Rectangle":70}],68:[function(require,module,exports){
+},{"../../const":43,"./Rectangle":71}],69:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -14069,7 +14071,7 @@
 
     exports.default = Ellipse;
 
-},{"../../const":42,"./Rectangle":70}],69:[function(require,module,exports){
+},{"../../const":43,"./Rectangle":71}],70:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -14200,7 +14202,7 @@
 
     exports.default = Polygon;
 
-},{"../../const":42,"../Point":65}],70:[function(require,module,exports){
+},{"../../const":43,"../Point":66}],71:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -14471,7 +14473,7 @@
 
     exports.default = Rectangle;
 
-},{"../../const":42}],71:[function(require,module,exports){
+},{"../../const":43}],72:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -14604,7 +14606,7 @@
 
     exports.default = RoundedRectangle;
 
-},{"../../const":42}],72:[function(require,module,exports){
+},{"../../const":43}],73:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -14943,7 +14945,7 @@
 
     exports.default = SystemRenderer;
 
-},{"../const":42,"../display/Container":44,"../math":66,"../settings":97,"../textures/RenderTexture":108,"../utils":117,"eventemitter3":3}],73:[function(require,module,exports){
+},{"../const":43,"../display/Container":45,"../math":67,"../settings":98,"../textures/RenderTexture":109,"../utils":118,"eventemitter3":3}],74:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -15229,7 +15231,7 @@
 
     _utils.pluginTarget.mixin(CanvasRenderer);
 
-},{"../../const":42,"../../settings":97,"../../utils":117,"../SystemRenderer":72,"./utils/CanvasMaskManager":74,"./utils/CanvasRenderTarget":75,"./utils/mapCanvasBlendModesToPixi":77}],74:[function(require,module,exports){
+},{"../../const":43,"../../settings":98,"../../utils":118,"../SystemRenderer":73,"./utils/CanvasMaskManager":75,"./utils/CanvasRenderTarget":76,"./utils/mapCanvasBlendModesToPixi":78}],75:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -15397,7 +15399,7 @@
 
     exports.default = CanvasMaskManager;
 
-},{"../../../const":42}],75:[function(require,module,exports){
+},{"../../../const":43}],76:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -15538,7 +15540,7 @@
 
     exports.default = CanvasRenderTarget;
 
-},{"../../../settings":97}],76:[function(require,module,exports){
+},{"../../../settings":98}],77:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -15599,7 +15601,7 @@
         return data[0] === 255 && data[1] === 0 && data[2] === 0;
     }
 
-},{}],77:[function(require,module,exports){
+},{}],78:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -15667,7 +15669,7 @@
         return array;
     }
 
-},{"../../../const":42,"./canUseNewCanvasBlendModes":76}],78:[function(require,module,exports){
+},{"../../../const":43,"./canUseNewCanvasBlendModes":77}],79:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -15786,7 +15788,7 @@
 
     exports.default = TextureGarbageCollector;
 
-},{"../../const":42,"../../settings":97}],79:[function(require,module,exports){
+},{"../../const":43,"../../settings":98}],80:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -16016,7 +16018,7 @@
 
     exports.default = TextureManager;
 
-},{"../../const":42,"../../utils":117,"./utils/RenderTarget":92,"pixi-gl-core":12}],80:[function(require,module,exports){
+},{"../../const":43,"../../utils":118,"./utils/RenderTarget":93,"pixi-gl-core":12}],81:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -16739,7 +16741,7 @@
 
     _utils.pluginTarget.mixin(WebGLRenderer);
 
-},{"../../const":42,"../../textures/BaseTexture":107,"../../utils":117,"../SystemRenderer":72,"./TextureGarbageCollector":78,"./TextureManager":79,"./WebGLState":81,"./managers/FilterManager":86,"./managers/MaskManager":87,"./managers/StencilManager":88,"./utils/ObjectRenderer":90,"./utils/RenderTarget":92,"./utils/mapWebGLDrawModesToPixi":95,"./utils/validateContext":96,"pixi-gl-core":12}],81:[function(require,module,exports){
+},{"../../const":43,"../../textures/BaseTexture":108,"../../utils":118,"../SystemRenderer":73,"./TextureGarbageCollector":79,"./TextureManager":80,"./WebGLState":82,"./managers/FilterManager":87,"./managers/MaskManager":88,"./managers/StencilManager":89,"./utils/ObjectRenderer":91,"./utils/RenderTarget":93,"./utils/mapWebGLDrawModesToPixi":96,"./utils/validateContext":97,"pixi-gl-core":12}],82:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -17011,7 +17013,7 @@
 
     exports.default = WebGLState;
 
-},{"./utils/mapWebGLBlendModesToPixi":94}],82:[function(require,module,exports){
+},{"./utils/mapWebGLBlendModesToPixi":95}],83:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -17173,7 +17175,7 @@
 
     exports.default = Filter;
 
-},{"../../../const":42,"../../../utils":117,"./extractUniformsFromSrc":83}],83:[function(require,module,exports){
+},{"../../../const":43,"../../../utils":118,"./extractUniformsFromSrc":84}],84:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -17235,7 +17237,7 @@
         return uniforms;
     }
 
-},{"pixi-gl-core":12}],84:[function(require,module,exports){
+},{"pixi-gl-core":12}],85:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -17317,7 +17319,7 @@
         return mappedMatrix;
     }
 
-},{"../../../math":66}],85:[function(require,module,exports){
+},{"../../../math":67}],86:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -17389,7 +17391,7 @@
 
     exports.default = SpriteMaskFilter;
 
-},{"../../../../math":66,"../Filter":82,"path":22}],86:[function(require,module,exports){
+},{"../../../../math":67,"../Filter":83,"path":22}],87:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -17949,7 +17951,7 @@
 
     exports.default = FilterManager;
 
-},{"../../../Shader":41,"../../../math":66,"../filters/filterTransforms":84,"../utils/Quad":91,"../utils/RenderTarget":92,"./WebGLManager":89,"bit-twiddle":1}],87:[function(require,module,exports){
+},{"../../../Shader":42,"../../../math":67,"../filters/filterTransforms":85,"../utils/Quad":92,"../utils/RenderTarget":93,"./WebGLManager":90,"bit-twiddle":1}],88:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -18155,7 +18157,7 @@
 
     exports.default = MaskManager;
 
-},{"../filters/spriteMask/SpriteMaskFilter":85,"./WebGLManager":89}],88:[function(require,module,exports){
+},{"../filters/spriteMask/SpriteMaskFilter":86,"./WebGLManager":90}],89:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -18289,7 +18291,7 @@
 
     exports.default = StencilManager;
 
-},{"./WebGLManager":89}],89:[function(require,module,exports){
+},{"./WebGLManager":90}],90:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -18344,7 +18346,7 @@
 
     exports.default = WebGLManager;
 
-},{}],90:[function(require,module,exports){
+},{}],91:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -18422,7 +18424,7 @@
 
     exports.default = ObjectRenderer;
 
-},{"../managers/WebGLManager":89}],91:[function(require,module,exports){
+},{"../managers/WebGLManager":90}],92:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -18595,7 +18597,7 @@
 
     exports.default = Quad;
 
-},{"../../../utils/createIndicesForQuads":115,"pixi-gl-core":12}],92:[function(require,module,exports){
+},{"../../../utils/createIndicesForQuads":116,"pixi-gl-core":12}],93:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -18922,7 +18924,7 @@
 
     exports.default = RenderTarget;
 
-},{"../../../const":42,"../../../math":66,"../../../settings":97,"pixi-gl-core":12}],93:[function(require,module,exports){
+},{"../../../const":43,"../../../math":67,"../../../settings":98,"pixi-gl-core":12}],94:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -18995,7 +18997,7 @@
         return src;
     }
 
-},{"pixi-gl-core":12}],94:[function(require,module,exports){
+},{"pixi-gl-core":12}],95:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -19039,7 +19041,7 @@
         return array;
     }
 
-},{"../../../const":42}],95:[function(require,module,exports){
+},{"../../../const":43}],96:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -19071,7 +19073,7 @@
         return object;
     }
 
-},{"../../../const":42}],96:[function(require,module,exports){
+},{"../../../const":43}],97:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -19087,7 +19089,7 @@
         }
     }
 
-},{}],97:[function(require,module,exports){
+},{}],98:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -19297,7 +19299,7 @@
 
     };
 
-},{"./utils/canUploadSameBuffer":114,"./utils/maxRecommendedTextures":118}],98:[function(require,module,exports){
+},{"./utils/canUploadSameBuffer":115,"./utils/maxRecommendedTextures":119}],99:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -19943,7 +19945,7 @@
 
     exports.default = Sprite;
 
-},{"../const":42,"../display/Container":44,"../math":66,"../textures/Texture":109,"../utils":117}],99:[function(require,module,exports){
+},{"../const":43,"../display/Container":45,"../math":67,"../textures/Texture":110,"../utils":118}],100:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -20096,7 +20098,7 @@
 
     _CanvasRenderer2.default.registerPlugin('sprite', CanvasSpriteRenderer);
 
-},{"../../const":42,"../../math":66,"../../renderers/canvas/CanvasRenderer":73,"./CanvasTinter":100}],100:[function(require,module,exports){
+},{"../../const":43,"../../math":67,"../../renderers/canvas/CanvasRenderer":74,"./CanvasTinter":101}],101:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -20332,7 +20334,7 @@
 
     exports.default = CanvasTinter;
 
-},{"../../renderers/canvas/utils/canUseNewCanvasBlendModes":76,"../../utils":117}],101:[function(require,module,exports){
+},{"../../renderers/canvas/utils/canUseNewCanvasBlendModes":77,"../../utils":118}],102:[function(require,module,exports){
     "use strict";
 
     exports.__esModule = true;
@@ -20384,7 +20386,7 @@
 
     exports.default = Buffer;
 
-},{}],102:[function(require,module,exports){
+},{}],103:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -20898,7 +20900,7 @@
 
     _WebGLRenderer2.default.registerPlugin('sprite', SpriteRenderer);
 
-},{"../../renderers/webgl/WebGLRenderer":80,"../../renderers/webgl/utils/ObjectRenderer":90,"../../renderers/webgl/utils/checkMaxIfStatmentsInShader":93,"../../settings":97,"../../utils/createIndicesForQuads":115,"./BatchBuffer":101,"./generateMultiTextureShader":103,"bit-twiddle":1,"pixi-gl-core":12}],103:[function(require,module,exports){
+},{"../../renderers/webgl/WebGLRenderer":81,"../../renderers/webgl/utils/ObjectRenderer":91,"../../renderers/webgl/utils/checkMaxIfStatmentsInShader":94,"../../settings":98,"../../utils/createIndicesForQuads":116,"./BatchBuffer":102,"./generateMultiTextureShader":104,"bit-twiddle":1,"pixi-gl-core":12}],104:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -20961,7 +20963,7 @@
         return src;
     }
 
-},{"../../Shader":41,"path":22}],104:[function(require,module,exports){
+},{"../../Shader":42,"path":22}],105:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -21592,7 +21594,7 @@
 
             context.font = fontStyle;
 
-            var width = Math.ceil(context.measureText('|MÉq').width);
+            var width = Math.ceil(context.measureText('|MÃ‰q').width);
             var baseline = Math.ceil(context.measureText('M').width);
             var height = 2 * baseline;
 
@@ -21608,7 +21610,7 @@
 
             context.textBaseline = 'alphabetic';
             context.fillStyle = '#000';
-            context.fillText('|MÉq', 0, baseline);
+            context.fillText('|MÃ‰q', 0, baseline);
 
             var imagedata = context.getImageData(0, 0, width, height).data;
             var pixels = imagedata.length;
@@ -21789,7 +21791,7 @@
     Text.fontPropertiesCanvas = document.createElement('canvas');
     Text.fontPropertiesContext = Text.fontPropertiesCanvas.getContext('2d');
 
-},{"../const":42,"../math":66,"../settings":97,"../sprites/Sprite":98,"../textures/Texture":109,"../utils":117,"./TextStyle":105}],105:[function(require,module,exports){
+},{"../const":43,"../math":67,"../settings":98,"../sprites/Sprite":99,"../textures/Texture":110,"../utils":118,"./TextStyle":106}],106:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -22226,7 +22228,7 @@
         }
     }
 
-},{"../const":42,"../utils":117}],106:[function(require,module,exports){
+},{"../const":43,"../utils":118}],107:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -22247,8 +22249,8 @@
 
     function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-    var RESOLUTION = _settings2.default.RESOLUTION,
-        SCALE_MODE = _settings2.default.SCALE_MODE;
+    var RESOLUTION = _settings2.default.RESOLUTION;
+    var SCALE_MODE = _settings2.default.SCALE_MODE;
 
     /**
      * A BaseRenderTexture is a special texture that allows any Pixi display object to be rendered to it.
@@ -22390,7 +22392,7 @@
 
     exports.default = BaseRenderTexture;
 
-},{"../settings":97,"./BaseTexture":107}],107:[function(require,module,exports){
+},{"../settings":98,"./BaseTexture":108}],108:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -23093,7 +23095,7 @@
 
     exports.default = BaseTexture;
 
-},{"../settings":97,"../utils":117,"../utils/determineCrossOrigin":116,"bit-twiddle":1,"eventemitter3":3}],108:[function(require,module,exports){
+},{"../settings":98,"../utils":118,"../utils/determineCrossOrigin":117,"bit-twiddle":1,"eventemitter3":3}],109:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -23244,7 +23246,7 @@
 
     exports.default = RenderTexture;
 
-},{"./BaseRenderTexture":106,"./Texture":109}],109:[function(require,module,exports){
+},{"./BaseRenderTexture":107,"./Texture":110}],110:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -23816,7 +23818,7 @@
     Texture.EMPTY.once = function _emptyOnce() {/* empty */};
     Texture.EMPTY.emit = function _emptyEmit() {/* empty */};
 
-},{"../math":66,"../utils":117,"./BaseTexture":107,"./TextureUvs":110,"./VideoBaseTexture":111,"eventemitter3":3}],110:[function(require,module,exports){
+},{"../math":67,"../utils":118,"./BaseTexture":108,"./TextureUvs":111,"./VideoBaseTexture":112,"eventemitter3":3}],111:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -23921,7 +23923,7 @@
 
     exports.default = TextureUvs;
 
-},{"../math/GroupD8":62}],111:[function(require,module,exports){
+},{"../math/GroupD8":63}],112:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -24255,7 +24257,7 @@
         return source;
     }
 
-},{"../ticker":113,"../utils":117,"./BaseTexture":107}],112:[function(require,module,exports){
+},{"../ticker":114,"../utils":118,"./BaseTexture":108}],113:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -24342,7 +24344,7 @@
              * Opposed to what the scalar {@link PIXI.ticker.Ticker#deltaTime}
              * is based, this value is neither capped nor scaled.
              * If the platform supports DOMHighResTimeStamp,
-             * this value will have a precision of 1 µs.
+             * this value will have a precision of 1 Âµs.
              *
              * @member {number}
              * @default 1 / TARGET_FPMS
@@ -24354,7 +24356,7 @@
              * This value is also reset internally outside of invoking
              * update, but only when a new animation frame is requested.
              * If the platform supports DOMHighResTimeStamp,
-             * this value will have a precision of 1 µs.
+             * this value will have a precision of 1 Âµs.
              *
              * @member {number}
              * @default 0
@@ -24657,7 +24659,7 @@
 
     exports.default = Ticker;
 
-},{"../settings":97,"eventemitter3":3}],113:[function(require,module,exports){
+},{"../settings":98,"eventemitter3":3}],114:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -24721,7 +24723,7 @@
     exports.shared = shared;
     exports.Ticker = _Ticker2.default;
 
-},{"./Ticker":112}],114:[function(require,module,exports){
+},{"./Ticker":113}],115:[function(require,module,exports){
     "use strict";
 
     exports.__esModule = true;
@@ -24735,7 +24737,7 @@
         return !ios;
     }
 
-},{}],115:[function(require,module,exports){
+},{}],116:[function(require,module,exports){
     "use strict";
 
     exports.__esModule = true;
@@ -24769,7 +24771,7 @@
         return indices;
     }
 
-},{}],116:[function(require,module,exports){
+},{}],117:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -24825,7 +24827,7 @@
         return '';
     }
 
-},{"url":28}],117:[function(require,module,exports){
+},{"url":28}],118:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -25163,7 +25165,7 @@
      */
     var BaseTextureCache = exports.BaseTextureCache = {};
 
-},{"../const":42,"../settings":97,"./pluginTarget":119,"eventemitter3":3,"ismobilejs":4}],118:[function(require,module,exports){
+},{"../const":43,"../settings":98,"./pluginTarget":120,"eventemitter3":3,"ismobilejs":4}],119:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -25185,7 +25187,7 @@
         return max;
     }
 
-},{"ismobilejs":4}],119:[function(require,module,exports){
+},{"ismobilejs":4}],120:[function(require,module,exports){
     "use strict";
 
     exports.__esModule = true;
@@ -25251,7 +25253,7 @@
         }
     };
 
-},{}],120:[function(require,module,exports){
+},{}],121:[function(require,module,exports){
     'use strict';
 
     var _core = require('./core');
@@ -26109,7 +26111,7 @@
         }
     });
 
-},{"./core":61,"./extras":131,"./filters":142,"./mesh":160,"./particles":163,"./prepare":173}],121:[function(require,module,exports){
+},{"./core":62,"./extras":132,"./filters":143,"./mesh":161,"./particles":164,"./prepare":174}],122:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -26287,7 +26289,7 @@
 
     core.CanvasRenderer.registerPlugin('extract', CanvasExtract);
 
-},{"../../core":61}],122:[function(require,module,exports){
+},{"../../core":62}],123:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -26312,7 +26314,7 @@
 
     function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-},{"./canvas/CanvasExtract":121,"./webgl/WebGLExtract":123}],123:[function(require,module,exports){
+},{"./canvas/CanvasExtract":122,"./webgl/WebGLExtract":124}],124:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -26533,7 +26535,7 @@
 
     core.WebGLRenderer.registerPlugin('extract', WebGLExtract);
 
-},{"../../core":61}],124:[function(require,module,exports){
+},{"../../core":62}],125:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -26916,7 +26918,7 @@
 
     exports.default = AnimatedSprite;
 
-},{"../core":61}],125:[function(require,module,exports){
+},{"../core":62}],126:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -27404,7 +27406,7 @@
 
     BitmapText.fonts = {};
 
-},{"../core":61,"../core/math/ObservablePoint":64}],126:[function(require,module,exports){
+},{"../core":62,"../core/math/ObservablePoint":65}],127:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -27537,7 +27539,7 @@
 
     exports.default = TextureTransform;
 
-},{"../core/math/Matrix":63}],127:[function(require,module,exports){
+},{"../core/math/Matrix":64}],128:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -28000,7 +28002,7 @@
 
     exports.default = TilingSprite;
 
-},{"../core":61,"../core/sprites/canvas/CanvasTinter":100,"./TextureTransform":126}],128:[function(require,module,exports){
+},{"../core":62,"../core/sprites/canvas/CanvasTinter":101,"./TextureTransform":127}],129:[function(require,module,exports){
     'use strict';
 
     var _core = require('../core');
@@ -28352,7 +28354,7 @@
         this.destroy();
     };
 
-},{"../core":61}],129:[function(require,module,exports){
+},{"../core":62}],130:[function(require,module,exports){
     'use strict';
 
     var _core = require('../core');
@@ -28386,7 +28388,7 @@
         return null;
     };
 
-},{"../core":61}],130:[function(require,module,exports){
+},{"../core":62}],131:[function(require,module,exports){
     'use strict';
 
     var _core = require('../core');
@@ -28419,7 +28421,7 @@
         return point;
     };
 
-},{"../core":61}],131:[function(require,module,exports){
+},{"../core":62}],132:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -28480,7 +28482,7 @@
 
 // imported for side effect of extending the prototype only, contains no exports
 
-},{"./AnimatedSprite":124,"./BitmapText":125,"./TextureTransform":126,"./TilingSprite":127,"./cacheAsBitmap":128,"./getChildByName":129,"./getGlobalPosition":130,"./webgl/TilingSpriteRenderer":132}],132:[function(require,module,exports){
+},{"./AnimatedSprite":125,"./BitmapText":126,"./TextureTransform":127,"./TilingSprite":128,"./cacheAsBitmap":129,"./getChildByName":130,"./getGlobalPosition":131,"./webgl/TilingSpriteRenderer":133}],133:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -28642,7 +28644,7 @@
 
     core.WebGLRenderer.registerPlugin('tilingSprite', TilingSpriteRenderer);
 
-},{"../../core":61,"../../core/const":42,"path":22}],133:[function(require,module,exports){
+},{"../../core":62,"../../core/const":43,"path":22}],134:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -28828,7 +28830,7 @@
 
     exports.default = BlurFilter;
 
-},{"../../core":61,"./BlurXFilter":134,"./BlurYFilter":135}],134:[function(require,module,exports){
+},{"../../core":62,"./BlurXFilter":135,"./BlurYFilter":136}],135:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -29008,7 +29010,7 @@
 
     exports.default = BlurXFilter;
 
-},{"../../core":61,"./generateBlurFragSource":136,"./generateBlurVertSource":137,"./getMaxBlurKernelSize":138}],135:[function(require,module,exports){
+},{"../../core":62,"./generateBlurFragSource":137,"./generateBlurVertSource":138,"./getMaxBlurKernelSize":139}],136:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -29187,7 +29189,7 @@
 
     exports.default = BlurYFilter;
 
-},{"../../core":61,"./generateBlurFragSource":136,"./generateBlurVertSource":137,"./getMaxBlurKernelSize":138}],136:[function(require,module,exports){
+},{"../../core":62,"./generateBlurFragSource":137,"./generateBlurVertSource":138,"./getMaxBlurKernelSize":139}],137:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -29234,7 +29236,7 @@
         return fragSource;
     }
 
-},{}],137:[function(require,module,exports){
+},{}],138:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -29278,7 +29280,7 @@
         return vertSource;
     }
 
-},{}],138:[function(require,module,exports){
+},{}],139:[function(require,module,exports){
     "use strict";
 
     exports.__esModule = true;
@@ -29294,7 +29296,7 @@
         return kernelSize;
     }
 
-},{}],139:[function(require,module,exports){
+},{}],140:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -29325,7 +29327,7 @@
      *  container.filters = [colorMatrix];
      *  colorMatrix.contrast(2);
      * ```
-     * @author Clément Chenebault <clement@goodboydigital.com>
+     * @author ClÃ©ment Chenebault <clement@goodboydigital.com>
      * @class
      * @extends PIXI.Filter
      * @memberof PIXI.filters
@@ -29829,7 +29831,7 @@
     exports.default = ColorMatrixFilter;
     ColorMatrixFilter.prototype.grayscale = ColorMatrixFilter.prototype.greyscale;
 
-},{"../../core":61,"path":22}],140:[function(require,module,exports){
+},{"../../core":62,"path":22}],141:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -29946,7 +29948,7 @@
 
     exports.default = DisplacementFilter;
 
-},{"../../core":61,"path":22}],141:[function(require,module,exports){
+},{"../../core":62,"path":22}],142:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -30000,7 +30002,7 @@
 
     exports.default = FXAAFilter;
 
-},{"../../core":61,"path":22}],142:[function(require,module,exports){
+},{"../../core":62,"path":22}],143:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -30079,7 +30081,7 @@
 
     function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-},{"./blur/BlurFilter":133,"./blur/BlurXFilter":134,"./blur/BlurYFilter":135,"./colormatrix/ColorMatrixFilter":139,"./displacement/DisplacementFilter":140,"./fxaa/FXAAFilter":141,"./noise/NoiseFilter":143,"./void/VoidFilter":144}],143:[function(require,module,exports){
+},{"./blur/BlurFilter":134,"./blur/BlurXFilter":135,"./blur/BlurYFilter":136,"./colormatrix/ColorMatrixFilter":140,"./displacement/DisplacementFilter":141,"./fxaa/FXAAFilter":142,"./noise/NoiseFilter":144,"./void/VoidFilter":145}],144:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -30162,7 +30164,7 @@
 
     exports.default = NoiseFilter;
 
-},{"../../core":61,"path":22}],144:[function(require,module,exports){
+},{"../../core":62,"path":22}],145:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -30212,7 +30214,7 @@
 
     exports.default = VoidFilter;
 
-},{"../../core":61,"path":22}],145:[function(require,module,exports){
+},{"../../core":62,"path":22}],146:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -30283,7 +30285,7 @@
 
     exports.default = InteractionData;
 
-},{"../core":61}],146:[function(require,module,exports){
+},{"../core":62}],147:[function(require,module,exports){
     "use strict";
 
     exports.__esModule = true;
@@ -30319,7 +30321,7 @@
             this.target = null;
 
             /**
-             * The object whose event listener’s callback is currently being invoked.
+             * The object whose event listenerâ€™s callback is currently being invoked.
              *
              * @member {PIXI.DisplayObject}
              */
@@ -30368,7 +30370,7 @@
 
     exports.default = InteractionEvent;
 
-},{}],147:[function(require,module,exports){
+},{}],148:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -31963,7 +31965,7 @@
     core.WebGLRenderer.registerPlugin('interaction', InteractionManager);
     core.CanvasRenderer.registerPlugin('interaction', InteractionManager);
 
-},{"../core":61,"./InteractionData":145,"./InteractionEvent":146,"./interactiveTarget":149,"eventemitter3":3,"ismobilejs":4}],148:[function(require,module,exports){
+},{"../core":62,"./InteractionData":146,"./InteractionEvent":147,"./interactiveTarget":150,"eventemitter3":3,"ismobilejs":4}],149:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -31997,7 +31999,7 @@
 
     function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-},{"./InteractionData":145,"./InteractionManager":147,"./interactiveTarget":149}],149:[function(require,module,exports){
+},{"./InteractionData":146,"./InteractionManager":148,"./interactiveTarget":150}],150:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -32107,7 +32109,7 @@
         _touchDown: false
     };
 
-},{}],150:[function(require,module,exports){
+},{}],151:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -32234,7 +32236,7 @@
         _extras.BitmapText.fonts[data.font] = data;
     }
 
-},{"../core":61,"../extras":131,"path":22,"resource-loader":35}],151:[function(require,module,exports){
+},{"../core":62,"../extras":132,"path":22,"resource-loader":36}],152:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -32292,7 +32294,7 @@
 
     function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-},{"./bitmapFontParser":150,"./loader":152,"./spritesheetParser":153,"./textureParser":154,"resource-loader":35}],152:[function(require,module,exports){
+},{"./bitmapFontParser":151,"./loader":153,"./spritesheetParser":154,"./textureParser":155,"resource-loader":36}],153:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -32396,7 +32398,7 @@
 
     Resource.setExtensionXhrType('fnt', Resource.XHR_RESPONSE_TYPE.DOCUMENT);
 
-},{"./bitmapFontParser":150,"./spritesheetParser":153,"./textureParser":154,"resource-loader":35}],153:[function(require,module,exports){
+},{"./bitmapFontParser":151,"./spritesheetParser":154,"./textureParser":155,"resource-loader":36}],154:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -32531,7 +32533,7 @@
 
     var BATCH_SIZE = 1000;
 
-},{"../core":61,"path":22,"resource-loader":35}],154:[function(require,module,exports){
+},{"../core":62,"path":22,"resource-loader":36}],155:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -32566,7 +32568,7 @@
 
     function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-},{"../core":61}],155:[function(require,module,exports){
+},{"../core":62}],156:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -32886,7 +32888,7 @@
         TRIANGLES: 1
     };
 
-},{"../core":61}],156:[function(require,module,exports){
+},{"../core":62}],157:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -33308,7 +33310,7 @@
 
     exports.default = NineSlicePlane;
 
-},{"./Plane":157}],157:[function(require,module,exports){
+},{"./Plane":158}],158:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -33451,7 +33453,7 @@
 
     exports.default = Plane;
 
-},{"./Mesh":155}],158:[function(require,module,exports){
+},{"./Mesh":156}],159:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -33692,7 +33694,7 @@
 
     exports.default = Rope;
 
-},{"../core":61,"./Mesh":155}],159:[function(require,module,exports){
+},{"../core":62,"./Mesh":156}],160:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -33956,7 +33958,7 @@
 
     core.CanvasRenderer.registerPlugin('mesh', MeshSpriteRenderer);
 
-},{"../../core":61,"../Mesh":155}],160:[function(require,module,exports){
+},{"../../core":62,"../Mesh":156}],161:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -34017,7 +34019,7 @@
 
     function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-},{"./Mesh":155,"./NineSlicePlane":156,"./Plane":157,"./Rope":158,"./canvas/CanvasMeshRenderer":159,"./webgl/MeshRenderer":161}],161:[function(require,module,exports){
+},{"./Mesh":156,"./NineSlicePlane":157,"./Plane":158,"./Rope":159,"./canvas/CanvasMeshRenderer":160,"./webgl/MeshRenderer":162}],162:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -34153,7 +34155,7 @@
 
     core.WebGLRenderer.registerPlugin('mesh', MeshRenderer);
 
-},{"../../core":61,"../Mesh":155,"path":22,"pixi-gl-core":12}],162:[function(require,module,exports){
+},{"../../core":62,"../Mesh":156,"path":22,"pixi-gl-core":12}],163:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -34485,7 +34487,7 @@
 
     exports.default = ParticleContainer;
 
-},{"../core":61}],163:[function(require,module,exports){
+},{"../core":62}],164:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -34510,7 +34512,7 @@
 
     function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-},{"./ParticleContainer":162,"./webgl/ParticleRenderer":165}],164:[function(require,module,exports){
+},{"./ParticleContainer":163,"./webgl/ParticleRenderer":166}],165:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -34750,7 +34752,7 @@
 
     exports.default = ParticleBuffer;
 
-},{"../../core/utils/createIndicesForQuads":115,"pixi-gl-core":12}],165:[function(require,module,exports){
+},{"../../core/utils/createIndicesForQuads":116,"pixi-gl-core":12}],166:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -35194,7 +35196,7 @@
 
     core.WebGLRenderer.registerPlugin('particle', ParticleRenderer);
 
-},{"../../core":61,"./ParticleBuffer":164,"./ParticleShader":166}],166:[function(require,module,exports){
+},{"../../core":62,"./ParticleBuffer":165,"./ParticleShader":167}],167:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -35237,7 +35239,7 @@
 
     exports.default = ParticleShader;
 
-},{"../../core/Shader":41}],167:[function(require,module,exports){
+},{"../../core/Shader":42}],168:[function(require,module,exports){
     "use strict";
 
 // References:
@@ -35255,7 +35257,7 @@
         };
     }
 
-},{}],168:[function(require,module,exports){
+},{}],169:[function(require,module,exports){
     'use strict';
 
     var _objectAssign = require('object-assign');
@@ -35270,7 +35272,7 @@
 // https://github.com/sindresorhus/object-assign
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign
 
-},{"object-assign":5}],169:[function(require,module,exports){
+},{"object-assign":5}],170:[function(require,module,exports){
     'use strict';
 
     require('./Object.assign');
@@ -35295,7 +35297,7 @@
         window.Uint16Array = Array;
     }
 
-},{"./Math.sign":167,"./Object.assign":168,"./requestAnimationFrame":170}],170:[function(require,module,exports){
+},{"./Math.sign":168,"./Object.assign":169,"./requestAnimationFrame":171}],171:[function(require,module,exports){
     (function (global){
         'use strict';
 
@@ -35375,7 +35377,7 @@
 
     }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{}],171:[function(require,module,exports){
+},{}],172:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -35760,7 +35762,7 @@
         return false;
     }
 
-},{"../core":61,"./limiters/CountLimiter":174}],172:[function(require,module,exports){
+},{"../core":62,"./limiters/CountLimiter":175}],173:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -35906,7 +35908,7 @@
 
     core.CanvasRenderer.registerPlugin('prepare', CanvasPrepare);
 
-},{"../../core":61,"../BasePrepare":171}],173:[function(require,module,exports){
+},{"../../core":62,"../BasePrepare":172}],174:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -35958,7 +35960,7 @@
 
     function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-},{"./BasePrepare":171,"./canvas/CanvasPrepare":172,"./limiters/CountLimiter":174,"./limiters/TimeLimiter":175,"./webgl/WebGLPrepare":176}],174:[function(require,module,exports){
+},{"./BasePrepare":172,"./canvas/CanvasPrepare":173,"./limiters/CountLimiter":175,"./limiters/TimeLimiter":176,"./webgl/WebGLPrepare":177}],175:[function(require,module,exports){
     "use strict";
 
     exports.__esModule = true;
@@ -36016,7 +36018,7 @@
 
     exports.default = CountLimiter;
 
-},{}],175:[function(require,module,exports){
+},{}],176:[function(require,module,exports){
     "use strict";
 
     exports.__esModule = true;
@@ -36074,7 +36076,7 @@
 
     exports.default = TimeLimiter;
 
-},{}],176:[function(require,module,exports){
+},{}],177:[function(require,module,exports){
     'use strict';
 
     exports.__esModule = true;
@@ -36221,7 +36223,7 @@
 
     core.WebGLRenderer.registerPlugin('prepare', WebGLPrepare);
 
-},{"../../core":61,"../BasePrepare":171}],177:[function(require,module,exports){
+},{"../../core":62,"../BasePrepare":172}],178:[function(require,module,exports){
     (function (global){
         'use strict';
 
@@ -36327,7 +36329,7 @@
 
     }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"./accessibility":40,"./core":61,"./deprecation":120,"./extract":122,"./extras":131,"./filters":142,"./interaction":148,"./loaders":151,"./mesh":160,"./particles":163,"./polyfill":169,"./prepare":173}]},{},[177])(177)
+},{"./accessibility":41,"./core":62,"./deprecation":121,"./extract":123,"./extras":132,"./filters":143,"./interaction":149,"./loaders":152,"./mesh":161,"./particles":164,"./polyfill":170,"./prepare":174}]},{},[178])(178)
 });
 
 
