@@ -4,7 +4,7 @@ osu Web Replays is a tool to allow to watch [osu!](http://osu.ppy.sh/) replays i
 
 ## Getting Started
 
-The website can be accessed [here](https://ugrend.github.io/mmmyeh).
+The website can be accessed [here](https://ugrend.github.io/osuwebreplay).
 
 By default it has no access to any assets/beatmaps/etc.
 Replays/Beatmaps/Skins can be loaded by dragging the .osr/.osz/.osk archives into the browser.  
@@ -28,10 +28,10 @@ Officially only supporting Chrome/Firefox
 
 
 #### Linking replays
-When you load a replay, the url will change allowing you to link that replay to someone else eg: https://ugrend.github.io/mmmyeh/?r=gVQ1V  
-You can link at a specific point by adding ```t=1m10s``` eg:  https://ugrend.github.io/mmmyeh/?r=gVQ1V&t=1m10s
+When you load a replay, the url will change allowing you to link that replay to someone else eg: https://ugrend.github.io/osuwebreplay/?r=gVQ1V  
+You can link at a specific point by adding ```t=1m10s``` eg:  https://ugrend.github.io/osuwebreplay/?r=gVQ1V&t=1m10s
 
-To auto play the replay you can add ```ap=1``` or ```ap=t``` eg: https://ugrend.github.io/mmmyeh/?r=gVQ1V&t=1m10s&ap=1
+To auto play the replay you can add ```ap=1``` or ```ap=t``` eg: https://ugrend.github.io/osuwebreplay/?r=gVQ1V&t=1m10s&ap=1
 ### Development
 
 You will need gruntjs and node.js
