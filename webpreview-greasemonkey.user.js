@@ -6,7 +6,7 @@
 // @include     https://osu.ppy.sh/u/*
 // @version     1
 // @grant       none
-// @downloadURL https://raw.githubusercontent.com/Ugrend/mmmyeh/master/webpreview-greasemonkey.js
+// @downloadURL https://raw.githubusercontent.com/Ugrend/osuwebreplay/master/webpreview-greasemonkey.user.js
 // ==/UserScript==
 
 
@@ -108,7 +108,7 @@ $(document).ready(function(){
             if (arrayBuffer) {
                 var replayData = btoa(Uint8ToString(new Uint8Array(arrayBuffer)));
                 showOverlay();
-                $('#webReplayFrame').html('  <iframe style="position: fixed; top: 100px; left: 50%; width: 75%; height:75%; margin-left: -37.5%; border: 0; z-index:99999; border-radius: 5px" src="https://ugrend.github.io/mmmyeh#'+ replayData  +'" width="1024" height="768"></iframe> ');
+                $('#webReplayFrame').html('  <iframe style="position: fixed; top: 100px; left: 50%; width: 75%; height:75%; margin-left: -37.5%; border: 0; z-index:99999; border-radius: 5px" src="https://ugrend.github.io/osuwebreplay#'+ replayData  +'" width="1024" height="768"></iframe> ');
 
             }
         };
