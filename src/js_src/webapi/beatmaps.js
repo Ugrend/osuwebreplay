@@ -19,7 +19,7 @@ osu.webapi.beatmaps = {
         $.ajax({
             url: APIURL + "beatmaps",
             type: 'GET',
-            data: {id: beatmapMD5, validate_only: true},
+            data: {bmhash: beatmapMD5, validate_only: true},
             dataType: 'json',
             success: function (data) {
                 //only upload beatmap if server doesnt have it else just update assets
